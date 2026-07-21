@@ -382,6 +382,11 @@ function GameRoot({ initial, onExit, onOpenManual, onOpenSaveLoad, onStateChange
     <div className="app">
       <div className="topbar">
         <div className="brand">Blitz <span className="brass">Mundial</span></div>
+        {online && (
+          <div className="mono" title="Sala online" style={{ padding: "2px 8px", borderRadius: 4, background: "rgba(201,162,39,0.15)", color: "#c9a227", fontWeight: 700, letterSpacing: 2 }}>
+            🌐 {online.code} · {canPlay ? "tu turno" : `turno de ${state.players[state.current].name}`}
+          </div>
+        )}
         <div className="chips">
           {state.players.map((p, i) => (
             <div key={p.id} className={`chip ${i === state.current ? "active" : ""} ${!p.alive ? "dead" : ""}`}>
