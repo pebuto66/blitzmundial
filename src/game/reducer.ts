@@ -479,6 +479,7 @@ function setupLabel(it: SetupItem): string {
 
 export type Action =
   | { type: "RESET" }
+  | { type: "HYDRATE"; state: GameState }
   | { type: "SETUP_SELECT_ITEM"; item: SetupItem }
   | { type: "SETUP_PLACE"; territory: string }
   | { type: "SETUP_SKIP" }
