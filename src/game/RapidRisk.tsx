@@ -89,14 +89,33 @@ export function RapidRisk() {
 }
 
 /* ═════════ SETUP INICIAL ═════════ */
-function Setup({ count, setCount, names, setNames, onStart, onOpenManual, onOpenSaveLoad }: {
+function Setup({ count, setCount, names, setNames, bots, setBots, onStart, onOpenManual, onOpenSaveLoad }: {
   count: number; setCount: (n: number) => void;
   names: string[]; setNames: (n: string[]) => void;
+  bots: boolean[]; setBots: (b: boolean[]) => void;
   onStart: () => void;
   onOpenManual: () => void;
   onOpenSaveLoad: () => void;
 }) {
   const kit = STARTING[count];
+
+  function toggleBot(i: number) {
+    const next = bots.slice();
+    next[i] = !next[i];
+    setBots(next);
+    // Sugerir nombre de conquistador si el usuario aún no puso uno personalizado
+    const cur = names[i]?.trim() ?? "";
+    if (next[i] && (cur === "" || cur === DEFAULT_NAMES[i])) {
+      const nn = names.slice();
+      nn[i] = CONQUEROR_NAMES[i % CONQUEROR_NAMES.length];
+      setNames(nn);
+    } else if (!next[i] && CONQUEROR_NAMES.includes(cur)) {
+      const nn = names.slice();
+      nn[i] = DEFAULT_NAMES[i];
+      setNames(nn);
+    }
+  }
+
   return (
     <div className="app">
       <div className="setup">
@@ -121,12 +140,21 @@ function Setup({ count, setCount, names, setNames, onStart, onOpenManual, onOpen
                 <input
                   value={names[i] ?? ""}
                   onChange={(e) => { const next = names.slice(); next[i] = e.target.value; setNames(next); }}
-                  placeholder={DEFAULT_NAMES[i]}
+                  placeholder={bots[i] ? CONQUEROR_NAMES[i % CONQUEROR_NAMES.length] : DEFAULT_NAMES[i]}
                 />
+                <button
+                  className={`btn sm ${bots[i] ? "" : "ghost"}`}
+                  onClick={() => toggleBot(i)}
+                  title={bots[i] ? "Este jugador lo controla la IA" : "Este jugador es humano"}
+                  style={{ minWidth: 74 }}
+                >
+                  {bots[i] ? "🤖 Bot" : "👤 Humano"}
+                </button>
               </div>
             ))}
           </div>
         </div>
+
 
         <div className="panel" style={{ marginTop: 16 }}>
           <div className="title-font" style={{ fontSize: 13, color: "#c9a227", marginBottom: 8 }}>Materiales para cada jugador</div>
