@@ -134,7 +134,7 @@ function botReinforce(state: GameState): Action | null {
   return { type: "END_REINFORCE" };
 }
 
-function findBestTrade(symbols: ReturnType<typeof classifyTrade> extends null ? never : any) {
+function findBestTrade(symbols: TerrSymbol[]) {
   // Encuentra el primer triple con combo válido; prioriza triples de mismo símbolo (mejor bonus).
   const n = symbols.length;
   let best: { indices: number[]; combo: NonNullable<ReturnType<typeof classifyTrade>> } | null = null;
