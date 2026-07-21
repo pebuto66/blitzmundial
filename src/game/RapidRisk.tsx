@@ -12,7 +12,7 @@ import {
   IconSoldier, IconTank, IconPlane, IconTower, IconAirport, IconSilo, IconNuke, IconOil,
   IconCardSoldier, IconCardPlane, IconCardTank, IconWild,
 } from "./icons";
-import { playDice, playAttack, playConquest, setMuted, isMuted } from "./sounds";
+import { playDice, playAttack, playConquest, playMissile, setMuted, isMuted } from "./sounds";
 import { Manual } from "./Manual";
 
 function CardIcon({ sym, size }: { sym: TerrSymbol; size?: number }) {
@@ -183,7 +183,10 @@ function GameRoot({ initial, onExit, onOpenManual }: { initial: GameState; onExi
   function onTerritoryClick(id: string) {
     const t = state.territories[id];
     if (nukeMode) {
-      if (t.owner !== current.id) dispatch({ type: "LAUNCH_NUKE", target: id });
+      if (t.owner !== current.id) {
+        playMissile();
+        dispatch({ type: "LAUNCH_NUKE", target: id });
+      }
       setNukeMode(false);
       return;
     }
