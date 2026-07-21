@@ -909,48 +909,61 @@ export function reducer(state: GameState, action: Action): GameState {
           }
         } else {
           const scorched = effKind !== "TANK" && srcT.infantry === 1;
-          const maxAtk = effKind === "TANK"
-            ? Math.min(action.dice, srcT.tanks, 3)
-            : Math.min(action.dice, scorched ? 1 : srcT.infantry - 1, 3);
+          // Tanque atacando: puede llevar apoyo de infantería. Necesita ≥1 tanque.
+          const atkTotalGround = effKind === "TANK"
+            ? srcT.tanks + Math.max(0, srcT.infantry - 1)
+            : (scorched ? 1 : srcT.infantry - 1);
+          const maxAtk = Math.min(action.dice, atkTotalGround, 3);
           if (maxAtk < 1) return state;
+          if (effKind === "TANK" && srcT.tanks < 1) return state;
           const defTankFirst = effDefTanks > 0;
           const totalDefGround = effDefTanks + effDefInf;
-          const maxDef = Math.min(2, totalDefGround);
+          // El defensor puede tirar 3 dados si tiene ≥1 tanque; si no, 2.
+          // Excepción: 3+ tanques atacantes vs 3+ tanques defensores → como infantería (3 vs 2).
+          const bothHeavyTanks = effKind === "TANK" && srcT.tanks >= 3 && effDefTanks >= 3;
+          const maxDef = Math.min(defTankFirst && !bothHeavyTanks ? 3 : 2, totalDefGround);
           if (maxDef < 1) return state;
 
           atkRaw = rollDice(maxAtk);
           defRaw = rollDice(maxDef);
           const compare = Math.min(atkRaw.length, defRaw.length);
 
-          if (effKind === "TANK" && !defTankFirst) {
-            note = "Tanque vs infantería (+2, empate atacante)";
-            for (let i = 0; i < compare; i++) {
-              const a = atkRaw[i] + 2, d = defRaw[i];
-              if (a >= d) defLost++; else atkLost++;
+          // Asignación de dados por unidad: los dados más altos son para los tanques.
+          const atkTankDice = effKind === "TANK" ? Math.min(srcT.tanks, maxAtk) : 0;
+          const defTankDice = Math.min(effDefTanks, maxDef);
+          const isAtkTank = (i: number) => i < atkTankDice;
+          const isDefTank = (i: number) => i < defTankDice;
+
+          let atkTankLost = 0, atkInfLost = 0, defTankLost = 0, defInfLost = 0;
+          for (let i = 0; i < compare; i++) {
+            // Bonus +2 solo cuando un tanque enfrenta a una unidad no-tanque.
+            const aBonus = isAtkTank(i) && !isDefTank(i) ? 2 : 0;
+            const dBonus = !isAtkTank(i) && isDefTank(i) ? 2 : 0;
+            const a = atkRaw[i] + aBonus;
+            const d = defRaw[i] + dBonus;
+            if (a > d) {
+              if (isDefTank(i)) defTankLost++; else defInfLost++;
+            } else {
+              if (isAtkTank(i)) atkTankLost++; else atkInfLost++;
             }
-          } else if (effKind === "TANK" && defTankFirst) {
-            note = "Tanque vs tanque";
-            for (let i = 0; i < compare; i++) {
-              if (atkRaw[i] > defRaw[i]) defLost++; else atkLost++;
-            }
+          }
+          atkLost = atkTankLost + atkInfLost;
+          defLost = defTankLost + defInfLost;
+
+          if (effKind === "TANK" && defTankFirst) {
+            note = bothHeavyTanks ? "Tanque vs tanque (3 vs 2)" : "Tanque vs tanque (con apoyo)";
+          } else if (effKind === "TANK") {
+            note = "Tanque + apoyo vs infantería (+2 al tanque)";
           } else {
-            note = defTankFirst ? "Infantería vs tanque defensor" : "Infantería vs infantería";
-            for (let i = 0; i < compare; i++) {
-              if (atkRaw[i] > defRaw[i]) defLost++; else atkLost++;
-            }
+            note = defTankFirst ? "Infantería vs tanque defensor (+2 al tanque)" : "Infantería vs infantería";
           }
 
-          // Aplicar pérdidas atacante
-          if (effKind === "TANK") srcT.tanks -= atkLost; else srcT.infantry -= atkLost;
-          // Defensor: prioridad tanques → infantería (degradación aplica en takeDef).
-          let dl = defLost;
-          // Primero, tanques efectivos
-          while (dl > 0 && (defDegraded ? tgtT.planes > 0 : tgtT.tanks > 0)) {
-            takeDef('tank'); dl -= 1;
-          }
-          while (dl > 0 && (tgtT.infantry > 0 || (defDegraded && tgtT.tanks > 0) || (defDegraded && tgtT.planes > 0))) {
-            takeDef('inf'); dl -= 1;
-          }
+          // Aplicar pérdidas del atacante por tipo
+          srcT.tanks -= atkTankLost;
+          srcT.infantry -= atkInfLost;
+          // Aplicar pérdidas del defensor: primero tanques asignados, luego infantería
+          for (let i = 0; i < defTankLost; i++) takeDef('tank');
+          for (let i = 0; i < defInfLost; i++) takeDef('inf');
           if (tgtT.infantry < 0) tgtT.infantry = 0;
           if (tgtT.tanks < 0) tgtT.tanks = 0;
           if (tgtT.planes < 0) tgtT.planes = 0;
