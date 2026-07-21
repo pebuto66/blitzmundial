@@ -35,6 +35,14 @@ export function RapidRisk() {
   const [initial, setInitial] = useState<GameState | null>(null);
   const [gameKey, setGameKey] = useState(0);
   const [manualOpen, setManualOpen] = useState(false);
+  const [saveDlgOpen, setSaveDlgOpen] = useState(false);
+  const [liveState, setLiveState] = useState<GameState | null>(null);
+
+  function loadIntoGame(s: GameState) {
+    setInitial(s);
+    setGameKey((k) => k + 1);
+    setSaveDlgOpen(false);
+  }
 
   if (!initial) {
     return (
@@ -48,16 +56,25 @@ export function RapidRisk() {
             setGameKey((k) => k + 1);
           }}
           onOpenManual={() => setManualOpen(true)}
+          onOpenSaveLoad={() => setSaveDlgOpen(true)}
         />
         {manualOpen && <Manual onClose={() => setManualOpen(false)} />}
+        {saveDlgOpen && (
+          <SaveLoadDialog state={null} onClose={() => setSaveDlgOpen(false)} onLoad={loadIntoGame} />
+        )}
       </>
     );
   }
   return (
     <>
       <GameRoot key={gameKey} initial={initial} onExit={() => setInitial(null)}
-        onOpenManual={() => setManualOpen(true)} />
+        onOpenManual={() => setManualOpen(true)}
+        onOpenSaveLoad={() => setSaveDlgOpen(true)}
+        onStateChange={setLiveState} />
       {manualOpen && <Manual onClose={() => setManualOpen(false)} />}
+      {saveDlgOpen && (
+        <SaveLoadDialog state={liveState} onClose={() => setSaveDlgOpen(false)} onLoad={loadIntoGame} />
+      )}
     </>
   );
 }
