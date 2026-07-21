@@ -72,3 +72,28 @@ export function playConquest() {
   envTone(784, 0.24, "triangle", 0.24, 0.18);
   envTone(1046, 0.32, "sine", 0.18, 0.28);
 }
+
+/** Missile launch — rising whistle followed by a distant boom. */
+export function playMissile() {
+  const c = ac(); if (!c) return;
+  const t0 = c.currentTime;
+  // Rising whistle: swept sine from 220 Hz up to ~1800 Hz over ~1.1s
+  const osc = c.createOscillator();
+  const g = c.createGain();
+  osc.type = "sine";
+  osc.frequency.setValueAtTime(220, t0);
+  osc.frequency.exponentialRampToValueAtTime(1800, t0 + 1.1);
+  g.gain.setValueAtTime(0.0001, t0);
+  g.gain.exponentialRampToValueAtTime(0.28, t0 + 0.15);
+  g.gain.exponentialRampToValueAtTime(0.05, t0 + 1.05);
+  g.gain.exponentialRampToValueAtTime(0.0001, t0 + 1.2);
+  osc.connect(g).connect(c.destination);
+  osc.start(t0);
+  osc.stop(t0 + 1.3);
+  // Rocket thrust noise underneath
+  noiseBurst(1.1, 0.18, 0, 400);
+  // Distant impact boom
+  noiseBurst(0.5, 0.45, 1.15, 90);
+  envTone(60, 0.5, "sawtooth", 0.22, 1.15);
+  envTone(45, 0.6, "square", 0.18, 1.2);
+}
