@@ -313,7 +313,7 @@ function rollDice(n: number): number[] {
 
 /* ═══════════════════════ Init ═══════════════════════ */
 
-export function initGame(playerInputs: { name: string }[]): GameState {
+export function initGame(playerInputs: { name: string; isBot?: boolean }[]): GameState {
   const n = playerInputs.length;
   const kit = STARTING[n] ?? STARTING[3];
 
@@ -322,6 +322,7 @@ export function initGame(playerInputs: { name: string }[]): GameState {
     name: p.name.trim() || DEFAULT_NAMES[i],
     color: PLAYER_COLORS[i],
     alive: true,
+    isBot: !!p.isBot,
     cards: [],
     stockArmies: kit.armies,
     stockTanks: kit.tanks,
@@ -334,7 +335,6 @@ export function initGame(playerInputs: { name: string }[]): GameState {
     pendingBonusArmies: 0,
   }));
 
-  // Reparto aleatorio de territorios, 1 infantería base cada uno (descuenta del stockArmies)
   const ids = TERRITORIES.map((t) => t.id);
   for (let i = ids.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
