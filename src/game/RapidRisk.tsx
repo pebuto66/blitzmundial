@@ -151,8 +151,12 @@ function Setup({ count, setCount, names, setNames, onStart, onOpenManual, onOpen
 }
 
 /* ═════════ GAME ROOT ═════════ */
-function GameRoot({ initial, onExit, onOpenManual }: { initial: GameState; onExit: () => void; onOpenManual: () => void }) {
+function GameRoot({ initial, onExit, onOpenManual, onOpenSaveLoad, onStateChange }: {
+  initial: GameState; onExit: () => void; onOpenManual: () => void;
+  onOpenSaveLoad: () => void; onStateChange: (s: GameState) => void;
+}) {
   const [state, dispatch] = useReducer(reducer, initial);
+  useEffect(() => { onStateChange(state); }, [state, onStateChange]);
   const [hover, setHover] = useState<{ id: string; x: number; y: number } | null>(null);
   const [fortifyInf, setFortifyInf] = useState(1);
   const [fortifyTk, setFortifyTk] = useState(0);
