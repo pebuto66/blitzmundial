@@ -34,6 +34,7 @@ function cardTitle(c: Card): string {
 export function RapidRisk() {
   const [setupCount, setSetupCount] = useState(3);
   const [names, setNames] = useState<string[]>(DEFAULT_NAMES.slice());
+  const [bots, setBots] = useState<boolean[]>(() => [false, false, true, true, true, true]);
   const [initial, setInitial] = useState<GameState | null>(null);
   const [gameKey, setGameKey] = useState(0);
   const [manualOpen, setManualOpen] = useState(false);
@@ -52,8 +53,14 @@ export function RapidRisk() {
         <Setup
           count={setupCount} setCount={setSetupCount}
           names={names} setNames={setNames}
+          bots={bots} setBots={setBots}
           onStart={() => {
-            const inputs = names.slice(0, setupCount).map((n) => ({ name: n }));
+            const inputs = Array.from({ length: setupCount }).map((_, i) => ({
+              name: bots[i]
+                ? (names[i]?.trim() || CONQUEROR_NAMES[i % CONQUEROR_NAMES.length])
+                : (names[i]?.trim() || DEFAULT_NAMES[i]),
+              isBot: bots[i],
+            }));
             setInitial(initGame(inputs));
             setGameKey((k) => k + 1);
           }}
