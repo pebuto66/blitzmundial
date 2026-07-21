@@ -142,9 +142,9 @@ export function OnlineDialog({
   }
 
   return (
-    <div className="modal-backdrop" onClick={onClose}>
-      <div className="modal" onClick={(e) => e.stopPropagation()} style={{ maxWidth: 520 }}>
-        <div className="modal-header">
+    <div className="victory-overlay" onClick={onClose}>
+      <div className="victory-modal" onClick={(e) => e.stopPropagation()} style={{ maxWidth: 520, textAlign: "left" }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
           <div className="title-font" style={{ fontSize: 18, color: "#c9a227" }}>🌐 Multijugador online</div>
           <button className="btn ghost sm" onClick={onClose}>✕</button>
         </div>
