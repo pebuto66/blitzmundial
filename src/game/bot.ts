@@ -1,8 +1,8 @@
-import { TERRITORIES, TERR_BY_ID } from "./territories";
+import { TERRITORIES, TERR_BY_ID, type TerrSymbol } from "./territories";
 import {
-  classifyTrade, playerOil, playerHasAirport, reinforcePending, ownedCount,
+  classifyTrade, playerOil, playerHasAirport, reinforcePending,
   bfsDist, PLANE_OIL_PER_STEP, TANK_ATTACK_OIL,
-  type GameState, type Action, type SetupItem, type UnitKind, type TradeReward,
+  type GameState, type Action, type UnitKind, type TradeReward,
 } from "./reducer";
 
 /** Devuelve la siguiente acción que el bot quiere ejecutar, o null si debe esperar. */
