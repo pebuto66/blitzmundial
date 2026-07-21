@@ -17,6 +17,8 @@ import { playDice, playAttack, playConquest, playMissile, setMuted, isMuted } fr
 import { Manual } from "./Manual";
 import { SaveLoadDialog } from "./SaveLoadDialog";
 import { BattleOverlay } from "./BattleOverlay";
+import { OnlineDialog } from "./OnlineDialog";
+import type { RoomHandle } from "./online";
 
 function CardIcon({ sym, size }: { sym: TerrSymbol; size?: number }) {
   if (sym === "S") return <IconCardSoldier size={size} />;
