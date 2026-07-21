@@ -235,7 +235,7 @@ function GameRoot({ initial, onExit, onOpenManual }: { initial: GameState; onExi
   return (
     <div className="app">
       <div className="topbar">
-        <div className="brand">Rapid <span className="brass">Risk</span></div>
+        <div className="brand">Blitz <span className="brass">Mundial</span></div>
         <div className="chips">
           {state.players.map((p, i) => (
             <div key={p.id} className={`chip ${i === state.current ? "active" : ""} ${!p.alive ? "dead" : ""}`}>
