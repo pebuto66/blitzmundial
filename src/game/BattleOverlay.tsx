@@ -46,7 +46,7 @@ export function BattleOverlay({ state }: { state: GameState }) {
         <div className="bo-side bo-atk" style={{ color: meta.atkColor }}>
           <div className="bo-label">⚔ Ataque</div>
           <div className="bo-name">{meta.atkName}</div>
-          <div className="bo-unit"><AtkIcon size={72} color={meta.atkColor} /></div>
+          <div className="bo-unit"><AtkIcon size={32} color={meta.atkColor} /></div>
           <div className="bo-dice">
             {shown.atk.map((d, i) => (
               <div key={i} className={`bo-die bo-die-atk ${i < shown.atkLost ? "lost" : ""}`} style={{ animationDelay: `${400 + i * 90}ms`, background: meta.atkColor }}>{d}</div>
@@ -63,7 +63,7 @@ export function BattleOverlay({ state }: { state: GameState }) {
         <div className="bo-side bo-def" style={{ color: meta.defColor }}>
           <div className="bo-label">🛡 Defensa</div>
           <div className="bo-name">{meta.defName}</div>
-          <div className="bo-unit"><IconSoldier size={72} color={meta.defColor} /></div>
+          <div className="bo-unit"><IconSoldier size={32} color={meta.defColor} /></div>
           <div className="bo-dice">
             {shown.def.map((d, i) => (
               <div key={i} className={`bo-die bo-die-def ${i < shown.defLost ? "lost" : ""}`} style={{ animationDelay: `${400 + i * 90}ms`, background: meta.defColor }}>{d}</div>
