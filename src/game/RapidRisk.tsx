@@ -319,7 +319,7 @@ function GameRoot({ initial, onExit, onOpenManual, onOpenSaveLoad, onStateChange
           {state.players.map((p, i) => (
             <div key={p.id} className={`chip ${i === state.current ? "active" : ""} ${!p.alive ? "dead" : ""}`}>
               <div className="swatch" style={{ width: 16, height: 16, background: p.color }} />
-              <span>{p.name}</span>
+              <span>{p.isBot ? "🤖 " : ""}{p.name}</span>
               <span className="mono" title="Territorios">{ownedCount(state, p.id)}t</span>
               <span className="mono" style={{ color: "#7fb069", display: "inline-flex", alignItems: "center", gap: 2 }} title="Petróleo (litros)">
                 <IconOil size={11} />{playerOil(state, p.id)}
@@ -333,6 +333,13 @@ function GameRoot({ initial, onExit, onOpenManual, onOpenSaveLoad, onStateChange
             </div>
           ))}
         </div>
+        {state.players.some((p) => p.isBot) && (
+          <button
+            className="btn ghost sm"
+            title={botPaused ? "Reanudar bots" : "Pausar bots"}
+            onClick={() => setBotPaused((v) => !v)}
+          >{botPaused ? "▶️" : "⏸"}</button>
+        )}
         <button
           className="btn ghost sm"
           title={muted ? "Activar sonido" : "Silenciar"}
@@ -342,6 +349,7 @@ function GameRoot({ initial, onExit, onOpenManual, onOpenSaveLoad, onStateChange
         <button className="btn ghost sm" title="Guardar / Cargar partida" onClick={onOpenSaveLoad}>💾</button>
         <button className="btn ghost sm" onClick={onExit}>Reiniciar</button>
       </div>
+
 
       {nukeMode && (
         <div className="hint" style={{ padding: "6px 16px", color: "#e05d44", fontWeight: 700 }}>
