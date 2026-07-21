@@ -39,12 +39,24 @@ export function RapidRisk() {
   const [gameKey, setGameKey] = useState(0);
   const [manualOpen, setManualOpen] = useState(false);
   const [saveDlgOpen, setSaveDlgOpen] = useState(false);
+  const [onlineOpen, setOnlineOpen] = useState(false);
   const [liveState, setLiveState] = useState<GameState | null>(null);
+  const [online, setOnline] = useState<{ room: RoomHandle; mySeat: number } | null>(null);
+  const [remoteState, setRemoteState] = useState<GameState | null>(null);
 
   function loadIntoGame(s: GameState) {
     setInitial(s);
     setGameKey((k) => k + 1);
     setSaveDlgOpen(false);
+  }
+
+  function exitGame() {
+    if (online) {
+      void online.room.leave();
+      setOnline(null);
+      setRemoteState(null);
+    }
+    setInitial(null);
   }
 
   if (!initial) {
@@ -66,20 +78,45 @@ export function RapidRisk() {
           }}
           onOpenManual={() => setManualOpen(true)}
           onOpenSaveLoad={() => setSaveDlgOpen(true)}
+          onOpenOnline={() => setOnlineOpen(true)}
         />
         {manualOpen && <Manual onClose={() => setManualOpen(false)} />}
         {saveDlgOpen && (
           <SaveLoadDialog state={null} onClose={() => setSaveDlgOpen(false)} onLoad={loadIntoGame} />
+        )}
+        {onlineOpen && (
+          <OnlineDialog
+            onClose={() => setOnlineOpen(false)}
+            onStart={({ room, mySeat, initialState }) => {
+              // reemplaza el canal para recibir estados remotos en curso
+              room.channel.on("broadcast", { event: "msg" }, ({ payload }: { payload: { type: string; state?: GameState; from?: string } }) => {
+                if (payload.type === "state" && payload.from !== room.clientId && payload.state) {
+                  setRemoteState(payload.state);
+                }
+              });
+              setOnline({ room, mySeat });
+              setOnlineOpen(false);
+              setInitial(initialState);
+              setGameKey((k) => k + 1);
+            }}
+          />
         )}
       </>
     );
   }
   return (
     <>
-      <GameRoot key={gameKey} initial={initial} onExit={() => setInitial(null)}
+      <GameRoot key={gameKey} initial={initial} onExit={exitGame}
         onOpenManual={() => setManualOpen(true)}
         onOpenSaveLoad={() => setSaveDlgOpen(true)}
-        onStateChange={setLiveState} />
+        onStateChange={setLiveState}
+        online={online ? {
+          mySeat: online.mySeat,
+          code: online.room.code,
+          remoteState,
+          sendState: (s) => online.room.sendState(s),
+        } : null}
+      />
       {manualOpen && <Manual onClose={() => setManualOpen(false)} />}
       {saveDlgOpen && (
         <SaveLoadDialog state={liveState} onClose={() => setSaveDlgOpen(false)} onLoad={loadIntoGame} />
@@ -87,6 +124,7 @@ export function RapidRisk() {
     </>
   );
 }
+
 
 /* ═════════ SETUP INICIAL ═════════ */
 function Setup({ count, setCount, names, setNames, bots, setBots, onStart, onOpenManual, onOpenSaveLoad }: {
