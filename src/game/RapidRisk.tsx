@@ -284,6 +284,7 @@ function GameRoot({ initial, onExit, onOpenManual, onOpenSaveLoad, onStateChange
           onClick={() => { const n = !muted; setMuted(n); setMutedState(n); }}
         >{muted ? "🔇" : "🔊"}</button>
         <button className="btn ghost sm" title="Manual del jugador" onClick={onOpenManual}>📖</button>
+        <button className="btn ghost sm" title="Guardar / Cargar partida" onClick={onOpenSaveLoad}>💾</button>
         <button className="btn ghost sm" onClick={onExit}>Reiniciar</button>
       </div>
 
