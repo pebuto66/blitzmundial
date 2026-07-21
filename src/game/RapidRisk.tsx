@@ -17,6 +17,8 @@ import { playDice, playAttack, playConquest, playMissile, setMuted, isMuted } fr
 import { Manual } from "./Manual";
 import { SaveLoadDialog } from "./SaveLoadDialog";
 import { BattleOverlay } from "./BattleOverlay";
+import { OnlineDialog } from "./OnlineDialog";
+import type { RoomHandle } from "./online";
 
 function CardIcon({ sym, size }: { sym: TerrSymbol; size?: number }) {
   if (sym === "S") return <IconCardSoldier size={size} />;
@@ -39,12 +41,24 @@ export function RapidRisk() {
   const [gameKey, setGameKey] = useState(0);
   const [manualOpen, setManualOpen] = useState(false);
   const [saveDlgOpen, setSaveDlgOpen] = useState(false);
+  const [onlineOpen, setOnlineOpen] = useState(false);
   const [liveState, setLiveState] = useState<GameState | null>(null);
+  const [online, setOnline] = useState<{ room: RoomHandle; mySeat: number } | null>(null);
+  const [remoteState, setRemoteState] = useState<GameState | null>(null);
 
   function loadIntoGame(s: GameState) {
     setInitial(s);
     setGameKey((k) => k + 1);
     setSaveDlgOpen(false);
+  }
+
+  function exitGame() {
+    if (online) {
+      void online.room.leave();
+      setOnline(null);
+      setRemoteState(null);
+    }
+    setInitial(null);
   }
 
   if (!initial) {
@@ -66,20 +80,45 @@ export function RapidRisk() {
           }}
           onOpenManual={() => setManualOpen(true)}
           onOpenSaveLoad={() => setSaveDlgOpen(true)}
+          onOpenOnline={() => setOnlineOpen(true)}
         />
         {manualOpen && <Manual onClose={() => setManualOpen(false)} />}
         {saveDlgOpen && (
           <SaveLoadDialog state={null} onClose={() => setSaveDlgOpen(false)} onLoad={loadIntoGame} />
+        )}
+        {onlineOpen && (
+          <OnlineDialog
+            onClose={() => setOnlineOpen(false)}
+            onStart={({ room, mySeat, initialState }) => {
+              // reemplaza el canal para recibir estados remotos en curso
+              room.channel.on("broadcast", { event: "msg" }, ({ payload }: { payload: { type: string; state?: GameState; from?: string } }) => {
+                if (payload.type === "state" && payload.from !== room.clientId && payload.state) {
+                  setRemoteState(payload.state);
+                }
+              });
+              setOnline({ room, mySeat });
+              setOnlineOpen(false);
+              setInitial(initialState);
+              setGameKey((k) => k + 1);
+            }}
+          />
         )}
       </>
     );
   }
   return (
     <>
-      <GameRoot key={gameKey} initial={initial} onExit={() => setInitial(null)}
+      <GameRoot key={gameKey} initial={initial} onExit={exitGame}
         onOpenManual={() => setManualOpen(true)}
         onOpenSaveLoad={() => setSaveDlgOpen(true)}
-        onStateChange={setLiveState} />
+        onStateChange={setLiveState}
+        online={online ? {
+          mySeat: online.mySeat,
+          code: online.room.code,
+          remoteState,
+          sendState: (s) => online.room.sendState(s),
+        } : null}
+      />
       {manualOpen && <Manual onClose={() => setManualOpen(false)} />}
       {saveDlgOpen && (
         <SaveLoadDialog state={liveState} onClose={() => setSaveDlgOpen(false)} onLoad={loadIntoGame} />
@@ -88,14 +127,16 @@ export function RapidRisk() {
   );
 }
 
+
 /* ═════════ SETUP INICIAL ═════════ */
-function Setup({ count, setCount, names, setNames, bots, setBots, onStart, onOpenManual, onOpenSaveLoad }: {
+function Setup({ count, setCount, names, setNames, bots, setBots, onStart, onOpenManual, onOpenSaveLoad, onOpenOnline }: {
   count: number; setCount: (n: number) => void;
   names: string[]; setNames: (n: string[]) => void;
   bots: boolean[]; setBots: (b: boolean[]) => void;
   onStart: () => void;
   onOpenManual: () => void;
   onOpenSaveLoad: () => void;
+  onOpenOnline: () => void;
 }) {
   const kit = STARTING[count];
 
@@ -180,6 +221,7 @@ function Setup({ count, setCount, names, setNames, bots, setBots, onStart, onOpe
         <div style={{ marginTop: 24, textAlign: "right" }}>
           <button className="btn ghost" style={{ marginRight: 8 }} onClick={onOpenManual}>📖 Manual del jugador</button>
           <button className="btn ghost" style={{ marginRight: 8 }} onClick={onOpenSaveLoad}>📂 Cargar partida</button>
+          <button className="btn ghost" style={{ marginRight: 8 }} onClick={onOpenOnline}>🌐 Multijugador online</button>
           <button className="btn" onClick={onStart}>Iniciar Partida</button>
         </div>
       </div>
@@ -188,12 +230,35 @@ function Setup({ count, setCount, names, setNames, bots, setBots, onStart, onOpe
 }
 
 /* ═════════ GAME ROOT ═════════ */
-function GameRoot({ initial, onExit, onOpenManual, onOpenSaveLoad, onStateChange }: {
+function GameRoot({ initial, onExit, onOpenManual, onOpenSaveLoad, onStateChange, online }: {
   initial: GameState; onExit: () => void; onOpenManual: () => void;
   onOpenSaveLoad: () => void; onStateChange: (s: GameState) => void;
+  online: { mySeat: number; code: string; remoteState: GameState | null; sendState: (s: GameState) => void } | null;
 }) {
-  const [state, dispatch] = useReducer(reducer, initial);
-  useEffect(() => { onStateChange(state); }, [state, onStateChange]);
+  const [state, rawDispatch] = useReducer(reducer, initial);
+  const skipBroadcastRef = useRef(true); // no reenviar el estado inicial
+  const canPlay = !online || state.current === online.mySeat || state.winner !== null;
+  const dispatch = ((action: Action) => {
+    if (!canPlay) return;
+    rawDispatch(action);
+  }) as React.Dispatch<Action>;
+
+  // Aplica estado remoto: hidratar sin re-broadcast
+  useEffect(() => {
+    if (!online || !online.remoteState) return;
+    skipBroadcastRef.current = true;
+    rawDispatch({ type: "HYDRATE", state: online.remoteState });
+  }, [online?.remoteState, online]);
+
+  // Notifica al padre + retransmite al canal cuando corresponde
+  useEffect(() => {
+    onStateChange(state);
+    if (online) {
+      if (skipBroadcastRef.current) skipBroadcastRef.current = false;
+      else online.sendState(state);
+    }
+  }, [state, onStateChange, online]);
+
   const [hover, setHover] = useState<{ id: string; x: number; y: number } | null>(null);
   const [fortifyInf, setFortifyInf] = useState(1);
   const [fortifyTk, setFortifyTk] = useState(0);
@@ -209,21 +274,23 @@ function GameRoot({ initial, onExit, onOpenManual, onOpenSaveLoad, onStateChange
   );
 
   // Motor de bots: cuando el jugador actual es una IA, ejecuta acciones con un pequeño delay.
+  // Deshabilitado en modo online (no hay bots en partidas online).
   useEffect(() => {
+    if (online) return;
     if (state.winner !== null) return;
     if (botPaused) return;
     const cur = state.players[state.current];
     if (!cur.isBot || !cur.alive) return;
-    // Espera visual entre acciones. Ataques resueltos más lentos para que se vea la animación.
     const delay = state.lastBattle ? 900 : state.pendingOccupy ? 500 : 350;
     const handle = window.setTimeout(() => {
       const action = nextBotAction(state);
-      if (action) dispatch(action);
-      else if (state.phase === "ATTACK") dispatch({ type: "END_ATTACK" });
-      else if (state.phase === "FORTIFY") dispatch({ type: "END_TURN" });
+      if (action) rawDispatch(action);
+      else if (state.phase === "ATTACK") rawDispatch({ type: "END_ATTACK" });
+      else if (state.phase === "FORTIFY") rawDispatch({ type: "END_TURN" });
     }, delay);
     return () => window.clearTimeout(handle);
-  }, [state, botPaused]);
+  }, [state, botPaused, online]);
+
 
   // Battle SFX + shake on each resolved battle
   useEffect(() => {
@@ -315,6 +382,11 @@ function GameRoot({ initial, onExit, onOpenManual, onOpenSaveLoad, onStateChange
     <div className="app">
       <div className="topbar">
         <div className="brand">Blitz <span className="brass">Mundial</span></div>
+        {online && (
+          <div className="mono" title="Sala online" style={{ padding: "2px 8px", borderRadius: 4, background: "rgba(201,162,39,0.15)", color: "#c9a227", fontWeight: 700, letterSpacing: 2 }}>
+            🌐 {online.code} · {canPlay ? "tu turno" : `turno de ${state.players[state.current].name}`}
+          </div>
+        )}
         <div className="chips">
           {state.players.map((p, i) => (
             <div key={p.id} className={`chip ${i === state.current ? "active" : ""} ${!p.alive ? "dead" : ""}`}>

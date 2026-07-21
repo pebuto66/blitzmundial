@@ -479,6 +479,7 @@ function setupLabel(it: SetupItem): string {
 
 export type Action =
   | { type: "RESET" }
+  | { type: "HYDRATE"; state: GameState }
   | { type: "SETUP_SELECT_ITEM"; item: SetupItem }
   | { type: "SETUP_PLACE"; territory: string }
   | { type: "SETUP_SKIP" }
@@ -534,10 +535,12 @@ function checkEliminations(state: GameState, attackerId?: number, transferCards:
 }
 
 export function reducer(state: GameState, action: Action): GameState {
+  if (action.type === "HYDRATE") return action.state;
   if (state.winner !== null && action.type !== "RESET") return state;
   switch (action.type) {
     case "RESET":
       return initGame(state.players.map((p) => ({ name: p.name, isBot: p.isBot })));
+
 
     /* ─────── SETUP ─────── */
     case "SETUP_SELECT_ITEM": {
