@@ -223,6 +223,7 @@ function Setup({ count, setCount, names, setNames, bots, setBots, onStart, onOpe
           <button className="btn ghost" style={{ marginRight: 8 }} onClick={onOpenSaveLoad}>📂 Cargar partida</button>
           <button className="btn ghost" style={{ marginRight: 8 }} onClick={onOpenOnline}>🌐 Multijugador online</button>
           <button className="btn" onClick={onStart}>Iniciar Partida</button>
+        </div>
       </div>
     </div>
   );
