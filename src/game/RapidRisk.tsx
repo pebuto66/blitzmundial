@@ -14,6 +14,7 @@ import {
 } from "./icons";
 import { playDice, playAttack, playConquest, playMissile, setMuted, isMuted } from "./sounds";
 import { Manual } from "./Manual";
+import { SaveLoadDialog } from "./SaveLoadDialog";
 
 function CardIcon({ sym, size }: { sym: TerrSymbol; size?: number }) {
   if (sym === "S") return <IconCardSoldier size={size} />;
