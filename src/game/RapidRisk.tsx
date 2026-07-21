@@ -183,7 +183,10 @@ function GameRoot({ initial, onExit, onOpenManual }: { initial: GameState; onExi
   function onTerritoryClick(id: string) {
     const t = state.territories[id];
     if (nukeMode) {
-      if (t.owner !== current.id) dispatch({ type: "LAUNCH_NUKE", target: id });
+      if (t.owner !== current.id) {
+        playMissile();
+        dispatch({ type: "LAUNCH_NUKE", target: id });
+      }
       setNukeMode(false);
       return;
     }
