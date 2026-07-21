@@ -304,9 +304,10 @@
 
 
 @media (max-width: 640px) {
-  .bo-stage { gap: 8px; padding: 8px 10px; }
-  .bo-name { font-size: 11px; }
-  .bo-vs-text { font-size: 18px; }
-  .bo-die { width: 20px; height: 20px; font-size: 11px; }
-  .bo-unit svg { width: 26px; height: 26px; }
+  .battle-overlay { max-width: 320px; width: min(94vw, 320px); }
+  .bo-stage { gap: 6px; padding: 5px 8px; }
+  .bo-label { font-size: 9px; max-width: 80px; }
+  .bo-vs-text { font-size: 12px; }
+  .bo-die { width: 16px; height: 16px; font-size: 10px; }
 }
+
