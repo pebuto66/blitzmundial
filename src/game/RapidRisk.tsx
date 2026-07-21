@@ -129,13 +129,14 @@ export function RapidRisk() {
 
 
 /* ═════════ SETUP INICIAL ═════════ */
-function Setup({ count, setCount, names, setNames, bots, setBots, onStart, onOpenManual, onOpenSaveLoad }: {
+function Setup({ count, setCount, names, setNames, bots, setBots, onStart, onOpenManual, onOpenSaveLoad, onOpenOnline }: {
   count: number; setCount: (n: number) => void;
   names: string[]; setNames: (n: string[]) => void;
   bots: boolean[]; setBots: (b: boolean[]) => void;
   onStart: () => void;
   onOpenManual: () => void;
   onOpenSaveLoad: () => void;
+  onOpenOnline: () => void;
 }) {
   const kit = STARTING[count];
 
