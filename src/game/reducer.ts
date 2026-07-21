@@ -89,7 +89,7 @@ export interface GameState {
   turnAttackTarget: string | null;
   /** Territorios ya "cargados" con petróleo de tanque este turno: key = `${src}->${tgt}` */
   tankAttacksPaid: string[];
-  lastBattle: { atk: number[]; def: number[]; atkLost: number; defLost: number; note?: string } | null;
+  lastBattle: { atk: number[]; def: number[]; atkLost: number; defLost: number; note?: string; atkOwner: number; defOwner: number; atkKind: UnitKind; terrId: string } | null;
   pendingOccupy: { from: string; to: string; maxInfantry: number; maxTanks: number; kind: UnitKind; candidates?: string[] } | null;
   fortifySource: string | null;
   fortifyDone: boolean;
