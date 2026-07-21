@@ -1062,7 +1062,7 @@ export function reducer(state: GameState, action: Action): GameState {
         pushLog(s, "conquest", `${attacker.name} conquistó ${TERR_BY_ID[tgt].name} (antes de ${s.players[prevOwner].name}).`);
         if (noDefenders) pushLog(s, "info", `Sin combate: ${attacker.name} no cobra carta por esta conquista.`);
         if (s.pendingOccupy.maxInfantry <= 0) s.pendingOccupy = null;
-        checkEliminations(s, attacker.id);
+        checkEliminations(s, attacker.id, !noDefenders);
         if (s.winner !== null) return s;
         s.attackTarget = null;
         s.attackSource = null;
