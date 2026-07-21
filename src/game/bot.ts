@@ -322,5 +322,3 @@ function borderThreat(state: GameState, id: string): number {
   return enemyPower - ownPower + enemyCount;
 }
 
-// Suprimir warning para unused ownedCount
-void ownedCount;
