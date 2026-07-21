@@ -979,7 +979,7 @@ export function reducer(state: GameState, action: Action): GameState {
         if (paid && !s.tankAttacksPaid.includes(payKey)) s.tankAttacksPaid.push(payKey);
       }
 
-      s.lastBattle = { atk: atkRaw, def: defRaw, atkLost, defLost, note };
+      s.lastBattle = { atk: atkRaw, def: defRaw, atkLost, defLost, note, atkOwner: srcT.owner, defOwner: tgtT.owner, atkKind: effKind, terrId: tgt };
 
       // Bloquear objetivo del turno tras el primer ataque
       if (!s.turnAttackTarget) s.turnAttackTarget = tgt;
