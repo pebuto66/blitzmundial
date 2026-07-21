@@ -384,6 +384,7 @@ function GameRoot({ initial, onExit, onOpenManual, onOpenSaveLoad, onStateChange
           </div>
         </div>
       )}
+      <BattleOverlay state={state} />
     </div>
   );
 }
