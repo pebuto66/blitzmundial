@@ -43,7 +43,7 @@ export function Manual({ onClose }: { onClose: () => void }) {
         onClick={(e) => e.stopPropagation()}
       >
         <div className="label" style={{ marginBottom: 4, color: T.soft }}>Manual del jugador</div>
-        <div className="title" style={{ marginBottom: 4, color: T.gold, fontSize: 44 }}>Rapid Risk</div>
+        <div className="title" style={{ marginBottom: 4, color: T.gold, fontSize: 44 }}>Blitz Mundial</div>
         <p style={{ color: T.soft, marginTop: 0, fontStyle: "italic" }}>
           Dominio mundial por turnos para 2 a 6 jugadores en una sola pantalla.
         </p>

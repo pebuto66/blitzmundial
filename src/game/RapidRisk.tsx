@@ -14,6 +14,7 @@ import {
 } from "./icons";
 import { playDice, playAttack, playConquest, playMissile, setMuted, isMuted } from "./sounds";
 import { Manual } from "./Manual";
+import { SaveLoadDialog } from "./SaveLoadDialog";
 
 function CardIcon({ sym, size }: { sym: TerrSymbol; size?: number }) {
   if (sym === "S") return <IconCardSoldier size={size} />;
@@ -34,6 +35,14 @@ export function RapidRisk() {
   const [initial, setInitial] = useState<GameState | null>(null);
   const [gameKey, setGameKey] = useState(0);
   const [manualOpen, setManualOpen] = useState(false);
+  const [saveDlgOpen, setSaveDlgOpen] = useState(false);
+  const [liveState, setLiveState] = useState<GameState | null>(null);
+
+  function loadIntoGame(s: GameState) {
+    setInitial(s);
+    setGameKey((k) => k + 1);
+    setSaveDlgOpen(false);
+  }
 
   if (!initial) {
     return (
@@ -47,33 +56,43 @@ export function RapidRisk() {
             setGameKey((k) => k + 1);
           }}
           onOpenManual={() => setManualOpen(true)}
+          onOpenSaveLoad={() => setSaveDlgOpen(true)}
         />
         {manualOpen && <Manual onClose={() => setManualOpen(false)} />}
+        {saveDlgOpen && (
+          <SaveLoadDialog state={null} onClose={() => setSaveDlgOpen(false)} onLoad={loadIntoGame} />
+        )}
       </>
     );
   }
   return (
     <>
       <GameRoot key={gameKey} initial={initial} onExit={() => setInitial(null)}
-        onOpenManual={() => setManualOpen(true)} />
+        onOpenManual={() => setManualOpen(true)}
+        onOpenSaveLoad={() => setSaveDlgOpen(true)}
+        onStateChange={setLiveState} />
       {manualOpen && <Manual onClose={() => setManualOpen(false)} />}
+      {saveDlgOpen && (
+        <SaveLoadDialog state={liveState} onClose={() => setSaveDlgOpen(false)} onLoad={loadIntoGame} />
+      )}
     </>
   );
 }
 
 /* ═════════ SETUP INICIAL ═════════ */
-function Setup({ count, setCount, names, setNames, onStart, onOpenManual }: {
+function Setup({ count, setCount, names, setNames, onStart, onOpenManual, onOpenSaveLoad }: {
   count: number; setCount: (n: number) => void;
   names: string[]; setNames: (n: string[]) => void;
   onStart: () => void;
   onOpenManual: () => void;
+  onOpenSaveLoad: () => void;
 }) {
   const kit = STARTING[count];
   return (
     <div className="app">
       <div className="setup">
         <div className="subtitle">// Comando Estratégico Global</div>
-        <h1>Rapid <span className="brass">Risk</span></h1>
+        <h1>Blitz <span className="brass">Mundial</span></h1>
         <div className="subtitle" style={{ marginBottom: 32 }}>Dominio Mundial · v3 — Reglas Oficiales</div>
 
         <div className="panel">
@@ -123,6 +142,7 @@ function Setup({ count, setCount, names, setNames, onStart, onOpenManual }: {
 
         <div style={{ marginTop: 24, textAlign: "right" }}>
           <button className="btn ghost" style={{ marginRight: 8 }} onClick={onOpenManual}>📖 Manual del jugador</button>
+          <button className="btn ghost" style={{ marginRight: 8 }} onClick={onOpenSaveLoad}>📂 Cargar partida</button>
           <button className="btn" onClick={onStart}>Iniciar Partida</button>
         </div>
       </div>
@@ -131,8 +151,12 @@ function Setup({ count, setCount, names, setNames, onStart, onOpenManual }: {
 }
 
 /* ═════════ GAME ROOT ═════════ */
-function GameRoot({ initial, onExit, onOpenManual }: { initial: GameState; onExit: () => void; onOpenManual: () => void }) {
+function GameRoot({ initial, onExit, onOpenManual, onOpenSaveLoad, onStateChange }: {
+  initial: GameState; onExit: () => void; onOpenManual: () => void;
+  onOpenSaveLoad: () => void; onStateChange: (s: GameState) => void;
+}) {
   const [state, dispatch] = useReducer(reducer, initial);
+  useEffect(() => { onStateChange(state); }, [state, onStateChange]);
   const [hover, setHover] = useState<{ id: string; x: number; y: number } | null>(null);
   const [fortifyInf, setFortifyInf] = useState(1);
   const [fortifyTk, setFortifyTk] = useState(0);
@@ -235,7 +259,7 @@ function GameRoot({ initial, onExit, onOpenManual }: { initial: GameState; onExi
   return (
     <div className="app">
       <div className="topbar">
-        <div className="brand">Rapid <span className="brass">Risk</span></div>
+        <div className="brand">Blitz <span className="brass">Mundial</span></div>
         <div className="chips">
           {state.players.map((p, i) => (
             <div key={p.id} className={`chip ${i === state.current ? "active" : ""} ${!p.alive ? "dead" : ""}`}>
@@ -260,6 +284,7 @@ function GameRoot({ initial, onExit, onOpenManual }: { initial: GameState; onExi
           onClick={() => { const n = !muted; setMuted(n); setMutedState(n); }}
         >{muted ? "🔇" : "🔊"}</button>
         <button className="btn ghost sm" title="Manual del jugador" onClick={onOpenManual}>📖</button>
+        <button className="btn ghost sm" title="Guardar / Cargar partida" onClick={onOpenSaveLoad}>💾</button>
         <button className="btn ghost sm" onClick={onExit}>Reiniciar</button>
       </div>
 
