@@ -504,14 +504,19 @@ function nextAlivePlayer(state: GameState): number {
   return state.current;
 }
 
-function checkEliminations(state: GameState, attackerId?: number) {
+function checkEliminations(state: GameState, attackerId?: number, transferCards: boolean = true) {
   for (const p of state.players) {
     if (!p.alive) continue;
     if (ownedCount(state, p.id) === 0) {
       p.alive = false;
-      if (attackerId !== undefined && p.cards.length > 0) {
+      if (attackerId !== undefined && transferCards && p.cards.length > 0) {
         state.players[attackerId].cards.push(...p.cards);
         pushLog(state, "card", `${state.players[attackerId].name} captura ${p.cards.length} cartas de ${p.name}.`);
+        p.cards = [];
+      } else if (attackerId !== undefined && !transferCards && p.cards.length > 0) {
+        // Tierra quemada: el jugador eliminado sin combate no cede sus cartas.
+        state.discard.push(...p.cards);
+        pushLog(state, "card", `${p.name} eliminado por tierra quemada: sus ${p.cards.length} cartas van al descarte.`);
         p.cards = [];
       }
       pushLog(state, "info", `${p.name} ha sido eliminado.`);
