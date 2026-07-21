@@ -537,7 +537,7 @@ export function reducer(state: GameState, action: Action): GameState {
   if (state.winner !== null && action.type !== "RESET") return state;
   switch (action.type) {
     case "RESET":
-      return initGame(state.players.map((p) => ({ name: p.name })));
+      return initGame(state.players.map((p) => ({ name: p.name, isBot: p.isBot })));
 
     /* ─────── SETUP ─────── */
     case "SETUP_SELECT_ITEM": {
