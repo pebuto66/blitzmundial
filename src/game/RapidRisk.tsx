@@ -203,9 +203,27 @@ function GameRoot({ initial, onExit, onOpenManual, onOpenSaveLoad, onStateChange
   const [reinforceCount, setReinforceCount] = useState(1);
   const [captured, setCaptured] = useState<Set<string>>(new Set());
   const [muted, setMutedState] = useState(isMuted());
+  const [botPaused, setBotPaused] = useState(false);
   const ownersRef = useRef<Record<string, number>>(
     Object.fromEntries(Object.entries(initial.territories).map(([k, v]) => [k, v.owner])),
   );
+
+  // Motor de bots: cuando el jugador actual es una IA, ejecuta acciones con un pequeño delay.
+  useEffect(() => {
+    if (state.winner !== null) return;
+    if (botPaused) return;
+    const cur = state.players[state.current];
+    if (!cur.isBot || !cur.alive) return;
+    // Espera visual entre acciones. Ataques resueltos más lentos para que se vea la animación.
+    const delay = state.lastBattle ? 900 : state.pendingOccupy ? 500 : 350;
+    const handle = window.setTimeout(() => {
+      const action = nextBotAction(state);
+      if (action) dispatch(action);
+      else if (state.phase === "ATTACK") dispatch({ type: "END_ATTACK" });
+      else if (state.phase === "FORTIFY") dispatch({ type: "END_TURN" });
+    }, delay);
+    return () => window.clearTimeout(handle);
+  }, [state, botPaused]);
 
   // Battle SFX + shake on each resolved battle
   useEffect(() => {
