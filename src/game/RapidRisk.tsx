@@ -142,6 +142,7 @@ function Setup({ count, setCount, names, setNames, onStart, onOpenManual, onOpen
 
         <div style={{ marginTop: 24, textAlign: "right" }}>
           <button className="btn ghost" style={{ marginRight: 8 }} onClick={onOpenManual}>📖 Manual del jugador</button>
+          <button className="btn ghost" style={{ marginRight: 8 }} onClick={onOpenSaveLoad}>📂 Cargar partida</button>
           <button className="btn" onClick={onStart}>Iniciar Partida</button>
         </div>
       </div>
