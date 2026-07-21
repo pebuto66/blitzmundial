@@ -998,9 +998,11 @@ export function reducer(state: GameState, action: Action): GameState {
         // Transferencia de petróleo por torres capturadas (antes de cambiar dueño).
         const capturedTowers = tgtT.towers;
         if (capturedTowers > 0) {
-          const transfer = capturedTowers * OIL_PER_TOWER;
           const loser = s.players[prevOwnerId];
-          const take = Math.min(loser.oil, transfer);
+          // Petróleo capturado proporcional: floor(oil / total_torres) × torres_capturadas.
+          const totalTowersLoser = playerTowers(s, prevOwnerId);
+          const perTower = totalTowersLoser > 0 ? Math.floor(loser.oil / totalTowersLoser) : 0;
+          const take = Math.min(loser.oil, perTower * capturedTowers);
           loser.oil -= take;
           attacker.oil += take;
           if (loser.oil <= 0) removeAllTowersOf(s, prevOwnerId);
