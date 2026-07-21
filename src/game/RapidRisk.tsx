@@ -230,12 +230,35 @@ function Setup({ count, setCount, names, setNames, bots, setBots, onStart, onOpe
 }
 
 /* ═════════ GAME ROOT ═════════ */
-function GameRoot({ initial, onExit, onOpenManual, onOpenSaveLoad, onStateChange }: {
+function GameRoot({ initial, onExit, onOpenManual, onOpenSaveLoad, onStateChange, online }: {
   initial: GameState; onExit: () => void; onOpenManual: () => void;
   onOpenSaveLoad: () => void; onStateChange: (s: GameState) => void;
+  online: { mySeat: number; code: string; remoteState: GameState | null; sendState: (s: GameState) => void } | null;
 }) {
-  const [state, dispatch] = useReducer(reducer, initial);
-  useEffect(() => { onStateChange(state); }, [state, onStateChange]);
+  const [state, rawDispatch] = useReducer(reducer, initial);
+  const skipBroadcastRef = useRef(true); // no reenviar el estado inicial
+  const canPlay = !online || state.current === online.mySeat || state.winner !== null;
+  const dispatch = ((action: Action) => {
+    if (!canPlay) return;
+    rawDispatch(action);
+  }) as React.Dispatch<Action>;
+
+  // Aplica estado remoto: hidratar sin re-broadcast
+  useEffect(() => {
+    if (!online || !online.remoteState) return;
+    skipBroadcastRef.current = true;
+    rawDispatch({ type: "HYDRATE", state: online.remoteState });
+  }, [online?.remoteState, online]);
+
+  // Notifica al padre + retransmite al canal cuando corresponde
+  useEffect(() => {
+    onStateChange(state);
+    if (online) {
+      if (skipBroadcastRef.current) skipBroadcastRef.current = false;
+      else online.sendState(state);
+    }
+  }, [state, onStateChange, online]);
+
   const [hover, setHover] = useState<{ id: string; x: number; y: number } | null>(null);
   const [fortifyInf, setFortifyInf] = useState(1);
   const [fortifyTk, setFortifyTk] = useState(0);
@@ -251,21 +274,23 @@ function GameRoot({ initial, onExit, onOpenManual, onOpenSaveLoad, onStateChange
   );
 
   // Motor de bots: cuando el jugador actual es una IA, ejecuta acciones con un pequeño delay.
+  // Deshabilitado en modo online (no hay bots en partidas online).
   useEffect(() => {
+    if (online) return;
     if (state.winner !== null) return;
     if (botPaused) return;
     const cur = state.players[state.current];
     if (!cur.isBot || !cur.alive) return;
-    // Espera visual entre acciones. Ataques resueltos más lentos para que se vea la animación.
     const delay = state.lastBattle ? 900 : state.pendingOccupy ? 500 : 350;
     const handle = window.setTimeout(() => {
       const action = nextBotAction(state);
-      if (action) dispatch(action);
-      else if (state.phase === "ATTACK") dispatch({ type: "END_ATTACK" });
-      else if (state.phase === "FORTIFY") dispatch({ type: "END_TURN" });
+      if (action) rawDispatch(action);
+      else if (state.phase === "ATTACK") rawDispatch({ type: "END_ATTACK" });
+      else if (state.phase === "FORTIFY") rawDispatch({ type: "END_TURN" });
     }, delay);
     return () => window.clearTimeout(handle);
-  }, [state, botPaused]);
+  }, [state, botPaused, online]);
+
 
   // Battle SFX + shake on each resolved battle
   useEffect(() => {
