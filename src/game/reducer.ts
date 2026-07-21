@@ -29,22 +29,26 @@ export interface Player {
   name: string;
   color: string;
   alive: boolean;
+  /** Si es true, sus turnos los juega el motor de IA. */
+  isBot?: boolean;
   cards: Card[];
-  // Stock de unidades por colocar (setup) y disponible durante partida
-  stockArmies: number;   // ejércitos por colocar (setup)
-  stockTanks: number;    // tanques por colocar (setup) y ganados
-  stockPlanes: number;   // aviones (reservado fase 2)
-  stockAirports: number; // aeropuertos por colocar
-  stockSilos: number;    // silos por colocar
-  stockTowers: number;   // torres por colocar
-  stockNukes: number;    // misiles nucleares (ganados por conquista o canje)
-  /** Petróleo persistente disponible del jugador (Litros). Se gana al colocar torres
-   * (+1000 c/u) o capturar torres enemigas; se consume en ataques/movimientos y
-   * misiles enemigos. Cuando llega a 0 se retiran todas sus torres del tablero. */
+  stockArmies: number;
+  stockTanks: number;
+  stockPlanes: number;
+  stockAirports: number;
+  stockSilos: number;
+  stockTowers: number;
+  stockNukes: number;
   oil: number;
-  /** Bonus de infantería pendiente (por robar carta de territorio propio) — se suma en el próximo refuerzo. */
   pendingBonusArmies: number;
 }
+
+/** Nombres de conquistadores famosos para los bots. */
+export const CONQUEROR_NAMES = [
+  "Alejandro", "Genghis", "César", "Napoleón", "Aníbal",
+  "Solimán", "Atila", "Ciro", "Tamerlán", "Ramsés",
+  "Boudica", "Escipión", "Carlomagno", "Cortés",
+];
 
 /** Una carta del mazo: símbolo + territorio (los comodines no tienen territorio). */
 export interface Card {
