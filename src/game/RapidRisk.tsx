@@ -5,9 +5,10 @@ import { TERRITORIES, TERR_BY_ID, CONTINENTS, type TerrSymbol } from "./territor
 import {
   reducer, initGame, ownedCount, playerOil, territoryArmyCount,
   PLAYER_COLORS, DEFAULT_NAMES, STARTING, PLANE_OIL_PER_STEP, bfsDist, classifyTrade,
-  playerHasAirport, reinforcePending,
+  playerHasAirport, reinforcePending, CONQUEROR_NAMES,
   type GameState, type UnitKind, type SetupItem, type Action, type TradeReward, type Card,
 } from "./reducer";
+import { nextBotAction } from "./bot";
 import {
   IconSoldier, IconTank, IconPlane, IconTower, IconAirport, IconSilo, IconNuke, IconOil,
   IconCardSoldier, IconCardPlane, IconCardTank, IconWild,
@@ -33,6 +34,7 @@ function cardTitle(c: Card): string {
 export function RapidRisk() {
   const [setupCount, setSetupCount] = useState(3);
   const [names, setNames] = useState<string[]>(DEFAULT_NAMES.slice());
+  const [bots, setBots] = useState<boolean[]>(() => [false, false, true, true, true, true]);
   const [initial, setInitial] = useState<GameState | null>(null);
   const [gameKey, setGameKey] = useState(0);
   const [manualOpen, setManualOpen] = useState(false);
@@ -51,8 +53,14 @@ export function RapidRisk() {
         <Setup
           count={setupCount} setCount={setSetupCount}
           names={names} setNames={setNames}
+          bots={bots} setBots={setBots}
           onStart={() => {
-            const inputs = names.slice(0, setupCount).map((n) => ({ name: n }));
+            const inputs = Array.from({ length: setupCount }).map((_, i) => ({
+              name: bots[i]
+                ? (names[i]?.trim() || CONQUEROR_NAMES[i % CONQUEROR_NAMES.length])
+                : (names[i]?.trim() || DEFAULT_NAMES[i]),
+              isBot: bots[i],
+            }));
             setInitial(initGame(inputs));
             setGameKey((k) => k + 1);
           }}
@@ -81,14 +89,33 @@ export function RapidRisk() {
 }
 
 /* ═════════ SETUP INICIAL ═════════ */
-function Setup({ count, setCount, names, setNames, onStart, onOpenManual, onOpenSaveLoad }: {
+function Setup({ count, setCount, names, setNames, bots, setBots, onStart, onOpenManual, onOpenSaveLoad }: {
   count: number; setCount: (n: number) => void;
   names: string[]; setNames: (n: string[]) => void;
+  bots: boolean[]; setBots: (b: boolean[]) => void;
   onStart: () => void;
   onOpenManual: () => void;
   onOpenSaveLoad: () => void;
 }) {
   const kit = STARTING[count];
+
+  function toggleBot(i: number) {
+    const next = bots.slice();
+    next[i] = !next[i];
+    setBots(next);
+    // Sugerir nombre de conquistador si el usuario aún no puso uno personalizado
+    const cur = names[i]?.trim() ?? "";
+    if (next[i] && (cur === "" || cur === DEFAULT_NAMES[i])) {
+      const nn = names.slice();
+      nn[i] = CONQUEROR_NAMES[i % CONQUEROR_NAMES.length];
+      setNames(nn);
+    } else if (!next[i] && CONQUEROR_NAMES.includes(cur)) {
+      const nn = names.slice();
+      nn[i] = DEFAULT_NAMES[i];
+      setNames(nn);
+    }
+  }
+
   return (
     <div className="app">
       <div className="setup">
@@ -113,12 +140,21 @@ function Setup({ count, setCount, names, setNames, onStart, onOpenManual, onOpen
                 <input
                   value={names[i] ?? ""}
                   onChange={(e) => { const next = names.slice(); next[i] = e.target.value; setNames(next); }}
-                  placeholder={DEFAULT_NAMES[i]}
+                  placeholder={bots[i] ? CONQUEROR_NAMES[i % CONQUEROR_NAMES.length] : DEFAULT_NAMES[i]}
                 />
+                <button
+                  className={`btn sm ${bots[i] ? "" : "ghost"}`}
+                  onClick={() => toggleBot(i)}
+                  title={bots[i] ? "Este jugador lo controla la IA" : "Este jugador es humano"}
+                  style={{ minWidth: 74 }}
+                >
+                  {bots[i] ? "🤖 Bot" : "👤 Humano"}
+                </button>
               </div>
             ))}
           </div>
         </div>
+
 
         <div className="panel" style={{ marginTop: 16 }}>
           <div className="title-font" style={{ fontSize: 13, color: "#c9a227", marginBottom: 8 }}>Materiales para cada jugador</div>
@@ -167,9 +203,27 @@ function GameRoot({ initial, onExit, onOpenManual, onOpenSaveLoad, onStateChange
   const [reinforceCount, setReinforceCount] = useState(1);
   const [captured, setCaptured] = useState<Set<string>>(new Set());
   const [muted, setMutedState] = useState(isMuted());
+  const [botPaused, setBotPaused] = useState(false);
   const ownersRef = useRef<Record<string, number>>(
     Object.fromEntries(Object.entries(initial.territories).map(([k, v]) => [k, v.owner])),
   );
+
+  // Motor de bots: cuando el jugador actual es una IA, ejecuta acciones con un pequeño delay.
+  useEffect(() => {
+    if (state.winner !== null) return;
+    if (botPaused) return;
+    const cur = state.players[state.current];
+    if (!cur.isBot || !cur.alive) return;
+    // Espera visual entre acciones. Ataques resueltos más lentos para que se vea la animación.
+    const delay = state.lastBattle ? 900 : state.pendingOccupy ? 500 : 350;
+    const handle = window.setTimeout(() => {
+      const action = nextBotAction(state);
+      if (action) dispatch(action);
+      else if (state.phase === "ATTACK") dispatch({ type: "END_ATTACK" });
+      else if (state.phase === "FORTIFY") dispatch({ type: "END_TURN" });
+    }, delay);
+    return () => window.clearTimeout(handle);
+  }, [state, botPaused]);
 
   // Battle SFX + shake on each resolved battle
   useEffect(() => {
@@ -265,7 +319,7 @@ function GameRoot({ initial, onExit, onOpenManual, onOpenSaveLoad, onStateChange
           {state.players.map((p, i) => (
             <div key={p.id} className={`chip ${i === state.current ? "active" : ""} ${!p.alive ? "dead" : ""}`}>
               <div className="swatch" style={{ width: 16, height: 16, background: p.color }} />
-              <span>{p.name}</span>
+              <span>{p.isBot ? "🤖 " : ""}{p.name}</span>
               <span className="mono" title="Territorios">{ownedCount(state, p.id)}t</span>
               <span className="mono" style={{ color: "#7fb069", display: "inline-flex", alignItems: "center", gap: 2 }} title="Petróleo (litros)">
                 <IconOil size={11} />{playerOil(state, p.id)}
@@ -279,6 +333,13 @@ function GameRoot({ initial, onExit, onOpenManual, onOpenSaveLoad, onStateChange
             </div>
           ))}
         </div>
+        {state.players.some((p) => p.isBot) && (
+          <button
+            className="btn ghost sm"
+            title={botPaused ? "Reanudar bots" : "Pausar bots"}
+            onClick={() => setBotPaused((v) => !v)}
+          >{botPaused ? "▶️" : "⏸"}</button>
+        )}
         <button
           className="btn ghost sm"
           title={muted ? "Activar sonido" : "Silenciar"}
@@ -288,6 +349,7 @@ function GameRoot({ initial, onExit, onOpenManual, onOpenSaveLoad, onStateChange
         <button className="btn ghost sm" title="Guardar / Cargar partida" onClick={onOpenSaveLoad}>💾</button>
         <button className="btn ghost sm" onClick={onExit}>Reiniciar</button>
       </div>
+
 
       {nukeMode && (
         <div className="hint" style={{ padding: "6px 16px", color: "#e05d44", fontWeight: 700 }}>
