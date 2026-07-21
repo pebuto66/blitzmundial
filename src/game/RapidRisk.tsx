@@ -80,11 +80,12 @@ export function RapidRisk() {
 }
 
 /* ═════════ SETUP INICIAL ═════════ */
-function Setup({ count, setCount, names, setNames, onStart, onOpenManual }: {
+function Setup({ count, setCount, names, setNames, onStart, onOpenManual, onOpenSaveLoad }: {
   count: number; setCount: (n: number) => void;
   names: string[]; setNames: (n: string[]) => void;
   onStart: () => void;
   onOpenManual: () => void;
+  onOpenSaveLoad: () => void;
 }) {
   const kit = STARTING[count];
   return (
