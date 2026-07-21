@@ -73,7 +73,7 @@ function Setup({ count, setCount, names, setNames, onStart, onOpenManual }: {
     <div className="app">
       <div className="setup">
         <div className="subtitle">// Comando Estratégico Global</div>
-        <h1>Rapid <span className="brass">Risk</span></h1>
+        <h1>Blitz <span className="brass">Mundial</span></h1>
         <div className="subtitle" style={{ marginBottom: 32 }}>Dominio Mundial · v3 — Reglas Oficiales</div>
 
         <div className="panel">
