@@ -89,7 +89,7 @@ export interface GameState {
   turnAttackTarget: string | null;
   /** Territorios ya "cargados" con petróleo de tanque este turno: key = `${src}->${tgt}` */
   tankAttacksPaid: string[];
-  lastBattle: { atk: number[]; def: number[]; atkLost: number; defLost: number; note?: string } | null;
+  lastBattle: { atk: number[]; def: number[]; atkLost: number; defLost: number; note?: string; atkOwner: number; defOwner: number; atkKind: UnitKind; terrId: string } | null;
   pendingOccupy: { from: string; to: string; maxInfantry: number; maxTanks: number; kind: UnitKind; candidates?: string[] } | null;
   fortifySource: string | null;
   fortifyDone: boolean;
@@ -979,7 +979,7 @@ export function reducer(state: GameState, action: Action): GameState {
         if (paid && !s.tankAttacksPaid.includes(payKey)) s.tankAttacksPaid.push(payKey);
       }
 
-      s.lastBattle = { atk: atkRaw, def: defRaw, atkLost, defLost, note };
+      s.lastBattle = { atk: atkRaw, def: defRaw, atkLost, defLost, note, atkOwner: srcT.owner, defOwner: tgtT.owner, atkKind: effKind, terrId: tgt };
 
       // Bloquear objetivo del turno tras el primer ataque
       if (!s.turnAttackTarget) s.turnAttackTarget = tgt;
