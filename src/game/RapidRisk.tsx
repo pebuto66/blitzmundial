@@ -15,6 +15,7 @@ import {
 import { playDice, playAttack, playConquest, playMissile, setMuted, isMuted } from "./sounds";
 import { Manual } from "./Manual";
 import { SaveLoadDialog } from "./SaveLoadDialog";
+import { BattleOverlay } from "./BattleOverlay";
 
 function CardIcon({ sym, size }: { sym: TerrSymbol; size?: number }) {
   if (sym === "S") return <IconCardSoldier size={size} />;
@@ -383,6 +384,7 @@ function GameRoot({ initial, onExit, onOpenManual, onOpenSaveLoad, onStateChange
           </div>
         </div>
       )}
+      <BattleOverlay state={state} />
     </div>
   );
 }
