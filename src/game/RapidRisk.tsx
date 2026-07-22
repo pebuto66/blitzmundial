@@ -883,9 +883,15 @@ function AttackPanel({ state, dispatch, occupyInf, setOccupyInf, nukeMode, setNu
               [1, 2, 3].map((d) => {
                 // Tierra quemada: si solo hay 1 infantería, se permite 1 dado y se arriesga esa unidad.
                 const scorched = state.attackKind !== "TANK" && src.infantry === 1;
-                const maxUnits = state.attackKind === "TANK"
-                  ? src.tanks
-                  : (scorched ? 1 : src.infantry - 1);
+                let maxUnits: number;
+                if (state.attackKind === "TANK") {
+                  const supportInf = Math.max(0, src.infantry - 1);
+                  // Tanque necesita compañía: otro tanque o ≥2 infantería.
+                  const canTankAttack = src.tanks >= 2 || (src.tanks >= 1 && supportInf >= 2);
+                  maxUnits = canTankAttack ? src.tanks + supportInf : 0;
+                } else {
+                  maxUnits = scorched ? 1 : src.infantry - 1;
+                }
                 const disabled = d > Math.min(3, maxUnits);
                 return (
                   <button key={d} disabled={disabled} className="btn sm" onClick={() => dispatch({ type: "RESOLVE_ATTACK", dice: d })}>
@@ -901,11 +907,11 @@ function AttackPanel({ state, dispatch, occupyInf, setOccupyInf, nukeMode, setNu
               {state.lastBattle.note && <div className="hint" style={{ fontSize: 10 }}>{state.lastBattle.note}</div>}
               <div className="dice-row">
                 {state.lastBattle.atk.map((d, i) => (
-                  <div key={`a${i}`} className={`die atk rolling ${i < state.lastBattle!.atkLost ? "lost" : ""}`} style={{ animationDelay: `${i * 60}ms` }}>{d}</div>
+                  <div key={`a${i}`} className={`die atk rolling ${i < state.lastBattle!.atkLost ? "lost" : ""}`} style={{ animationDelay: `${i * 60}ms`, background: state.players[state.lastBattle!.atkOwner]?.color }}>{d}</div>
                 ))}
                 <div style={{ width: 12 }} />
                 {state.lastBattle.def.map((d, i) => (
-                  <div key={`d${i}`} className={`die def rolling ${i < state.lastBattle!.defLost ? "lost" : ""}`} style={{ animationDelay: `${i * 60 + 40}ms` }}>{d}</div>
+                  <div key={`d${i}`} className={`die def rolling ${i < state.lastBattle!.defLost ? "lost" : ""}`} style={{ animationDelay: `${i * 60 + 40}ms`, background: state.players[state.lastBattle!.defOwner]?.color }}>{d}</div>
                 ))}
               </div>
             </div>
