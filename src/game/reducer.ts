@@ -374,16 +374,17 @@ export function initGame(playerInputs: { name: string; isBot?: boolean }[]): Gam
     [deck[i], deck[j]] = [deck[j], deck[i]];
   }
 
+  const setupStart = setupOrder(players)[0] ?? 0;
   const log: LogEntry[] = [
     { id: 0, type: "info", text: `Partida iniciada con ${n} jugadores.` },
-    { id: 1, type: "setup", text: `Setup: ${players[0].name} coloca su primer aeropuerto.` },
+    { id: 1, type: "setup", text: `Setup: ${players[setupStart].name} coloca su primer aeropuerto.` },
   ];
 
   return {
     players,
-    current: 0,
+    current: setupStart,
     phase: "SETUP",
-    setupItem: firstSetupItem(players[0]),
+    setupItem: firstSetupItem(players[setupStart]),
     reinforceItem: "ARMY",
     territories,
     reinforcements: 0,
