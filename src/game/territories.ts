@@ -74,7 +74,7 @@ export const TERRITORIES: Territory[] = [
   { id: "siberia_central", name: "Siberia Central", continent: "as", x: 77.3, y: 25.0, adj: ["omsk", "yakutia", "irkutsk", "mongolia", "china"], symbol: "S" },
   { id: "yakutia", name: "Yakutia", continent: "as", x: 87.4, y: 18.6, adj: ["siberia_central", "irkutsk", "kamchatka"], symbol: "P" },
   { id: "kamchatka", name: "Vladivostok", continent: "as", x: 94.7, y: 27.8, adj: ["yakutia", "irkutsk", "mongolia", "japon", "alaska"], symbol: "T" },
-  { id: "irkutsk", name: "Irkutsk", continent: "as", x: 83.7, y: 30.2, adj: ["siberia_central", "yakutia", "omsk", "mongolia", "kamchatka"], symbol: "S" },
+  { id: "irkutsk", name: "Irkutsk", continent: "as", x: 83.7, y: 30.2, adj: ["siberia_central", "yakutia", "mongolia", "kamchatka"], symbol: "S" },
   { id: "mongolia", name: "Mongolia", continent: "as", x: 84.4, y: 38.8, adj: ["irkutsk", "kamchatka", "china", "japon", "siberia_central"], symbol: "P" },
   { id: "china", name: "China", continent: "as", x: 80.5, y: 45.5, adj: ["asia_central", "omsk", "mongolia", "india", "sudeste_asiatico", "siberia_central"], symbol: "T" },
   { id: "japon", name: "Japón", continent: "as", x: 92.1, y: 47.0, adj: ["kamchatka", "mongolia"], symbol: "S" },
