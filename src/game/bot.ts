@@ -207,8 +207,10 @@ function findBestAttack(state: GameState): AttackMove | null {
   const p = state.players[state.current];
   const owned = TERRITORIES.filter((t) => state.territories[t.id].owner === p.id);
 
-  // Si hay objetivo bloqueado del turno, seguir atacándolo si aún es rentable.
-  // Si hay objetivo bloqueado del turno y sigue siendo enemigo, seguir atacándolo.
+  // Solo un territorio por turno: si ya hay objetivo bloqueado y ya no es enemigo (conquistado), no más ataques.
+  if (state.turnAttackTarget && state.territories[state.turnAttackTarget].owner === p.id) {
+    return null;
+  }
   const lockedTgt = state.turnAttackTarget && state.territories[state.turnAttackTarget].owner !== p.id
     ? state.turnAttackTarget
     : null;
