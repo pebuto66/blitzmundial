@@ -811,6 +811,10 @@ export function reducer(state: GameState, action: Action): GameState {
       if (state.phase !== "ATTACK") return state;
       const src = state.attackSource, tgt = state.attackTarget;
       if (!src || !tgt) return state;
+      const srcT0 = state.territories[src], tgtT0 = state.territories[tgt];
+      if (!srcT0 || !tgtT0) return state;
+      if (srcT0.owner !== state.players[state.current].id) return state;
+      if (tgtT0.owner === srcT0.owner) return state;
       const s = clone(state);
       const srcT = s.territories[src], tgtT = s.territories[tgt];
       const attacker = s.players[srcT.owner];
