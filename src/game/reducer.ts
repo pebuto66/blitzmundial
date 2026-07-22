@@ -1148,6 +1148,8 @@ export function reducer(state: GameState, action: Action): GameState {
       if (state.phase !== "ATTACK" && state.phase !== "REINFORCE") return state;
       const attacker = state.players[state.current];
       if (attacker.stockNukes < 1) return state;
+      // Un jugador sin silo nuclear no puede lanzar misiles.
+      if (!playerHasSilo(state, attacker.id)) return state;
       const tgt = state.territories[action.target];
       if (!tgt || tgt.owner === attacker.id) return state;
       const s = clone(state);
