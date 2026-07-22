@@ -990,9 +990,8 @@ export function reducer(state: GameState, action: Action): GameState {
           if (tgtT.tanks < 0) tgtT.tanks = 0;
           if (tgtT.planes < 0) tgtT.planes = 0;
         }
-
-        if (paid && !s.tankAttacksPaid.includes(payKey)) s.tankAttacksPaid.push(payKey);
       }
+
 
       s.lastBattle = { atk: atkRaw, def: defRaw, atkLost, defLost, note, atkOwner: srcT.owner, defOwner: tgtT.owner, atkKind: effKind, terrId: tgt };
 
