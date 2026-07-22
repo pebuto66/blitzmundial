@@ -40,7 +40,7 @@ export const TERRITORIES: Territory[] = [
   { id: "ontario", name: "Ontario", continent: "na", x: 23.1, y: 35.1, adj: ["canada", "columbia_na", "quebec", "usa_oeste", "usa_este", "isla_baffin"], symbol: "T" },
   { id: "quebec", name: "Quebec", continent: "na", x: 31.5, y: 34.8, adj: ["isla_baffin", "groenlandia", "ontario", "usa_este"], symbol: "S" },
   { id: "usa_oeste", name: "EEUU Oeste", continent: "na", x: 18.0, y: 42.6, adj: ["columbia_na", "ontario", "usa_este", "america_central"], symbol: "P" },
-  { id: "usa_este", name: "EEUU Este", continent: "na", x: 25.5, y: 46.0, adj: ["ontario", "quebec", "usa_oeste", "america_central", "espana"], symbol: "T" },
+  { id: "usa_este", name: "EEUU Este", continent: "na", x: 25.5, y: 46.0, adj: ["ontario", "quebec", "usa_oeste", "america_central"], symbol: "T" },
   { id: "america_central", name: "América Central", continent: "na", x: 23.0, y: 55.5, adj: ["usa_oeste", "usa_este", "venezuela"], symbol: "S" },
 
   // South America
