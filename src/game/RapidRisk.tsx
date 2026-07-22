@@ -275,6 +275,7 @@ function GameRoot({ initial, onExit, onOpenManual, onOpenSaveLoad, onStateChange
 
   // Motor de bots: cuando el jugador actual es una IA, ejecuta acciones con un pequeño delay.
   // Deshabilitado en modo online (no hay bots en partidas online).
+  const botStuckRef = useRef<{ key: string; count: number }>({ key: "", count: 0 });
   useEffect(() => {
     if (online) return;
     if (state.winner !== null) return;
@@ -284,6 +285,18 @@ function GameRoot({ initial, onExit, onOpenManual, onOpenSaveLoad, onStateChange
     const delay = state.lastBattle ? 900 : state.pendingOccupy ? 500 : 350;
     const handle = window.setTimeout(() => {
       const action = nextBotAction(state);
+      // Anti-atasco: si el bot propone la misma acción repetidamente sin avance,
+      // forzamos el final de la fase para evitar bucles infinitos.
+      const key = `${state.phase}:${state.current}:${JSON.stringify(action)}`;
+      const stuck = botStuckRef.current;
+      if (stuck.key === key) stuck.count += 1;
+      else { stuck.key = key; stuck.count = 1; }
+      if (stuck.count >= 3) {
+        stuck.key = ""; stuck.count = 0;
+        if (state.phase === "ATTACK") { rawDispatch({ type: "END_ATTACK" }); return; }
+        if (state.phase === "FORTIFY") { rawDispatch({ type: "END_TURN" }); return; }
+        if (state.phase === "REINFORCE") { rawDispatch({ type: "END_REINFORCE" }); return; }
+      }
       if (action) rawDispatch(action);
       else if (state.phase === "ATTACK") rawDispatch({ type: "END_ATTACK" });
       else if (state.phase === "FORTIFY") rawDispatch({ type: "END_TURN" });
