@@ -1,6 +1,6 @@
 import { TERRITORIES, TERR_BY_ID, type TerrSymbol } from "./territories";
 import {
-  classifyTrade, playerOil, playerHasAirport, reinforcePending,
+  classifyTrade, playerOil, playerHasAirport, playerHasSilo, reinforcePending,
   bfsDist, PLANE_OIL_PER_STEP, TANK_ATTACK_OIL,
   type GameState, type Action, type UnitKind, type TradeReward,
 } from "./reducer";
