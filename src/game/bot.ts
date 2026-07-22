@@ -180,8 +180,8 @@ function botAttack(state: GameState): Action | null {
     return { type: "OCCUPY", infantry: half };
   }
 
-  // Lanzar misil si tiene y hay objetivo con torres enemigas.
-  if (p.stockNukes > 0) {
+  // Lanzar misil si tiene silo + misil y hay objetivo con torres enemigas.
+  if (p.stockNukes > 0 && playerHasSilo(state, p.id)) {
     let bestTgt: string | null = null; let bestTowers = 0;
     for (const id in state.territories) {
       const t = state.territories[id];
