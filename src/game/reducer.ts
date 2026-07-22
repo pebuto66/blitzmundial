@@ -1096,6 +1096,8 @@ export function reducer(state: GameState, action: Action): GameState {
         s.attackTarget = null;
         s.attackSource = null;
         s.lastBattle = null;
+        // Al conquistar el objetivo bloqueado del turno, se libera para poder atacar otro.
+        if (s.turnAttackTarget === tgt) s.turnAttackTarget = null;
       }
       return s;
     }
