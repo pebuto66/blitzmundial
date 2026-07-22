@@ -208,7 +208,10 @@ function findBestAttack(state: GameState): AttackMove | null {
   const owned = TERRITORIES.filter((t) => state.territories[t.id].owner === p.id);
 
   // Si hay objetivo bloqueado del turno, seguir atacándolo si aún es rentable.
-  const lockedTgt = state.turnAttackTarget;
+  // Si hay objetivo bloqueado del turno y sigue siendo enemigo, seguir atacándolo.
+  const lockedTgt = state.turnAttackTarget && state.territories[state.turnAttackTarget].owner !== p.id
+    ? state.turnAttackTarget
+    : null;
   const tgtCandidates: string[] = lockedTgt
     ? [lockedTgt]
     : Array.from(new Set(owned.flatMap((t) => TERR_BY_ID[t.id].adj)))
