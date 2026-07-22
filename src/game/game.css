@@ -155,7 +155,7 @@
 .setup-picker .btn:disabled { opacity: 0.35; cursor: not-allowed; }
 .battle { margin-top: 4px; }
 .dice-row { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 6px; }
-.die { width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; font-family: "JetBrains Mono", monospace; font-weight: 700; border-radius: 4px; font-size: 16px; }
+.die { width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; font-family: "JetBrains Mono", monospace; font-weight: 700; border-radius: 4px; font-size: 16px; color: #fff; background: #555; }
 .die.atk { background: #b5453a; color: #fff; }
 .die.def { background: #3d6fa5; color: #fff; }
 .die.lost { opacity: 0.35; text-decoration: line-through; }
