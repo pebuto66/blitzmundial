@@ -116,6 +116,7 @@ export function Manual({ onClose }: { onClose: () => void }) {
 
         <Section n="8" title="Silos y misiles nucleares">
           <ul>
+            <li><b>Sin silo, no hay misiles.</b> Un jugador que no controla ningún territorio con silo propio <b>no puede lanzar misiles</b>, aunque tenga misiles en su reserva.</li>
             <li>Cada jugador solo puede tener <b>1 silo</b>. Si pierdes tu territorio con silo, el nuevo dueño gana <b>+1 misil</b>.</li>
             <li>Un misil <b>destruye todas las torres</b> del territorio objetivo (no las tropas).</li>
             <li>Pérdida de petróleo del defensor: <b>⌊oil / total_torres⌋ × torres_destruidas</b>. El atacante <b>no recibe petróleo</b> del misil.</li>

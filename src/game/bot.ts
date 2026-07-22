@@ -208,7 +208,10 @@ function findBestAttack(state: GameState): AttackMove | null {
   const owned = TERRITORIES.filter((t) => state.territories[t.id].owner === p.id);
 
   // Si hay objetivo bloqueado del turno, seguir atacándolo si aún es rentable.
-  const lockedTgt = state.turnAttackTarget;
+  // Si hay objetivo bloqueado del turno y sigue siendo enemigo, seguir atacándolo.
+  const lockedTgt = state.turnAttackTarget && state.territories[state.turnAttackTarget].owner !== p.id
+    ? state.turnAttackTarget
+    : null;
   const tgtCandidates: string[] = lockedTgt
     ? [lockedTgt]
     : Array.from(new Set(owned.flatMap((t) => TERR_BY_ID[t.id].adj)))
@@ -229,8 +232,9 @@ function findBestAttack(state: GameState): AttackMove | null {
         const score = (nSt.infantry - 1) - defPower + (tgtSt.towers * 3) + (tgtSt.silo ? 4 : 0) + (tgtSt.airport ? 2 : 0);
         if (!best || score > best.score) best = { kind: "INFANTRY", src: nb, tgt, dice, score };
       }
-      // Tanque (si tiene y le sobra petróleo)
-      if (nSt.tanks >= 1 && playerOil(state, p.id) >= TANK_ATTACK_OIL) {
+      // Tanque: siempre acompañado (otro tanque o ≥2 infantería). Nunca solo con 1 inf.
+      const canTank = nSt.tanks >= 2 || (nSt.tanks >= 1 && nSt.infantry >= 3);
+      if (canTank && playerOil(state, p.id) >= TANK_ATTACK_OIL) {
         const attackPower = nSt.tanks * 2 + Math.max(0, nSt.infantry - 1);
         if (attackPower > defPower) {
           const dice = Math.min(3, nSt.tanks + Math.max(0, nSt.infantry - 1));

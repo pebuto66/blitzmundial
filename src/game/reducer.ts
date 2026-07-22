@@ -9,9 +9,9 @@ export type UnitKind = "INFANTRY" | "TANK" | "PLANE";
 export type SetupItem = "AIRPORT" | "SILO" | "TOWER" | "PLANE" | "TANK" | "ARMY";
 
 export const OIL_PER_TOWER = 1000;
-export const TANK_ATTACK_OIL = 50; // por territorio objetivo, una vez por turno
-export const TANK_MOVE_OIL = 50;   // por territorio en fortify
-export const PLANE_OIL_PER_STEP = 100; // por avión y territorio recorrido
+export const TANK_ATTACK_OIL = 25; // por territorio objetivo, una vez por turno
+export const TANK_MOVE_OIL = 25;   // por territorio en fortify
+export const PLANE_OIL_PER_STEP = 50; // por avión y territorio recorrido
 
 /** Materiales iniciales según nº de jugadores (tabla oficial) */
 export const STARTING: Record<number, {
@@ -255,6 +255,22 @@ export function playerHasAirport(state: GameState, pid: number): boolean {
     if (t.owner === pid && t.airport) return true;
   }
   return false;
+}
+
+/** ¿Tiene el jugador algún silo propio en el tablero? */
+export function playerHasSilo(state: GameState, pid: number): boolean {
+  for (const id in state.territories) {
+    const t = state.territories[id];
+    if (t.owner === pid && t.silo) return true;
+  }
+  return false;
+}
+
+/** Si un jugador no tiene torres, no puede tener petróleo. */
+function syncOilInvariant(state: GameState) {
+  for (const p of state.players) {
+    if (p.oil > 0 && playerTowers(state, p.id) === 0) p.oil = 0;
+  }
 }
 
 /** ¿Quedan unidades por colocar en refuerzo? Los aviones no bloquean si no hay aeropuerto propio. */
@@ -916,13 +932,18 @@ export function reducer(state: GameState, action: Action): GameState {
           }
         } else {
           const scorched = effKind !== "TANK" && srcT.infantry === 1;
-          // Tanque atacando: puede llevar apoyo de infantería. Necesita ≥1 tanque.
+          // Tanque atacando: siempre debe ir acompañado (otro tanque o ≥2 infantería
+          // de apoyo). Un tanque con solo 1 infantería no puede atacar.
+          if (effKind === "TANK") {
+            if (srcT.tanks < 1) return state;
+            const supportInf = Math.max(0, srcT.infantry - 1);
+            if (srcT.tanks < 2 && supportInf < 2) return state;
+          }
           const atkTotalGround = effKind === "TANK"
             ? srcT.tanks + Math.max(0, srcT.infantry - 1)
             : (scorched ? 1 : srcT.infantry - 1);
           const maxAtk = Math.min(action.dice, atkTotalGround, 3);
           if (maxAtk < 1) return state;
-          if (effKind === "TANK" && srcT.tanks < 1) return state;
           const defTankFirst = effDefTanks > 0;
           const totalDefGround = effDefTanks + effDefInf;
           // El defensor puede tirar 3 dados si tiene ≥1 tanque; si no, 2.
@@ -1013,6 +1034,7 @@ export function reducer(state: GameState, action: Action): GameState {
           loser.oil -= take;
           attacker.oil += take;
           if (loser.oil <= 0) removeAllTowersOf(s, prevOwnerId);
+          syncOilInvariant(s);
           pushLog(s, "oil", `${attacker.name} captura ${capturedTowers} torre(s) y ${take} L de petróleo de ${loser.name}.`);
         }
         if (tgtT.airport) {
@@ -1126,6 +1148,8 @@ export function reducer(state: GameState, action: Action): GameState {
       if (state.phase !== "ATTACK" && state.phase !== "REINFORCE") return state;
       const attacker = state.players[state.current];
       if (attacker.stockNukes < 1) return state;
+      // Un jugador sin silo nuclear no puede lanzar misiles.
+      if (!playerHasSilo(state, attacker.id)) return state;
       const tgt = state.territories[action.target];
       if (!tgt || tgt.owner === attacker.id) return state;
       const s = clone(state);
@@ -1146,6 +1170,8 @@ export function reducer(state: GameState, action: Action): GameState {
       }
       t.towers = 0;
       if (defender.oil <= 0) removeAllTowersOf(s, defender.id);
+      syncOilInvariant(s);
+
 
       pushLog(
         s, "nuke",
