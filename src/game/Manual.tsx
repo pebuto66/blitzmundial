@@ -76,8 +76,8 @@ export function Manual({ onClose }: { onClose: () => void }) {
           <ul>
             <li>Solo puedes tener <b>un objetivo por turno</b>: al primer ataque, ese territorio queda bloqueado como único posible durante todo el turno (aún puedes atacarlo desde distintos orígenes y con distintas unidades).</li>
             <li><b>Infantería</b>: gratis. Requiere adyacencia terrestre.</li>
-            <li><b>Tanque</b>: cuesta <b>50 L</b> por objetivo (pago único por turno). Sin petróleo, el tanque <b>no puede atacar</b>.</li>
-            <li><b>Avión</b>: cuesta <b>100 L por territorio recorrido, ida y vuelta</b>. Alcance global vía aeropuertos, pero el objetivo debe tener frontera con un territorio propio con <b>≥2 infantería</b> para poder trasladar la tropa de ocupación tras ganar. Sin petróleo, el avión <b>no puede atacar</b>.</li>
+            <li><b>Tanque</b>: cuesta <b>25 L</b> por objetivo (pago único por turno). Sin petróleo, el tanque <b>no puede atacar</b>.</li>
+            <li><b>Avión</b>: cuesta <b>50 L por territorio recorrido, ida y vuelta</b>. Alcance global vía aeropuertos, pero el objetivo debe tener frontera con un territorio propio con <b>≥2 infantería</b> para poder trasladar la tropa de ocupación tras ganar. Sin petróleo, el avión <b>no puede atacar</b>.</li>
             <li>Prioridad defensiva: <b>aviones → tanques → infantería</b>.</li>
             <li><b>Tierra quemada</b>: puedes atacar con <b>1 sola infantería</b>. Si pierdes, el territorio de origen queda vacío pero sigue siendo tuyo — cualquier enemigo podrá conquistarlo después sin combate (auto-conquista) y <b>sin cobrar carta</b>.</li>
             <li>Si atacas con 1 infantería y ganas contra 1 defensor, el enemigo desaparece pero al no poder ocupar (siempre debe quedar ≥1 en origen) tu tropa se queda en origen y no cobras carta.</li>
@@ -97,7 +97,7 @@ export function Manual({ onClose }: { onClose: () => void }) {
 
         <Section n="6" title="Aviones">
           <ul>
-            <li><b>1 avión</b> por ataque aéreo. El coste es <b>100 L × distancia × 2</b> (ida y vuelta).</li>
+            <li><b>1 avión</b> por ataque aéreo. El coste es <b>50 L × distancia × 2</b> (ida y vuelta).</li>
             <li>Contra <b>avión</b>: 1 dado vs 1 dado, empate → pierde el defensor.</li>
             <li>Contra <b>tanque</b>: el defensor tira 3 dados; si salen <b>dobles</b>, el avión es abatido.</li>
             <li>Contra <b>infantería</b>: el defensor tira 2 dados. <b>Dobles</b>: nulo. <b>Doble 6</b>: el avión es abatido.</li>
@@ -136,7 +136,7 @@ export function Manual({ onClose }: { onClose: () => void }) {
         <Section n="10" title="Fortalecer">
           <ul>
             <li>Movimientos <b>ilimitados</b> al final del turno: infantería y tanques a territorios <b>adyacentes propios</b>; aviones vuelan <b>aeropuerto → aeropuerto</b> a cualquier distancia.</li>
-            <li>Coste: tanque <b>50 L</b> por movimiento; avión <b>100 L × distancia</b> por unidad.</li>
+            <li>Coste: tanque <b>25 L</b> por movimiento; avión <b>50 L × distancia</b> por unidad.</li>
             <li>El origen siempre debe conservar <b>≥1 infantería</b>.</li>
           </ul>
         </Section>

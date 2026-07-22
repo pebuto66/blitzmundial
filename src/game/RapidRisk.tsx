@@ -209,8 +209,8 @@ function Setup({ count, setCount, names, setNames, bots, setBots, onStart, onOpe
           </div>
           <ul className="hint" style={{ margin: "10px 0 0", paddingLeft: 18 }}>
             <li>🎯 <b>Un objetivo de ataque por turno</b> — solo puedes atacar varias veces al mismo territorio.</li>
-            <li>✈️ <b>Aviones</b>: cuestan <b>100 L</b> por objetivo (solo se usan 1 vez).</li>
-            <li>🛡 <b>Tanques</b>: <b>50 L</b> por territorio atacado y suman <b>+2</b> en combate.</li>
+            <li>✈️ <b>Aviones</b>: cuestan <b>50 L</b> por territorio recorrido, ida y vuelta (solo se usan 1 vez).</li>
+            <li>🛡 <b>Tanques</b>: <b>25 L</b> por territorio atacado y suman <b>+2</b> en combate.</li>
             <li>☢️ <b>Silo de misiles</b> → permite lanzar un <b>misil nuclear</b>.</li>
             <li>🛫 <b>Aeropuerto</b> → <b>+1 avión</b> de reserva por turno y da <b>alcance global</b> a los aviones.</li>
             <li>🛡️ <b>Aeropuerto</b> → actúa como <b>escudo antiaéreo</b> contra aviones enemigos.</li>
@@ -975,7 +975,7 @@ function FortifyPanel({ state, dispatch, fortifyInf, setFortifyInf, fortifyTk, s
         <div className="hint">
           Movimientos ilimitados: selecciona un territorio propio con ≥2 unidades y su destino.
           Infantería y tanques solo a territorios adyacentes; los aviones pueden volar aeropuerto→aeropuerto a cualquier distancia.
-          Coste: tanques 50 L, aviones 100 L por territorio recorrido.
+          Coste: tanques 25 L, aviones 50 L por territorio recorrido.
         </div>
       ) : (
         <div>
