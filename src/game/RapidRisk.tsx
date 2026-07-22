@@ -839,7 +839,7 @@ function AttackPanel({ state, dispatch, occupyInf, setOccupyInf, nukeMode, setNu
 
   return (
     <div className="actions">
-      {current.stockNukes > 0 && (
+      {current.stockNukes > 0 && playerHasSilo(state, current.id) && (
         <button
           className={`btn sm ${nukeMode ? "" : "ghost"}`}
           style={{ borderColor: "#e05d44", color: nukeMode ? undefined : "#e05d44" }}
