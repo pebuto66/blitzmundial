@@ -54,7 +54,7 @@ export const TERRITORIES: Territory[] = [
   { id: "escandinavia", name: "Escandinavia", continent: "eu", x: 54.6, y: 22.7, adj: ["islandia", "gran_bretana", "alemania", "ucrania"], symbol: "S" },
   { id: "gran_bretana", name: "Gran Bretaña", continent: "eu", x: 48.0, y: 31.8, adj: ["islandia", "escandinavia", "alemania", "espana"], symbol: "P" },
   { id: "alemania", name: "Alemania", continent: "eu", x: 53.0, y: 34.1, adj: ["gran_bretana", "escandinavia", "espana", "balcanes", "ucrania"], symbol: "T" },
-  { id: "espana", name: "España", continent: "eu", x: 48.5, y: 40.0, adj: ["gran_bretana", "alemania", "balcanes", "usa_este", "africa_occidental", "canarias"], symbol: "S" },
+  { id: "espana", name: "España", continent: "eu", x: 48.5, y: 40.0, adj: ["gran_bretana", "alemania", "balcanes", "africa_occidental", "canarias"], symbol: "S" },
   { id: "canarias", name: "Canarias", continent: "eu", x: 41.5, y: 50.0, adj: ["espana", "africa_occidental"], symbol: "T" },
   { id: "balcanes", name: "Los Balcanes", continent: "eu", x: 55.5, y: 41.5, adj: ["alemania", "espana", "ucrania", "egipto", "africa_occidental"], symbol: "P" },
   { id: "ucrania", name: "Ucrania", continent: "eu", x: 60.0, y: 29.5, adj: ["escandinavia", "alemania", "balcanes", "oriente_medio", "asia_central", "omsk"], symbol: "T" },
