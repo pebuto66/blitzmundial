@@ -697,7 +697,7 @@ function ReinforcePanel({ state, dispatch, nukeMode, setNukeMode, reinforceCount
 
   return (
     <div className="actions">
-      {p.stockNukes > 0 && (
+      {p.stockNukes > 0 && playerHasSilo(state, p.id) && (
         <button
           className={`btn sm ${nukeMode ? "" : "ghost"}`}
           style={{ borderColor: "#e05d44", color: nukeMode ? undefined : "#e05d44" }}
