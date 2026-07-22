@@ -9,9 +9,9 @@ export type UnitKind = "INFANTRY" | "TANK" | "PLANE";
 export type SetupItem = "AIRPORT" | "SILO" | "TOWER" | "PLANE" | "TANK" | "ARMY";
 
 export const OIL_PER_TOWER = 1000;
-export const TANK_ATTACK_OIL = 50; // por territorio objetivo, una vez por turno
-export const TANK_MOVE_OIL = 50;   // por territorio en fortify
-export const PLANE_OIL_PER_STEP = 100; // por avión y territorio recorrido
+export const TANK_ATTACK_OIL = 25; // por territorio objetivo, una vez por turno
+export const TANK_MOVE_OIL = 25;   // por territorio en fortify
+export const PLANE_OIL_PER_STEP = 50; // por avión y territorio recorrido
 
 /** Materiales iniciales según nº de jugadores (tabla oficial) */
 export const STARTING: Record<number, {
