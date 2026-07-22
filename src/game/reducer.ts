@@ -886,22 +886,16 @@ export function reducer(state: GameState, action: Action): GameState {
         effKind = "PLANE";
       } else {
         // Determinar tipo efectivo del atacante (tanque puede degradarse por falta de petróleo)
-        const payKey = `${src}->${tgt}`;
-        let paid = false;
         if (kind === "TANK") {
           if (srcT.tanks < 1) return state;
-          if (!s.tankAttacksPaid.includes(payKey)) {
-            const oil = playerOil(s, attacker.id);
-            if (oil < TANK_ATTACK_OIL) {
-              // Sin petróleo un tanque no puede atacar. Ataque bloqueado.
-              pushLog(s, "oil", `${attacker.name}: petróleo insuficiente (${TANK_ATTACK_OIL} L). El tanque no puede atacar.`);
-              return s;
-            }
-            spendOil(s, attacker.id, TANK_ATTACK_OIL);
-            paid = true;
-          } else {
-            paid = true;
+          const oil = playerOil(s, attacker.id);
+          if (oil < TANK_ATTACK_OIL) {
+            // Sin petróleo un tanque no puede atacar. Ataque bloqueado.
+            pushLog(s, "oil", `${attacker.name}: petróleo insuficiente (${TANK_ATTACK_OIL} L). El tanque no puede atacar.`);
+            return s;
           }
+          spendOil(s, attacker.id, TANK_ATTACK_OIL);
+          pushLog(s, "oil", `${attacker.name} gasta ${TANK_ATTACK_OIL} L en un ataque con tanque a ${TERR_BY_ID[tgt].name}.`);
         } else {
           // Tierra quemada: permitido atacar con 1 infantería (arriesga perderla)
           if (srcT.infantry < 1) return state;
