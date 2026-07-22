@@ -5,7 +5,7 @@ import { TERRITORIES, TERR_BY_ID, CONTINENTS, type TerrSymbol } from "./territor
 import {
   reducer, initGame, ownedCount, playerOil, territoryArmyCount,
   PLAYER_COLORS, DEFAULT_NAMES, STARTING, PLANE_OIL_PER_STEP, bfsDist, classifyTrade,
-  playerHasAirport, reinforcePending, CONQUEROR_NAMES,
+  playerHasAirport, playerHasSilo, reinforcePending, CONQUEROR_NAMES,
   type GameState, type UnitKind, type SetupItem, type Action, type TradeReward, type Card,
 } from "./reducer";
 import { nextBotAction } from "./bot";
@@ -697,7 +697,7 @@ function ReinforcePanel({ state, dispatch, nukeMode, setNukeMode, reinforceCount
 
   return (
     <div className="actions">
-      {p.stockNukes > 0 && (
+      {p.stockNukes > 0 && playerHasSilo(state, p.id) && (
         <button
           className={`btn sm ${nukeMode ? "" : "ghost"}`}
           style={{ borderColor: "#e05d44", color: nukeMode ? undefined : "#e05d44" }}
@@ -839,7 +839,7 @@ function AttackPanel({ state, dispatch, occupyInf, setOccupyInf, nukeMode, setNu
 
   return (
     <div className="actions">
-      {current.stockNukes > 0 && (
+      {current.stockNukes > 0 && playerHasSilo(state, current.id) && (
         <button
           className={`btn sm ${nukeMode ? "" : "ghost"}`}
           style={{ borderColor: "#e05d44", color: nukeMode ? undefined : "#e05d44" }}

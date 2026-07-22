@@ -1,6 +1,6 @@
 import { TERRITORIES, TERR_BY_ID, type TerrSymbol } from "./territories";
 import {
-  classifyTrade, playerOil, playerHasAirport, reinforcePending,
+  classifyTrade, playerOil, playerHasAirport, playerHasSilo, reinforcePending,
   bfsDist, PLANE_OIL_PER_STEP, TANK_ATTACK_OIL,
   type GameState, type Action, type UnitKind, type TradeReward,
 } from "./reducer";
@@ -180,8 +180,8 @@ function botAttack(state: GameState): Action | null {
     return { type: "OCCUPY", infantry: half };
   }
 
-  // Lanzar misil si tiene y hay objetivo con torres enemigas.
-  if (p.stockNukes > 0) {
+  // Lanzar misil si tiene silo + misil y hay objetivo con torres enemigas.
+  if (p.stockNukes > 0 && playerHasSilo(state, p.id)) {
     let bestTgt: string | null = null; let bestTowers = 0;
     for (const id in state.territories) {
       const t = state.territories[id];
