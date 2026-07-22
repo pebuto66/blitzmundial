@@ -855,7 +855,7 @@ function AttackPanel({ state, dispatch, occupyInf, setOccupyInf, nukeMode, setNu
             className={`btn sm ${state.attackKind === k ? "" : "ghost"}`}
             onClick={() => dispatch({ type: "SELECT_ATTACK_KIND", kind: k })}
           >
-            {k === "INFANTRY" ? <IconSoldier size={12} /> : k === "TANK" ? <IconTank size={12} /> : <IconPlane size={12} />} {k === "INFANTRY" ? "Infantería" : k === "TANK" ? "Tanque (50 L)" : "Avión (100 L/terr)"}
+            {k === "INFANTRY" ? <IconSoldier size={12} /> : k === "TANK" ? <IconTank size={12} /> : <IconPlane size={12} />} {k === "INFANTRY" ? "Infantería" : k === "TANK" ? "Tanque (25 L)" : "Avión (50 L/terr)"}
           </button>
         ))}
       </div>
