@@ -932,13 +932,18 @@ export function reducer(state: GameState, action: Action): GameState {
           }
         } else {
           const scorched = effKind !== "TANK" && srcT.infantry === 1;
-          // Tanque atacando: puede llevar apoyo de infantería. Necesita ≥1 tanque.
+          // Tanque atacando: siempre debe ir acompañado (otro tanque o ≥2 infantería
+          // de apoyo). Un tanque con solo 1 infantería no puede atacar.
+          if (effKind === "TANK") {
+            if (srcT.tanks < 1) return state;
+            const supportInf = Math.max(0, srcT.infantry - 1);
+            if (srcT.tanks < 2 && supportInf < 2) return state;
+          }
           const atkTotalGround = effKind === "TANK"
             ? srcT.tanks + Math.max(0, srcT.infantry - 1)
             : (scorched ? 1 : srcT.infantry - 1);
           const maxAtk = Math.min(action.dice, atkTotalGround, 3);
           if (maxAtk < 1) return state;
-          if (effKind === "TANK" && srcT.tanks < 1) return state;
           const defTankFirst = effDefTanks > 0;
           const totalDefGround = effDefTanks + effDefInf;
           // El defensor puede tirar 3 dados si tiene ≥1 tanque; si no, 2.
