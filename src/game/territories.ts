@@ -70,7 +70,7 @@ export const TERRITORIES: Territory[] = [
   // Asia
   { id: "oriente_medio", name: "Oriente Medio", continent: "as", x: 63.1, y: 46.9, adj: ["ucrania", "egipto", "africa_oriental", "asia_central", "india"], symbol: "S" },
   { id: "asia_central", name: "Asia Central", continent: "as", x: 69.1, y: 39.0, adj: ["ucrania", "oriente_medio", "omsk", "india", "china"], symbol: "P" },
-  { id: "omsk", name: "Omsk", continent: "as", x: 71.3, y: 28.4, adj: ["ucrania", "asia_central", "siberia_central", "irkutsk", "china"], symbol: "T" },
+  { id: "omsk", name: "Omsk", continent: "as", x: 71.3, y: 28.4, adj: ["ucrania", "asia_central", "siberia_central", "china"], symbol: "T" },
   { id: "siberia_central", name: "Siberia Central", continent: "as", x: 77.3, y: 25.0, adj: ["omsk", "yakutia", "irkutsk", "mongolia", "china"], symbol: "S" },
   { id: "yakutia", name: "Yakutia", continent: "as", x: 87.4, y: 18.6, adj: ["siberia_central", "irkutsk", "kamchatka"], symbol: "P" },
   { id: "kamchatka", name: "Vladivostok", continent: "as", x: 94.7, y: 27.8, adj: ["yakutia", "irkutsk", "mongolia", "japon", "alaska"], symbol: "T" },
