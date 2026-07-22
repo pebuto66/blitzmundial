@@ -257,6 +257,22 @@ export function playerHasAirport(state: GameState, pid: number): boolean {
   return false;
 }
 
+/** ¿Tiene el jugador algún silo propio en el tablero? */
+export function playerHasSilo(state: GameState, pid: number): boolean {
+  for (const id in state.territories) {
+    const t = state.territories[id];
+    if (t.owner === pid && t.silo) return true;
+  }
+  return false;
+}
+
+/** Si un jugador no tiene torres, no puede tener petróleo. */
+function syncOilInvariant(state: GameState) {
+  for (const p of state.players) {
+    if (p.oil > 0 && playerTowers(state, p.id) === 0) p.oil = 0;
+  }
+}
+
 /** ¿Quedan unidades por colocar en refuerzo? Los aviones no bloquean si no hay aeropuerto propio. */
 export function reinforcePending(state: GameState): boolean {
   const p = state.players[state.current];
