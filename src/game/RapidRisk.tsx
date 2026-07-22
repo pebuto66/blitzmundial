@@ -5,7 +5,7 @@ import { TERRITORIES, TERR_BY_ID, CONTINENTS, type TerrSymbol } from "./territor
 import {
   reducer, initGame, ownedCount, playerOil, territoryArmyCount,
   PLAYER_COLORS, DEFAULT_NAMES, STARTING, PLANE_OIL_PER_STEP, bfsDist, classifyTrade,
-  playerHasAirport, reinforcePending, CONQUEROR_NAMES,
+  playerHasAirport, playerHasSilo, reinforcePending, CONQUEROR_NAMES,
   type GameState, type UnitKind, type SetupItem, type Action, type TradeReward, type Card,
 } from "./reducer";
 import { nextBotAction } from "./bot";
