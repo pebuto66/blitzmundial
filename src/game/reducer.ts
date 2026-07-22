@@ -374,16 +374,17 @@ export function initGame(playerInputs: { name: string; isBot?: boolean }[]): Gam
     [deck[i], deck[j]] = [deck[j], deck[i]];
   }
 
+  const setupStart = setupOrder(players)[0] ?? 0;
   const log: LogEntry[] = [
     { id: 0, type: "info", text: `Partida iniciada con ${n} jugadores.` },
-    { id: 1, type: "setup", text: `Setup: ${players[0].name} coloca su primer aeropuerto.` },
+    { id: 1, type: "setup", text: `Setup: ${players[setupStart].name} coloca su primer aeropuerto.` },
   ];
 
   return {
     players,
-    current: 0,
+    current: setupStart,
     phase: "SETUP",
-    setupItem: firstSetupItem(players[0]),
+    setupItem: firstSetupItem(players[setupStart]),
     reinforceItem: "ARMY",
     territories,
     reinforcements: 0,
@@ -438,6 +439,12 @@ function allSetupDone(state: GameState): boolean {
   return state.players.every((p) => nextSetupItem(p) === null);
 }
 
+function setupOrder(players: Player[]): number[] {
+  const bots = players.filter((p) => p.isBot).map((p) => p.id);
+  const humans = players.filter((p) => !p.isBot).map((p) => p.id);
+  return [...bots, ...humans];
+}
+
 function advanceSetup(state: GameState) {
   // El jugador conserva el tipo que estaba colocando si aún le quedan unidades.
   const cur = state.players[state.current];
@@ -448,10 +455,11 @@ function advanceSetup(state: GameState) {
     return;
   }
   pushLog(state, "setup", `${cur.name} ha terminado su despliegue.`);
-  // Pasa al siguiente jugador vivo con algo por colocar
-  const n = state.players.length;
-  for (let step = 1; step <= n; step++) {
-    const idx = (state.current + step) % n;
+  // Pasa al siguiente jugador vivo con algo por colocar (bots primero, humanos después)
+  const order = setupOrder(state.players);
+  const pos = order.indexOf(state.current);
+  for (let step = 1; step <= order.length; step++) {
+    const idx = order[(pos + step) % order.length];
     const p = state.players[idx];
     const it = nextSetupItem(p);
     if (it !== null) {
