@@ -1089,8 +1089,7 @@ export function reducer(state: GameState, action: Action): GameState {
         s.attackTarget = null;
         s.attackSource = null;
         s.lastBattle = null;
-        // Al conquistar el objetivo bloqueado del turno, se libera para poder atacar otro.
-        if (s.turnAttackTarget === tgt) s.turnAttackTarget = null;
+        // Solo se puede atacar un territorio por turno: el objetivo queda bloqueado aunque se conquiste.
       }
       return s;
     }
