@@ -1170,6 +1170,8 @@ export function reducer(state: GameState, action: Action): GameState {
       }
       t.towers = 0;
       if (defender.oil <= 0) removeAllTowersOf(s, defender.id);
+      syncOilInvariant(s);
+
 
       pushLog(
         s, "nuke",
