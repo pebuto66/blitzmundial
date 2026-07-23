@@ -29,16 +29,26 @@ export type SeatInfo = {
 
 export type LobbyConfig = { humanCount: number; botCount: number; names: string[] };
 
+export interface ChatMessage {
+  id: string;
+  from: string;      // clientId
+  name: string;
+  text: string;
+  at: number;        // epoch ms
+}
+
 type Msg =
   | { type: "hostConfig"; hostId: string; config: LobbyConfig }
   | { type: "start"; state: GameState }
-  | { type: "state"; state: GameState; from: string };
+  | { type: "state"; state: GameState; from: string }
+  | { type: "chat"; message: ChatMessage };
 
 export interface RoomHandlers {
   onSeats?: (seats: SeatInfo[]) => void;
   onHostConfig?: (cfg: LobbyConfig, hostId: string) => void;
   onStart?: (state: GameState) => void;
   onState?: (state: GameState) => void;
+  onChat?: (message: ChatMessage) => void;
 }
 
 export interface RoomHandle {
@@ -50,6 +60,7 @@ export interface RoomHandle {
   sendHostConfig: (cfg: LobbyConfig) => void;
   sendStart: (state: GameState) => void;
   sendState: (state: GameState) => void;
+  sendChat: (text: string, name: string) => void;
   leave: () => Promise<void>;
 }
 
