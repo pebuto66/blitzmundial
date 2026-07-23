@@ -97,6 +97,7 @@ export function OnlineDialog({
           onSeats: setSeats,
           onHostConfig: (cfg, hid) => { setConfig(cfg); setHostId(hid); },
           onState: (s) => onRemoteStateRef.current(s),
+          onChat: (m) => setChat((prev) => [...prev, m]),
           onStart: (state) => {
             startedRef.current = true;
             if (roomRef.current) {
