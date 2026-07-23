@@ -188,7 +188,7 @@ export function OnlineDialog({
         {step === "create-name" && (
           <div style={{ display: "grid", gap: 12 }}>
             <label className="hint">Tu nombre</label>
-            <input value={myName} onChange={(e) => setMyName(e.target.value)} placeholder="Anfitrión" />
+            <input className="text-input" value={myName} onChange={(e) => setMyName(e.target.value)} placeholder="Anfitrión" />
             <div style={{ display: "flex", gap: 8, justifyContent: "flex-end" }}>
               <button className="btn ghost" onClick={() => setStep("menu")}>Atrás</button>
               <button className="btn" disabled={busy} onClick={createRoom}>Crear sala</button>
@@ -199,9 +199,9 @@ export function OnlineDialog({
         {step === "join-code" && (
           <div style={{ display: "grid", gap: 12 }}>
             <label className="hint">Tu nombre</label>
-            <input value={myName} onChange={(e) => setMyName(e.target.value)} placeholder="Jugador" />
+            <input className="text-input" value={myName} onChange={(e) => setMyName(e.target.value)} placeholder="Jugador" />
             <label className="hint">Código de sala</label>
-            <input value={codeInput} onChange={(e) => setCodeInput(e.target.value.toUpperCase())} placeholder="ABC123" maxLength={6} style={{ fontFamily: "monospace", letterSpacing: 4, textAlign: "center", fontSize: 20 }} />
+            <input className="text-input" value={codeInput} onChange={(e) => setCodeInput(e.target.value.toUpperCase())} placeholder="ABC123" maxLength={6} style={{ fontFamily: "monospace", letterSpacing: 4, textAlign: "center", fontSize: 20 }} />
             <div style={{ display: "flex", gap: 8, justifyContent: "flex-end" }}>
               <button className="btn ghost" onClick={() => setStep("menu")}>Atrás</button>
               <button className="btn" disabled={busy} onClick={joinExisting}>Unirse</button>
