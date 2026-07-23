@@ -311,3 +311,87 @@
   .bo-die { width: 16px; height: 16px; font-size: 10px; }
 }
 
+
+/* ═════════ Inputs de diálogo (contraste alto sobre modales oscuros) ═════════ */
+.text-input,
+.victory-modal input[type="text"],
+.victory-modal input:not([type]) {
+  background: #1a1610;
+  color: #f7ecd5;
+  border: 1px solid rgba(201,162,39,0.35);
+  border-radius: 6px;
+  padding: 8px 10px;
+  font-size: 14px;
+  outline: none;
+}
+.text-input::placeholder { color: rgba(247,236,213,0.4); }
+.text-input:focus { border-color: #c9a227; box-shadow: 0 0 0 2px rgba(201,162,39,0.2); }
+
+/* ═════════ Chat ═════════ */
+.chat { display: flex; flex-direction: column; gap: 6px; }
+.chat-log {
+  background: #14100a;
+  border: 1px solid rgba(201,162,39,0.25);
+  border-radius: 6px;
+  padding: 8px;
+  height: 160px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 12px;
+  color: #f2ead9;
+}
+.chat-msg { line-height: 1.35; word-break: break-word; }
+.chat-msg.mine .chat-name { color: #c9a227; }
+.chat-name { font-weight: 700; color: #d8c07a; margin-right: 4px; }
+.chat-text { color: #f7ecd5; }
+.chat-input { display: flex; gap: 6px; }
+.chat-input input {
+  flex: 1;
+  background: #1a1610;
+  color: #f7ecd5;
+  border: 1px solid rgba(201,162,39,0.35);
+  border-radius: 6px;
+  padding: 6px 8px;
+  font-size: 13px;
+  outline: none;
+}
+.chat-input input:focus { border-color: #c9a227; }
+
+/* Chat flotante en la partida online */
+.game-chat {
+  position: fixed;
+  bottom: 12px;
+  right: 12px;
+  z-index: 50;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 6px;
+  max-width: 320px;
+  width: min(94vw, 320px);
+}
+.game-chat.open {
+  background: rgba(20,16,10,0.95);
+  border: 1px solid rgba(201,162,39,0.4);
+  border-radius: 10px;
+  padding: 8px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+}
+.game-chat-toggle { align-self: flex-end; }
+.game-chat .chat-log { height: 200px; }
+
+/* ═════════ Responsive: topbar y chips ═════════ */
+@media (max-width: 900px) {
+  .topbar { flex-wrap: wrap; gap: 6px; padding: 6px 8px; }
+  .chips { flex-wrap: wrap; gap: 4px; }
+  .chip { font-size: 11px; padding: 3px 6px; gap: 4px; }
+  .brand { font-size: 16px; }
+}
+@media (max-width: 640px) {
+  .chip span { font-size: 10px; }
+  .chip .swatch { width: 12px !important; height: 12px !important; }
+  .game-chat { max-width: 92vw; width: 92vw; }
+  .game-chat .chat-log { height: 160px; }
+}

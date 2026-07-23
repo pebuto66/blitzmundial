@@ -6,6 +6,7 @@ import {
   reducer, initGame, ownedCount, playerOil, territoryArmyCount,
   PLAYER_COLORS, DEFAULT_NAMES, STARTING, PLANE_OIL_PER_STEP, bfsDist, classifyTrade,
   playerHasAirport, playerHasSilo, reinforcePending, CONQUEROR_NAMES,
+  playerAirports, playerSilos, playerTroops,
   type GameState, type UnitKind, type SetupItem, type Action, type TradeReward, type Card,
 } from "./reducer";
 import { nextBotAction } from "./bot";
@@ -18,7 +19,8 @@ import { Manual } from "./Manual";
 import { SaveLoadDialog } from "./SaveLoadDialog";
 import { BattleOverlay } from "./BattleOverlay";
 import { OnlineDialog } from "./OnlineDialog";
-import type { RoomHandle } from "./online";
+import type { ChatMessage, RoomHandle } from "./online";
+import { Chat } from "./Chat";
 
 function CardIcon({ sym, size }: { sym: TerrSymbol; size?: number }) {
   if (sym === "S") return <IconCardSoldier size={size} />;
@@ -110,6 +112,7 @@ export function RapidRisk() {
         online={online ? {
           mySeat: online.mySeat,
           code: online.room.code,
+          room: online.room,
           remoteState,
           sendState: (s) => online.room.sendState(s),
         } : null}
@@ -228,11 +231,16 @@ function Setup({ count, setCount, names, setNames, bots, setBots, onStart, onOpe
 function GameRoot({ initial, onExit, onOpenManual, onOpenSaveLoad, onStateChange, online }: {
   initial: GameState; onExit: () => void; onOpenManual: () => void;
   onOpenSaveLoad: () => void; onStateChange: (s: GameState) => void;
-  online: { mySeat: number; code: string; remoteState: GameState | null; sendState: (s: GameState) => void } | null;
+  online: { mySeat: number; code: string; room: RoomHandle; remoteState: GameState | null; sendState: (s: GameState) => void } | null;
 }) {
   const [state, rawDispatch] = useReducer(reducer, initial);
   const skipBroadcastRef = useRef(true); // no reenviar el estado inicial
-  const canPlay = !online || state.current === online.mySeat || state.winner !== null;
+  const onlineMySeat = online?.mySeat ?? null;
+  const onlineRemote = online?.remoteState ?? null;
+  const sendStateRef = useRef<((s: GameState) => void) | null>(null);
+  sendStateRef.current = online?.sendState ?? null;
+  const isOnline = !!online;
+  const canPlay = !isOnline || state.current === onlineMySeat || state.winner !== null;
   const dispatch = ((action: Action) => {
     if (!canPlay) return;
     rawDispatch(action);
@@ -240,19 +248,19 @@ function GameRoot({ initial, onExit, onOpenManual, onOpenSaveLoad, onStateChange
 
   // Aplica estado remoto: hidratar sin re-broadcast
   useEffect(() => {
-    if (!online || !online.remoteState) return;
+    if (!onlineRemote) return;
     skipBroadcastRef.current = true;
-    rawDispatch({ type: "HYDRATE", state: online.remoteState });
-  }, [online?.remoteState, online]);
+    rawDispatch({ type: "HYDRATE", state: onlineRemote });
+  }, [onlineRemote]);
 
   // Notifica al padre + retransmite al canal cuando corresponde
   useEffect(() => {
     onStateChange(state);
-    if (online) {
+    if (isOnline) {
       if (skipBroadcastRef.current) skipBroadcastRef.current = false;
-      else online.sendState(state);
+      else sendStateRef.current?.(state);
     }
-  }, [state, onStateChange, online]);
+  }, [state, onStateChange, isOnline]);
 
   const [hover, setHover] = useState<{ id: string; x: number; y: number } | null>(null);
   const [fortifyInf, setFortifyInf] = useState(1);
@@ -273,7 +281,7 @@ function GameRoot({ initial, onExit, onOpenManual, onOpenSaveLoad, onStateChange
   // que múltiples clientes ejecuten el mismo turno.
   const botStuckRef = useRef<{ key: string; count: number }>({ key: "", count: 0 });
   useEffect(() => {
-    if (online && online.mySeat !== 0) return;
+    if (isOnline && onlineMySeat !== 0) return;
     if (state.winner !== null) return;
     if (botPaused) return;
     const cur = state.players[state.current];
@@ -296,7 +304,24 @@ function GameRoot({ initial, onExit, onOpenManual, onOpenSaveLoad, onStateChange
       else if (state.phase === "FORTIFY") rawDispatch({ type: "END_TURN" });
     }, delay);
     return () => window.clearTimeout(handle);
-  }, [state, botPaused, online]);
+  }, [state, botPaused, isOnline, onlineMySeat]);
+
+  // Chat online: nos suscribimos con setHandlers para preservar los mismos callbacks de estado
+  // que ya usa el lobby, y recuperamos los mensajes acumulados.
+  const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
+  const [chatOpen, setChatOpen] = useState(false);
+  const onlineRoom = online?.room ?? null;
+  useEffect(() => {
+    if (!onlineRoom) return;
+    const prior = onlineRoom.setHandlers({
+      onState: (s) => { skipBroadcastRef.current = true; rawDispatch({ type: "HYDRATE", state: s }); },
+      onChat: (m) => setChatMessages((prev) => [...prev, m]),
+    });
+    if (prior.length) setChatMessages(prior);
+  }, [onlineRoom]);
+
+
+
 
 
   // Battle SFX + shake on each resolved battle
@@ -395,22 +420,39 @@ function GameRoot({ initial, onExit, onOpenManual, onOpenSaveLoad, onStateChange
           </div>
         )}
         <div className="chips">
-          {state.players.map((p, i) => (
-            <div key={p.id} className={`chip ${i === state.current ? "active" : ""} ${!p.alive ? "dead" : ""}`}>
-              <div className="swatch" style={{ width: 16, height: 16, background: p.color }} />
-              <span>{p.isBot ? "🤖 " : ""}{p.name}</span>
-              <span className="mono" title="Territorios">{ownedCount(state, p.id)}t</span>
-              <span className="mono" style={{ color: "#7fb069", display: "inline-flex", alignItems: "center", gap: 2 }} title="Petróleo (litros)">
-                <IconOil size={11} />{playerOil(state, p.id)}
-              </span>
-              <span className="mono" title="Cartas">✦{p.cards.length}</span>
-              {p.stockNukes > 0 && (
-                <span className="mono" style={{ color: "#e05d44", display: "inline-flex", alignItems: "center", gap: 2 }} title="Misiles nucleares">
-                  <IconNuke size={11} />{p.stockNukes}
+          {state.players.map((p, i) => {
+            const troops = playerTroops(state, p.id);
+            const aps = playerAirports(state, p.id);
+            const sils = playerSilos(state, p.id);
+            const twrs = state.players.length > 0 ? (function () {
+              let n = 0;
+              for (const id in state.territories) {
+                const t = state.territories[id];
+                if (t.owner === p.id && t.towers > 0) n++;
+              }
+              return n;
+            })() : 0;
+            return (
+              <div key={p.id} className={`chip ${i === state.current ? "active" : ""} ${!p.alive ? "dead" : ""}`}>
+                <div className="swatch" style={{ width: 16, height: 16, background: p.color }} />
+                <span>{p.isBot ? "🤖 " : ""}{p.name}</span>
+                <span className="mono" title="Territorios">{ownedCount(state, p.id)}t</span>
+                <span className="mono" title="Tropas totales (infantería + tanques + aviones)">⚔{troops.total}</span>
+                {aps > 0 && <span className="mono" title="Aeropuertos">✈{aps}</span>}
+                {sils > 0 && <span className="mono" title="Silos nucleares">☢{sils}</span>}
+                {twrs > 0 && <span className="mono" title="Torres de petróleo">🛢{twrs}</span>}
+                <span className="mono" style={{ color: "#7fb069", display: "inline-flex", alignItems: "center", gap: 2 }} title="Petróleo (litros)">
+                  <IconOil size={11} />{playerOil(state, p.id)}
                 </span>
-              )}
-            </div>
-          ))}
+                <span className="mono" title="Cartas">✦{p.cards.length}</span>
+                {p.stockNukes > 0 && (
+                  <span className="mono" style={{ color: "#e05d44", display: "inline-flex", alignItems: "center", gap: 2 }} title="Misiles nucleares">
+                    <IconNuke size={11} />{p.stockNukes}
+                  </span>
+                )}
+              </div>
+            );
+          })}
         </div>
         {state.players.some((p) => p.isBot) && (
           <button
@@ -526,6 +568,21 @@ function GameRoot({ initial, onExit, onOpenManual, onOpenSaveLoad, onStateChange
         </div>
       )}
       <BattleOverlay state={state} />
+      {online && (
+        <div className={`game-chat ${chatOpen ? "open" : ""}`}>
+          <button className="game-chat-toggle btn ghost sm" onClick={() => setChatOpen((v) => !v)} title="Chat de jugadores">
+            💬 {chatOpen ? "Cerrar" : "Chat"}{!chatOpen && chatMessages.length > 0 ? ` (${chatMessages.length})` : ""}
+          </button>
+          {chatOpen && (
+            <Chat
+              room={online.room}
+              myName={state.players[online.mySeat]?.name || "Jugador"}
+              messages={chatMessages}
+              compact
+            />
+          )}
+        </div>
+      )}
     </div>
   );
 }

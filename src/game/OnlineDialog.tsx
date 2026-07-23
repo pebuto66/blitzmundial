@@ -2,8 +2,9 @@ import { useEffect, useRef, useState } from "react";
 import { CONQUEROR_NAMES, initGame, PLAYER_COLORS, type GameState } from "./reducer";
 import {
   generateRoomCode, joinRoom, normalizeRoomCode,
-  type LobbyConfig, type RoomHandle, type SeatInfo,
+  type ChatMessage, type LobbyConfig, type RoomHandle, type SeatInfo,
 } from "./online";
+import { Chat } from "./Chat";
 
 type Step = "menu" | "create-name" | "join-code" | "lobby";
 
@@ -32,6 +33,7 @@ export function OnlineDialog({
   const [seats, setSeats] = useState<SeatInfo[]>([]);
   const [config, setConfig] = useState<LobbyConfig>({ humanCount: 3, botCount: 0, names: [] });
   const [hostId, setHostId] = useState<string | null>(null);
+  const [chat, setChat] = useState<ChatMessage[]>([]);
   const startedRef = useRef(false);
   const roomRef = useRef<RoomHandle | null>(null);
   const onRemoteStateRef = useRef(onRemoteState);
@@ -57,6 +59,7 @@ export function OnlineDialog({
           onSeats: setSeats,
           onHostConfig: (cfg, hid) => { setConfig(cfg); setHostId(hid); },
           onState: (s) => onRemoteStateRef.current(s),
+          onChat: (m) => setChat((prev) => [...prev, m]),
           onStart: (state) => {
             startedRef.current = true;
             if (roomRef.current) {
@@ -94,6 +97,7 @@ export function OnlineDialog({
           onSeats: setSeats,
           onHostConfig: (cfg, hid) => { setConfig(cfg); setHostId(hid); },
           onState: (s) => onRemoteStateRef.current(s),
+          onChat: (m) => setChat((prev) => [...prev, m]),
           onStart: (state) => {
             startedRef.current = true;
             if (roomRef.current) {
@@ -184,7 +188,7 @@ export function OnlineDialog({
         {step === "create-name" && (
           <div style={{ display: "grid", gap: 12 }}>
             <label className="hint">Tu nombre</label>
-            <input value={myName} onChange={(e) => setMyName(e.target.value)} placeholder="Anfitrión" />
+            <input className="text-input" value={myName} onChange={(e) => setMyName(e.target.value)} placeholder="Anfitrión" />
             <div style={{ display: "flex", gap: 8, justifyContent: "flex-end" }}>
               <button className="btn ghost" onClick={() => setStep("menu")}>Atrás</button>
               <button className="btn" disabled={busy} onClick={createRoom}>Crear sala</button>
@@ -195,9 +199,9 @@ export function OnlineDialog({
         {step === "join-code" && (
           <div style={{ display: "grid", gap: 12 }}>
             <label className="hint">Tu nombre</label>
-            <input value={myName} onChange={(e) => setMyName(e.target.value)} placeholder="Jugador" />
+            <input className="text-input" value={myName} onChange={(e) => setMyName(e.target.value)} placeholder="Jugador" />
             <label className="hint">Código de sala</label>
-            <input value={codeInput} onChange={(e) => setCodeInput(e.target.value.toUpperCase())} placeholder="ABC123" maxLength={6} style={{ fontFamily: "monospace", letterSpacing: 4, textAlign: "center", fontSize: 20 }} />
+            <input className="text-input" value={codeInput} onChange={(e) => setCodeInput(e.target.value.toUpperCase())} placeholder="ABC123" maxLength={6} style={{ fontFamily: "monospace", letterSpacing: 4, textAlign: "center", fontSize: 20 }} />
             <div style={{ display: "flex", gap: 8, justifyContent: "flex-end" }}>
               <button className="btn ghost" onClick={() => setStep("menu")}>Atrás</button>
               <button className="btn" disabled={busy} onClick={joinExisting}>Unirse</button>
@@ -275,6 +279,9 @@ export function OnlineDialog({
             ) : (
               <div className="hint" style={{ textAlign: "center" }}>Esperando a que el anfitrión inicie la partida…</div>
             )}
+
+            <div className="title-font" style={{ fontSize: 12, color: "#c9a227", marginTop: 4 }}>💬 Chat</div>
+            <Chat room={room} myName={myName.trim() || (isHost ? "Anfitrión" : "Jugador")} messages={chat} compact />
           </div>
         )}
       </div>
