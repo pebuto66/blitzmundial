@@ -232,7 +232,12 @@ function GameRoot({ initial, onExit, onOpenManual, onOpenSaveLoad, onStateChange
 }) {
   const [state, rawDispatch] = useReducer(reducer, initial);
   const skipBroadcastRef = useRef(true); // no reenviar el estado inicial
-  const canPlay = !online || state.current === online.mySeat || state.winner !== null;
+  const onlineMySeat = online?.mySeat ?? null;
+  const onlineRemote = online?.remoteState ?? null;
+  const sendStateRef = useRef<((s: GameState) => void) | null>(null);
+  sendStateRef.current = online?.sendState ?? null;
+  const isOnline = !!online;
+  const canPlay = !isOnline || state.current === onlineMySeat || state.winner !== null;
   const dispatch = ((action: Action) => {
     if (!canPlay) return;
     rawDispatch(action);
@@ -240,19 +245,19 @@ function GameRoot({ initial, onExit, onOpenManual, onOpenSaveLoad, onStateChange
 
   // Aplica estado remoto: hidratar sin re-broadcast
   useEffect(() => {
-    if (!online || !online.remoteState) return;
+    if (!onlineRemote) return;
     skipBroadcastRef.current = true;
-    rawDispatch({ type: "HYDRATE", state: online.remoteState });
-  }, [online?.remoteState, online]);
+    rawDispatch({ type: "HYDRATE", state: onlineRemote });
+  }, [onlineRemote]);
 
   // Notifica al padre + retransmite al canal cuando corresponde
   useEffect(() => {
     onStateChange(state);
-    if (online) {
+    if (isOnline) {
       if (skipBroadcastRef.current) skipBroadcastRef.current = false;
-      else online.sendState(state);
+      else sendStateRef.current?.(state);
     }
-  }, [state, onStateChange, online]);
+  }, [state, onStateChange, isOnline]);
 
   const [hover, setHover] = useState<{ id: string; x: number; y: number } | null>(null);
   const [fortifyInf, setFortifyInf] = useState(1);
@@ -273,7 +278,7 @@ function GameRoot({ initial, onExit, onOpenManual, onOpenSaveLoad, onStateChange
   // que múltiples clientes ejecuten el mismo turno.
   const botStuckRef = useRef<{ key: string; count: number }>({ key: "", count: 0 });
   useEffect(() => {
-    if (online && online.mySeat !== 0) return;
+    if (isOnline && onlineMySeat !== 0) return;
     if (state.winner !== null) return;
     if (botPaused) return;
     const cur = state.players[state.current];
@@ -296,7 +301,7 @@ function GameRoot({ initial, onExit, onOpenManual, onOpenSaveLoad, onStateChange
       else if (state.phase === "FORTIFY") rawDispatch({ type: "END_TURN" });
     }, delay);
     return () => window.clearTimeout(handle);
-  }, [state, botPaused, online]);
+  }, [state, botPaused, isOnline, onlineMySeat]);
 
 
   // Battle SFX + shake on each resolved battle
