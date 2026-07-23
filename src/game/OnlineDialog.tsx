@@ -279,6 +279,9 @@ export function OnlineDialog({
             ) : (
               <div className="hint" style={{ textAlign: "center" }}>Esperando a que el anfitrión inicie la partida…</div>
             )}
+
+            <div className="title-font" style={{ fontSize: 12, color: "#c9a227", marginTop: 4 }}>💬 Chat</div>
+            <Chat room={room} myName={myName.trim() || (isHost ? "Anfitrión" : "Jugador")} messages={chat} compact />
           </div>
         )}
       </div>
