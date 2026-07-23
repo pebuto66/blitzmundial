@@ -306,6 +306,22 @@ function GameRoot({ initial, onExit, onOpenManual, onOpenSaveLoad, onStateChange
     return () => window.clearTimeout(handle);
   }, [state, botPaused, isOnline, onlineMySeat]);
 
+  // Chat online: nos suscribimos con setHandlers para preservar los mismos callbacks de estado
+  // que ya usa el lobby, y recuperamos los mensajes acumulados.
+  const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
+  const [chatOpen, setChatOpen] = useState(false);
+  useEffect(() => {
+    if (!online) return;
+    const prior = online.room.setHandlers({
+      onState: (s) => rawDispatch({ type: "HYDRATE", state: s }),
+      onChat: (m) => setChatMessages((prev) => [...prev, m]),
+    });
+    if (prior.length) setChatMessages(prior);
+  }, [online]);
+
+
+
+
 
   // Battle SFX + shake on each resolved battle
   useEffect(() => {
