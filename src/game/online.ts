@@ -90,6 +90,7 @@ export async function joinRoom(
     if (payload.type === "hostConfig") opts.handlers.onHostConfig?.(payload.config, payload.hostId);
     else if (payload.type === "start") opts.handlers.onStart?.(payload.state);
     else if (payload.type === "state" && payload.from !== clientId) opts.handlers.onState?.(payload.state);
+    else if (payload.type === "chat") opts.handlers.onChat?.(payload.message);
   });
 
   await new Promise<void>((resolve, reject) => {
