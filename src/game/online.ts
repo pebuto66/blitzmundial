@@ -61,6 +61,8 @@ export interface RoomHandle {
   sendStart: (state: GameState) => void;
   sendState: (state: GameState) => void;
   sendChat: (text: string, name: string) => void;
+  /** Reemplaza el listener actual y devuelve todos los chats acumulados hasta ahora. */
+  setHandlers: (h: RoomHandlers) => ChatMessage[];
   leave: () => Promise<void>;
 }
 
@@ -74,6 +76,9 @@ export async function joinRoom(
   });
 
   let me = { name: opts.name, seat: opts.seat, isHost: opts.isHost };
+  // Handlers mutables: al pasar del lobby al juego, se reemplazan por los del componente de juego.
+  let currentHandlers: RoomHandlers = opts.handlers;
+  const chatBuffer: ChatMessage[] = [];
 
   channel.on("presence", { event: "sync" }, () => {
     const state = channel.presenceState() as Record<string, Array<{ name: string; seat: number | null; isHost: boolean }>>;
@@ -83,14 +88,17 @@ export async function joinRoom(
       if (!last) continue;
       seats.push({ clientId: key, name: last.name, seat: last.seat ?? null, isHost: !!last.isHost });
     }
-    opts.handlers.onSeats?.(seats);
+    currentHandlers.onSeats?.(seats);
   });
 
   channel.on("broadcast", { event: "msg" }, ({ payload }: { payload: Msg }) => {
-    if (payload.type === "hostConfig") opts.handlers.onHostConfig?.(payload.config, payload.hostId);
-    else if (payload.type === "start") opts.handlers.onStart?.(payload.state);
-    else if (payload.type === "state" && payload.from !== clientId) opts.handlers.onState?.(payload.state);
-    else if (payload.type === "chat") opts.handlers.onChat?.(payload.message);
+    if (payload.type === "hostConfig") currentHandlers.onHostConfig?.(payload.config, payload.hostId);
+    else if (payload.type === "start") currentHandlers.onStart?.(payload.state);
+    else if (payload.type === "state" && payload.from !== clientId) currentHandlers.onState?.(payload.state);
+    else if (payload.type === "chat") {
+      chatBuffer.push(payload.message);
+      currentHandlers.onChat?.(payload.message);
+    }
   });
 
   await new Promise<void>((resolve, reject) => {
@@ -133,7 +141,12 @@ export async function joinRoom(
       const msg: Msg = { type: "chat", message };
       void channel.send({ type: "broadcast", event: "msg", payload: msg });
       // Local echo — Supabase realtime does not self-deliver broadcasts
-      opts.handlers.onChat?.(message);
+      chatBuffer.push(message);
+      currentHandlers.onChat?.(message);
+    },
+    setHandlers(h) {
+      currentHandlers = h;
+      return [...chatBuffer];
     },
     async leave() {
       await channel.unsubscribe();
