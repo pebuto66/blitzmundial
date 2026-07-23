@@ -230,7 +230,7 @@ function Setup({ count, setCount, names, setNames, bots, setBots, onStart, onOpe
 function GameRoot({ initial, onExit, onOpenManual, onOpenSaveLoad, onStateChange, online }: {
   initial: GameState; onExit: () => void; onOpenManual: () => void;
   onOpenSaveLoad: () => void; onStateChange: (s: GameState) => void;
-  online: { mySeat: number; code: string; remoteState: GameState | null; sendState: (s: GameState) => void } | null;
+  online: { mySeat: number; code: string; room: RoomHandle; remoteState: GameState | null; sendState: (s: GameState) => void } | null;
 }) {
   const [state, rawDispatch] = useReducer(reducer, initial);
   const skipBroadcastRef = useRef(true); // no reenviar el estado inicial
