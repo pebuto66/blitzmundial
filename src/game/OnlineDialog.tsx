@@ -2,8 +2,9 @@ import { useEffect, useRef, useState } from "react";
 import { CONQUEROR_NAMES, initGame, PLAYER_COLORS, type GameState } from "./reducer";
 import {
   generateRoomCode, joinRoom, normalizeRoomCode,
-  type LobbyConfig, type RoomHandle, type SeatInfo,
+  type ChatMessage, type LobbyConfig, type RoomHandle, type SeatInfo,
 } from "./online";
+import { Chat } from "./Chat";
 
 type Step = "menu" | "create-name" | "join-code" | "lobby";
 
