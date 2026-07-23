@@ -123,6 +123,18 @@ export async function joinRoom(
       const msg: Msg = { type: "state", state, from: clientId };
       void channel.send({ type: "broadcast", event: "msg", payload: msg });
     },
+    sendChat(text, name) {
+      const trimmed = text.trim();
+      if (!trimmed) return;
+      const message: ChatMessage = {
+        id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+        from: clientId, name, text: trimmed.slice(0, 300), at: Date.now(),
+      };
+      const msg: Msg = { type: "chat", message };
+      void channel.send({ type: "broadcast", event: "msg", payload: msg });
+      // Local echo — Supabase realtime does not self-deliver broadcasts
+      opts.handlers.onChat?.(message);
+    },
     async leave() {
       await channel.unsubscribe();
       await supabase.removeChannel(channel);
