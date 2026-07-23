@@ -409,7 +409,7 @@ function GameRoot({ initial, onExit, onOpenManual, onOpenSaveLoad, onStateChange
               let n = 0;
               for (const id in state.territories) {
                 const t = state.territories[id];
-                if (t.owner === p.id && t.tower) n++;
+                if (t.owner === p.id && t.towers > 0) n++;
               }
               return n;
             })() : 0;
