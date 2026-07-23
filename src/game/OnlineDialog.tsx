@@ -33,6 +33,7 @@ export function OnlineDialog({
   const [seats, setSeats] = useState<SeatInfo[]>([]);
   const [config, setConfig] = useState<LobbyConfig>({ humanCount: 3, botCount: 0, names: [] });
   const [hostId, setHostId] = useState<string | null>(null);
+  const [chat, setChat] = useState<ChatMessage[]>([]);
   const startedRef = useRef(false);
   const roomRef = useRef<RoomHandle | null>(null);
   const onRemoteStateRef = useRef(onRemoteState);
