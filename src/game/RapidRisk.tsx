@@ -6,6 +6,7 @@ import {
   reducer, initGame, ownedCount, playerOil, territoryArmyCount,
   PLAYER_COLORS, DEFAULT_NAMES, STARTING, PLANE_OIL_PER_STEP, bfsDist, classifyTrade,
   playerHasAirport, playerHasSilo, reinforcePending, CONQUEROR_NAMES,
+  playerAirports, playerSilos, playerTroops,
   type GameState, type UnitKind, type SetupItem, type Action, type TradeReward, type Card,
 } from "./reducer";
 import { nextBotAction } from "./bot";
