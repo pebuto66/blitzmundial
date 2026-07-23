@@ -89,13 +89,8 @@ export function RapidRisk() {
         {onlineOpen && (
           <OnlineDialog
             onClose={() => setOnlineOpen(false)}
+            onRemoteState={(s) => setRemoteState(s)}
             onStart={({ room, mySeat, initialState }) => {
-              // reemplaza el canal para recibir estados remotos en curso
-              room.channel.on("broadcast", { event: "msg" }, ({ payload }: { payload: { type: string; state?: GameState; from?: string } }) => {
-                if (payload.type === "state" && payload.from !== room.clientId && payload.state) {
-                  setRemoteState(payload.state);
-                }
-              });
               setOnline({ room, mySeat });
               setOnlineOpen(false);
               setInitial(initialState);
@@ -274,10 +269,11 @@ function GameRoot({ initial, onExit, onOpenManual, onOpenSaveLoad, onStateChange
   );
 
   // Motor de bots: cuando el jugador actual es una IA, ejecuta acciones con un pequeño delay.
-  // Deshabilitado en modo online (no hay bots en partidas online).
+  // En modo online, sólo el anfitrión (mySeat === 0) dispara acciones de bot para evitar
+  // que múltiples clientes ejecuten el mismo turno.
   const botStuckRef = useRef<{ key: string; count: number }>({ key: "", count: 0 });
   useEffect(() => {
-    if (online) return;
+    if (online && online.mySeat !== 0) return;
     if (state.winner !== null) return;
     if (botPaused) return;
     const cur = state.players[state.current];
@@ -285,8 +281,6 @@ function GameRoot({ initial, onExit, onOpenManual, onOpenSaveLoad, onStateChange
     const delay = state.lastBattle ? 900 : state.pendingOccupy ? 500 : 350;
     const handle = window.setTimeout(() => {
       const action = nextBotAction(state);
-      // Anti-atasco: si el bot propone la misma acción repetidamente sin avance,
-      // forzamos el final de la fase para evitar bucles infinitos.
       const key = `${state.phase}:${state.current}:${JSON.stringify(action)}`;
       const stuck = botStuckRef.current;
       if (stuck.key === key) stuck.count += 1;

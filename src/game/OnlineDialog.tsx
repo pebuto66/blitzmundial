@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { initGame, PLAYER_COLORS, type GameState } from "./reducer";
+import { CONQUEROR_NAMES, initGame, PLAYER_COLORS, type GameState } from "./reducer";
 import {
   generateRoomCode, joinRoom, normalizeRoomCode,
   type LobbyConfig, type RoomHandle, type SeatInfo,
@@ -16,9 +16,11 @@ export interface OnlineStartPayload {
 export function OnlineDialog({
   onClose,
   onStart,
+  onRemoteState,
 }: {
   onClose: () => void;
   onStart: (payload: OnlineStartPayload) => void;
+  onRemoteState: (s: GameState) => void;
 }) {
   const [step, setStep] = useState<Step>("menu");
   const [myName, setMyName] = useState("");
@@ -28,9 +30,12 @@ export function OnlineDialog({
 
   const [room, setRoom] = useState<RoomHandle | null>(null);
   const [seats, setSeats] = useState<SeatInfo[]>([]);
-  const [config, setConfig] = useState<LobbyConfig>({ count: 3, names: [] });
+  const [config, setConfig] = useState<LobbyConfig>({ humanCount: 3, botCount: 0, names: [] });
   const [hostId, setHostId] = useState<string | null>(null);
   const startedRef = useRef(false);
+  const roomRef = useRef<RoomHandle | null>(null);
+  const onRemoteStateRef = useRef(onRemoteState);
+  onRemoteStateRef.current = onRemoteState;
 
   // limpieza si se cierra sin iniciar
   useEffect(() => {
@@ -51,10 +56,11 @@ export function OnlineDialog({
         handlers: {
           onSeats: setSeats,
           onHostConfig: (cfg, hid) => { setConfig(cfg); setHostId(hid); },
+          onState: (s) => onRemoteStateRef.current(s),
           onStart: (state) => {
             startedRef.current = true;
             if (roomRef.current) {
-              const meSeat = (state as GameState).players.findIndex((p) => p.name === myName.trim() || p.name === "Anfitrión");
+              const meSeat = (state as GameState).players.findIndex((p) => p.name === (myName.trim() || "Anfitrión"));
               onStart({ room: roomRef.current, mySeat: Math.max(0, meSeat), initialState: state });
             }
           },
@@ -63,7 +69,7 @@ export function OnlineDialog({
       roomRef.current = r;
       setRoom(r);
       setHostId(r.clientId);
-      const cfg: LobbyConfig = { count: 3, names: Array(6).fill("") };
+      const cfg: LobbyConfig = { humanCount: 2, botCount: 1, names: Array(6).fill("") };
       setConfig(cfg);
       r.sendHostConfig(cfg);
       setStep("lobby");
@@ -87,6 +93,7 @@ export function OnlineDialog({
         handlers: {
           onSeats: setSeats,
           onHostConfig: (cfg, hid) => { setConfig(cfg); setHostId(hid); },
+          onState: (s) => onRemoteStateRef.current(s),
           onStart: (state) => {
             startedRef.current = true;
             if (roomRef.current) {
@@ -106,34 +113,49 @@ export function OnlineDialog({
     }
   }
 
-  const roomRef = useRef<RoomHandle | null>(null);
-
   const isHost = room?.isHost ?? false;
+  const totalPlayers = Math.min(6, config.humanCount + config.botCount);
   const takenSeats = new Map<number, SeatInfo>();
   seats.forEach((s) => { if (s.seat !== null) takenSeats.set(s.seat, s); });
   const mySeatInfo = seats.find((s) => s.clientId === room?.clientId);
   const mySeat = mySeatInfo?.seat ?? null;
-  const allSeatsFilled = Array.from({ length: config.count }).every((_, i) => takenSeats.has(i));
+  // Los humanos ocupan los asientos [0..humanCount-1]. Los bots ocupan [humanCount..totalPlayers-1].
+  const humanSeatsFilled = Array.from({ length: config.humanCount }).every((_, i) => takenSeats.has(i));
 
   async function claimSeat(seat: number) {
     if (!room) return;
+    if (seat >= config.humanCount) return; // asiento de bot
     if (takenSeats.has(seat) && takenSeats.get(seat)!.clientId !== room.clientId) return;
     await room.updateMe({ seat });
   }
 
   function updateConfig(next: LobbyConfig) {
     if (!room || !room.isHost) return;
-    setConfig(next);
-    room.sendHostConfig(next);
+    // Si se reduce humanCount, libera asientos fuera de rango
+    const clamped: LobbyConfig = {
+      humanCount: Math.max(1, Math.min(6, next.humanCount)),
+      botCount: Math.max(0, Math.min(6 - Math.max(1, Math.min(6, next.humanCount)), next.botCount)),
+      names: next.names,
+    };
+    setConfig(clamped);
+    room.sendHostConfig(clamped);
   }
 
   function hostStart() {
     if (!room || !room.isHost) return;
-    if (!allSeatsFilled) return;
-    const orderedNames: { name: string; isBot?: boolean }[] = Array.from({ length: config.count }).map((_, i) => {
+    if (!humanSeatsFilled) return;
+    if (totalPlayers < 2) return;
+    const orderedNames: { name: string; isBot?: boolean }[] = [];
+    // Humanos primero (asientos 0..humanCount-1)
+    for (let i = 0; i < config.humanCount; i++) {
       const occ = takenSeats.get(i)!;
-      return { name: occ.name || `Jugador ${i + 1}`, isBot: false };
-    });
+      orderedNames.push({ name: occ.name || `Jugador ${i + 1}`, isBot: false });
+    }
+    // Bots después
+    for (let i = 0; i < config.botCount; i++) {
+      const botName = CONQUEROR_NAMES[i % CONQUEROR_NAMES.length];
+      orderedNames.push({ name: botName, isBot: true });
+    }
     const initialState = initGame(orderedNames);
     room.sendStart(initialState);
     startedRef.current = true;
@@ -192,34 +214,49 @@ export function OnlineDialog({
             </div>
 
             {isHost && (
-              <div className="row" style={{ justifyContent: "space-between", alignItems: "center" }}>
-                <div className="hint">Número de jugadores</div>
-                <div className="counter">
-                  <button onClick={() => updateConfig({ ...config, count: Math.max(2, config.count - 1) })}>−</button>
-                  <div className="value">{config.count}</div>
-                  <button onClick={() => updateConfig({ ...config, count: Math.min(6, config.count + 1) })}>+</button>
+              <>
+                <div className="row" style={{ justifyContent: "space-between", alignItems: "center" }}>
+                  <div className="hint">Jugadores humanos</div>
+                  <div className="counter">
+                    <button onClick={() => updateConfig({ ...config, humanCount: config.humanCount - 1 })}>−</button>
+                    <div className="value">{config.humanCount}</div>
+                    <button onClick={() => updateConfig({ ...config, humanCount: config.humanCount + 1 })}>+</button>
+                  </div>
                 </div>
-              </div>
+                <div className="row" style={{ justifyContent: "space-between", alignItems: "center" }}>
+                  <div className="hint">Bots 🤖</div>
+                  <div className="counter">
+                    <button onClick={() => updateConfig({ ...config, botCount: config.botCount - 1 })}>−</button>
+                    <div className="value">{config.botCount}</div>
+                    <button onClick={() => updateConfig({ ...config, botCount: config.botCount + 1 })}>+</button>
+                  </div>
+                </div>
+                <div className="hint" style={{ fontSize: 11 }}>Total: {totalPlayers} / 6 (mín. 2)</div>
+              </>
             )}
 
             <div style={{ display: "grid", gap: 6 }}>
-              {Array.from({ length: config.count }).map((_, i) => {
+              {Array.from({ length: totalPlayers }).map((_, i) => {
+                const isBotSeat = i >= config.humanCount;
                 const occ = takenSeats.get(i);
                 const isMine = occ?.clientId === room.clientId;
+                const botName = CONQUEROR_NAMES[(i - config.humanCount) % CONQUEROR_NAMES.length];
                 return (
-                  <div key={i} className="player-row" style={{ opacity: occ ? 1 : 0.7 }}>
+                  <div key={i} className="player-row" style={{ opacity: isBotSeat || occ ? 1 : 0.7 }}>
                     <div className="swatch" style={{ background: PLAYER_COLORS[i] }} />
                     <div style={{ flex: 1 }}>
-                      {occ ? (
+                      {isBotSeat ? (
+                        <span>🤖 {botName} <span className="hint">(bot)</span></span>
+                      ) : occ ? (
                         <span>{occ.name}{occ.isHost ? " 👑" : ""}{isMine ? " (tú)" : ""}</span>
                       ) : (
-                        <span className="hint">Asiento libre</span>
+                        <span className="hint">Asiento humano libre</span>
                       )}
                     </div>
-                    {!occ && (
+                    {!isBotSeat && !occ && (
                       <button className="btn sm" onClick={() => claimSeat(i)}>Ocupar</button>
                     )}
-                    {isMine && (
+                    {!isBotSeat && isMine && (
                       <button className="btn ghost sm" onClick={() => room.updateMe({ seat: null })}>Liberar</button>
                     )}
                   </div>
@@ -232,8 +269,8 @@ export function OnlineDialog({
             </div>
 
             {isHost ? (
-              <button className="btn" disabled={!allSeatsFilled} onClick={hostStart}>
-                {allSeatsFilled ? "Iniciar partida" : "Esperando jugadores…"}
+              <button className="btn" disabled={!humanSeatsFilled || totalPlayers < 2} onClick={hostStart}>
+                {totalPlayers < 2 ? "Añade más jugadores…" : humanSeatsFilled ? "Iniciar partida" : "Esperando humanos…"}
               </button>
             ) : (
               <div className="hint" style={{ textAlign: "center" }}>Esperando a que el anfitrión inicie la partida…</div>

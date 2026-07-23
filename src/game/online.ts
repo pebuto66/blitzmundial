@@ -27,7 +27,7 @@ export type SeatInfo = {
   isHost: boolean;
 };
 
-export type LobbyConfig = { count: number; names: string[] };
+export type LobbyConfig = { humanCount: number; botCount: number; names: string[] };
 
 type Msg =
   | { type: "hostConfig"; hostId: string; config: LobbyConfig }
