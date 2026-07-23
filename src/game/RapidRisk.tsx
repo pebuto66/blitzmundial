@@ -568,6 +568,21 @@ function GameRoot({ initial, onExit, onOpenManual, onOpenSaveLoad, onStateChange
         </div>
       )}
       <BattleOverlay state={state} />
+      {online && (
+        <div className={`game-chat ${chatOpen ? "open" : ""}`}>
+          <button className="game-chat-toggle btn ghost sm" onClick={() => setChatOpen((v) => !v)} title="Chat de jugadores">
+            💬 {chatOpen ? "Cerrar" : "Chat"}{!chatOpen && chatMessages.length > 0 ? ` (${chatMessages.length})` : ""}
+          </button>
+          {chatOpen && (
+            <Chat
+              room={online.room}
+              myName={state.players[online.mySeat]?.name || "Jugador"}
+              messages={chatMessages}
+              compact
+            />
+          )}
+        </div>
+      )}
     </div>
   );
 }
