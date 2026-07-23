@@ -310,14 +310,15 @@ function GameRoot({ initial, onExit, onOpenManual, onOpenSaveLoad, onStateChange
   // que ya usa el lobby, y recuperamos los mensajes acumulados.
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
   const [chatOpen, setChatOpen] = useState(false);
+  const onlineRoom = online?.room ?? null;
   useEffect(() => {
-    if (!online) return;
-    const prior = online.room.setHandlers({
-      onState: (s) => rawDispatch({ type: "HYDRATE", state: s }),
+    if (!onlineRoom) return;
+    const prior = onlineRoom.setHandlers({
+      onState: (s) => { skipBroadcastRef.current = true; rawDispatch({ type: "HYDRATE", state: s }); },
       onChat: (m) => setChatMessages((prev) => [...prev, m]),
     });
     if (prior.length) setChatMessages(prior);
-  }, [online]);
+  }, [onlineRoom]);
 
 
 
