@@ -401,22 +401,39 @@ function GameRoot({ initial, onExit, onOpenManual, onOpenSaveLoad, onStateChange
           </div>
         )}
         <div className="chips">
-          {state.players.map((p, i) => (
-            <div key={p.id} className={`chip ${i === state.current ? "active" : ""} ${!p.alive ? "dead" : ""}`}>
-              <div className="swatch" style={{ width: 16, height: 16, background: p.color }} />
-              <span>{p.isBot ? "🤖 " : ""}{p.name}</span>
-              <span className="mono" title="Territorios">{ownedCount(state, p.id)}t</span>
-              <span className="mono" style={{ color: "#7fb069", display: "inline-flex", alignItems: "center", gap: 2 }} title="Petróleo (litros)">
-                <IconOil size={11} />{playerOil(state, p.id)}
-              </span>
-              <span className="mono" title="Cartas">✦{p.cards.length}</span>
-              {p.stockNukes > 0 && (
-                <span className="mono" style={{ color: "#e05d44", display: "inline-flex", alignItems: "center", gap: 2 }} title="Misiles nucleares">
-                  <IconNuke size={11} />{p.stockNukes}
+          {state.players.map((p, i) => {
+            const troops = playerTroops(state, p.id);
+            const aps = playerAirports(state, p.id);
+            const sils = playerSilos(state, p.id);
+            const twrs = state.players.length > 0 ? (function () {
+              let n = 0;
+              for (const id in state.territories) {
+                const t = state.territories[id];
+                if (t.owner === p.id && t.tower) n++;
+              }
+              return n;
+            })() : 0;
+            return (
+              <div key={p.id} className={`chip ${i === state.current ? "active" : ""} ${!p.alive ? "dead" : ""}`}>
+                <div className="swatch" style={{ width: 16, height: 16, background: p.color }} />
+                <span>{p.isBot ? "🤖 " : ""}{p.name}</span>
+                <span className="mono" title="Territorios">{ownedCount(state, p.id)}t</span>
+                <span className="mono" title="Tropas totales (infantería + tanques + aviones)">⚔{troops.total}</span>
+                {aps > 0 && <span className="mono" title="Aeropuertos">✈{aps}</span>}
+                {sils > 0 && <span className="mono" title="Silos nucleares">☢{sils}</span>}
+                {twrs > 0 && <span className="mono" title="Torres de petróleo">🛢{twrs}</span>}
+                <span className="mono" style={{ color: "#7fb069", display: "inline-flex", alignItems: "center", gap: 2 }} title="Petróleo (litros)">
+                  <IconOil size={11} />{playerOil(state, p.id)}
                 </span>
-              )}
-            </div>
-          ))}
+                <span className="mono" title="Cartas">✦{p.cards.length}</span>
+                {p.stockNukes > 0 && (
+                  <span className="mono" style={{ color: "#e05d44", display: "inline-flex", alignItems: "center", gap: 2 }} title="Misiles nucleares">
+                    <IconNuke size={11} />{p.stockNukes}
+                  </span>
+                )}
+              </div>
+            );
+          })}
         </div>
         {state.players.some((p) => p.isBot) && (
           <button
