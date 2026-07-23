@@ -266,6 +266,37 @@ export function playerHasSilo(state: GameState, pid: number): boolean {
   return false;
 }
 
+/** Nº total de aeropuertos que un jugador tiene en el tablero. */
+export function playerAirports(state: GameState, pid: number): number {
+  let n = 0;
+  for (const id in state.territories) {
+    const t = state.territories[id];
+    if (t.owner === pid && t.airport) n++;
+  }
+  return n;
+}
+
+/** Nº total de silos que un jugador tiene en el tablero. */
+export function playerSilos(state: GameState, pid: number): number {
+  let n = 0;
+  for (const id in state.territories) {
+    const t = state.territories[id];
+    if (t.owner === pid && t.silo) n++;
+  }
+  return n;
+}
+
+/** Total de unidades (inf+tanques+aviones) del jugador en el tablero. */
+export function playerTroops(state: GameState, pid: number): { infantry: number; tanks: number; planes: number; total: number } {
+  let infantry = 0, tanks = 0, planes = 0;
+  for (const id in state.territories) {
+    const t = state.territories[id];
+    if (t.owner !== pid) continue;
+    infantry += t.infantry; tanks += t.tanks; planes += t.planes;
+  }
+  return { infantry, tanks, planes, total: infantry + tanks + planes };
+}
+
 /** Si un jugador no tiene torres, no puede tener petróleo. */
 function syncOilInvariant(state: GameState) {
   for (const p of state.players) {
