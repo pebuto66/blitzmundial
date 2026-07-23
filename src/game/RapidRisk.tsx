@@ -111,6 +111,7 @@ export function RapidRisk() {
         online={online ? {
           mySeat: online.mySeat,
           code: online.room.code,
+          room: online.room,
           remoteState,
           sendState: (s) => online.room.sendState(s),
         } : null}
