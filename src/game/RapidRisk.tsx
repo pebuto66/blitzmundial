@@ -102,9 +102,7 @@ export function RapidRisk() {
           />
         )}
       </>
-    );
-  }
-  return (
+    ) : (
     <>
       <GameRoot key={gameKey} initial={initial} onExit={exitGame}
         onOpenManual={() => setManualOpen(true)}
@@ -124,7 +122,17 @@ export function RapidRisk() {
       )}
     </>
   );
+
+  return (
+    <>
+      <Splash />
+      {content}
+      <CreditsLink />
+      <InfoButton />
+    </>
+  );
 }
+
 
 
 /* ═════════ SETUP INICIAL ═════════ */
