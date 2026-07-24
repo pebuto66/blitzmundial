@@ -21,6 +21,7 @@ import { BattleOverlay } from "./BattleOverlay";
 import { OnlineDialog } from "./OnlineDialog";
 import type { ChatMessage, RoomHandle } from "./online";
 import { Chat } from "./Chat";
+import { CreditsLink, InfoButton, Splash, CreditsFooter } from "./Credits";
 
 function CardIcon({ sym, size }: { sym: TerrSymbol; size?: number }) {
   if (sym === "S") return <IconCardSoldier size={size} />;
