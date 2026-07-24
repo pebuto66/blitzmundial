@@ -21,6 +21,7 @@ import { BattleOverlay } from "./BattleOverlay";
 import { OnlineDialog } from "./OnlineDialog";
 import type { ChatMessage, RoomHandle } from "./online";
 import { Chat } from "./Chat";
+import { CreditsLink, InfoButton, Splash, CreditsFooter } from "./Credits";
 
 function CardIcon({ sym, size }: { sym: TerrSymbol; size?: number }) {
   if (sym === "S") return <IconCardSoldier size={size} />;
@@ -63,9 +64,9 @@ export function RapidRisk() {
     setInitial(null);
   }
 
-  if (!initial) {
-    return (
+  const content = !initial ? (
       <>
+
         <Setup
           count={setupCount} setCount={setSetupCount}
           names={names} setNames={setNames}
@@ -101,9 +102,7 @@ export function RapidRisk() {
           />
         )}
       </>
-    );
-  }
-  return (
+    ) : (
     <>
       <GameRoot key={gameKey} initial={initial} onExit={exitGame}
         onOpenManual={() => setManualOpen(true)}
@@ -123,7 +122,17 @@ export function RapidRisk() {
       )}
     </>
   );
+
+  return (
+    <>
+      <Splash />
+      {content}
+      <CreditsLink />
+      <InfoButton />
+    </>
+  );
 }
+
 
 
 /* ═════════ SETUP INICIAL ═════════ */
@@ -222,6 +231,7 @@ function Setup({ count, setCount, names, setNames, bots, setBots, onStart, onOpe
           <button className="btn ghost" style={{ marginRight: 8 }} onClick={onOpenOnline}>🌐 Multijugador online</button>
           <button className="btn" onClick={onStart}>Iniciar Partida</button>
         </div>
+        <CreditsFooter />
       </div>
     </div>
   );
