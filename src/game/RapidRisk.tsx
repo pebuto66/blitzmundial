@@ -64,9 +64,9 @@ export function RapidRisk() {
     setInitial(null);
   }
 
-  if (!initial) {
-    return (
+  const content = !initial ? (
       <>
+
         <Setup
           count={setupCount} setCount={setSetupCount}
           names={names} setNames={setNames}
