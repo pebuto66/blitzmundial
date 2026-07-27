@@ -52,12 +52,23 @@ export const IconTank = ({ size, color, title }: P) => (
   </span>
 );
 
-/** Avión */
+/** Avión de combate - vista cenital con alas en delta, cola y cabina */
 export const IconPlane = ({ size, color, title }: P) => (
   <span style={{ color: color ?? "currentColor", display: "inline-flex" }}>
     {wrap(
       <>
-        <path d="M12 2l2 8 8 3-8 2-2 7-2-7-8-2 8-3z" />
+        {/* punta/nariz */}
+        <path d="M12 2l1.2 3.6h-2.4z" />
+        {/* fuselaje */}
+        <path d="M10.8 5.6h2.4v10.4h-2.4z" />
+        {/* alas en delta */}
+        <path d="M10.8 8.4L4 13v2l6.8-3.6z" />
+        <path d="M13.2 8.4L20 13v2l-6.8-3.6z" />
+        {/* cola */}
+        <path d="M10.8 16h-3l-1.2 3h4.2z" />
+        <path d="M13.2 16h3l1.2 3h-4.2z" />
+        {/* cabina */}
+        <path d="M11.4 6.8h1.2v2h-1.2z" />
       </>,
       size,
       title ?? "Avión",
