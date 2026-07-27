@@ -76,14 +76,27 @@ export const IconPlane = ({ size, color, title }: P) => (
   </span>
 );
 
-/** Torre de petróleo */
+/** Torre de petróleo — torre de perforación realista con celosía, base y pozo */
 export const IconTower = ({ size, color, title }: P) => (
   <span style={{ color: color ?? "currentColor", display: "inline-flex" }}>
     {wrap(
       <>
-        <path d="M6 22L9 4h6l3 18" />
-        <path d="M8 12h8M9 8h6" />
-        <path d="M12 2v2" />
+        {/* base de la torre */}
+        <rect x="7" y="17" width="10" height="3" rx="0.5" />
+        {/* estructura de celosía */}
+        <path d="M8 17l4-14M16 17l-4-14" />
+        <line x1="9" y1="14" x2="15" y2="14" />
+        <line x1="10" y1="10" x2="14" y2="10" />
+        <line x1="11" y1="6" x2="13" y2="6" />
+        {/* diagonales de celosía */}
+        <line x1="8" y1="17" x2="12" y2="13" />
+        <line x1="16" y1="17" x2="12" y2="13" />
+        <line x1="9" y1="13" x2="12" y2="10" />
+        <line x1="15" y1="13" x2="12" y2="10" />
+        {/* cabezal/bomba en la cima */}
+        <rect x="10" y="2" width="4" height="2" rx="0.3" />
+        {/* pozo/tubería */}
+        <line x1="12" y1="20" x2="12" y2="23" />
       </>,
       size,
       title ?? "Torre de petróleo",
