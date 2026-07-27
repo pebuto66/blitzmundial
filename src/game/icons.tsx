@@ -91,13 +91,25 @@ export const IconTower = ({ size, color, title }: P) => (
   </span>
 );
 
-/** Aeropuerto */
+/** Aeropuerto — vista cenital realista con pista, torre de control y terminal */
 export const IconAirport = ({ size, color, title }: P) => (
   <span style={{ color: color ?? "currentColor", display: "inline-flex" }}>
     {wrap(
       <>
-        <path d="M2 16l9-3 3-9 2 1-2 8 6 2v2l-7-1-3 4h-2l1-4-5-1z" />
-        <path d="M6 22h12" />
+        {/* pista principal */}
+        <rect x="3" y="10" width="18" height="5" rx="0.8" />
+        {/* marcas de pista */}
+        <line x1="7" y1="12.5" x2="9" y2="12.5" />
+        <line x1="11" y1="12.5" x2="13" y2="12.5" />
+        <line x1="15" y1="12.5" x2="17" y2="12.5" />
+        {/* terminal */}
+        <rect x="6" y="4" width="12" height="4" rx="1" />
+        <line x1="6" y1="6" x2="18" y2="6" />
+        {/* torre de control */}
+        <path d="M20 3v5" />
+        <circle cx="20" cy="3" r="1.4" />
+        {/* taxiway */}
+        <path d="M12 8v2" />
       </>,
       size,
       title ?? "Aeropuerto",
