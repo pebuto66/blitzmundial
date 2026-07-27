@@ -94,18 +94,25 @@ export const IconAirport = ({ size, color, title }: P) => (
   </span>
 );
 
-/** Silo de misiles */
-export const IconSilo = ({ size, color, title }: P) => (
-  <span style={{ color: color ?? "currentColor", display: "inline-flex" }}>
-    {wrap(
-      <>
-        <path d="M12 2l4 5v13H8V7z" />
-        <path d="M8 12h8M8 16h8" />
-        <path d="M10 22v-2M14 22v-2" />
-      </>,
-      size,
-      title ?? "Silo",
-    )}
+/** Silo de misiles — señal de peligro amarilla y negra (estilo portada) */
+export const IconSilo = ({ size = 16, title }: P) => (
+  <span style={{ display: "inline-flex" }} aria-label={title ?? "Silo de misiles"}>
+    <svg width={size} height={size} viewBox="0 0 24 24">
+      {/* Triángulo amarillo con borde negro */}
+      <path
+        d="M12 2.2 L22.2 20.5 H1.8 Z"
+        fill="#f4c518"
+        stroke="#111"
+        strokeWidth="1.6"
+        strokeLinejoin="round"
+      />
+      {/* Misil/silo negro central */}
+      <g fill="#111">
+        <path d="M12 7.4c1.05 0 1.9 1 1.9 2.3v5.2h-3.8V9.7c0-1.3.85-2.3 1.9-2.3z" />
+        <path d="M10.2 15.6h3.6v1.5h-3.6z" />
+        <circle cx="12" cy="9.4" r="0.55" fill="#f4c518" />
+      </g>
+    </svg>
   </span>
 );
 
