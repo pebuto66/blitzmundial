@@ -14,7 +14,7 @@ import {
   IconSoldier, IconTank, IconPlane, IconTower, IconAirport, IconSilo, IconNuke, IconOil,
   IconCardSoldier, IconCardPlane, IconCardTank, IconWild,
 } from "./icons";
-import { playDice, playAttack, playConquest, playMissile, setMuted, isMuted } from "./sounds";
+import { playDice, playAttack, playConquest, playMissile, playMarch, setMuted, isMuted } from "./sounds";
 import { Manual } from "./Manual";
 import { SaveLoadDialog } from "./SaveLoadDialog";
 import { BattleOverlay } from "./BattleOverlay";
