@@ -73,6 +73,19 @@ export function playConquest() {
   envTone(1046, 0.32, "sine", 0.18, 0.28);
 }
 
+/** Army footsteps — rhythmic boot thumps marching into a territory. */
+export function playMarch() {
+  const c = ac(); if (!c) return;
+  const steps = 8;
+  const gap = 0.13;
+  for (let i = 0; i < steps; i++) {
+    const delay = i * gap;
+    // Boot thump: short low-freq noise burst + sub-bass tone
+    noiseBurst(0.07, 0.28, delay, 180 + (i % 2 === 0 ? 0 : 40));
+    envTone(70 + (i % 2 === 0 ? 0 : 8), 0.09, "sine", 0.18, delay);
+  }
+}
+
 /** Missile launch — rising whistle followed by a distant boom. */
 export function playMissile() {
   const c = ac(); if (!c) return;
