@@ -397,6 +397,15 @@
   .tooltip { display: none; }
 }
 @media (max-width: 640px) {
+  /* Fichas de territorio y unidades/estructuras más pequeñas en móvil */
+  .terr { width: 10px; height: 10px; border-width: 1.5px; }
+  .terr-units, .terr-structs { font-size: 7px; gap: 1px; }
+  .terr-units .u, .terr-structs .s { padding: 0 2px; gap: 1px; border-radius: 1px; }
+  .terr-units .u svg, .terr-structs .s svg { width: 7px !important; height: 7px !important; }
+  .terr-units { top: -8px; }
+  .terr-structs { bottom: -8px; }
+  .terr-label { font-size: 7px; bottom: -14px; }
+
   .app { font-size: 14px; }
   .chip span { font-size: 10px; }
   .chip .swatch { width: 12px !important; height: 12px !important; }
