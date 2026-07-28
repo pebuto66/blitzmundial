@@ -441,7 +441,11 @@
   .brand { font-size: 14px; letter-spacing: 0.12em; }
   .terr-label { display: none; }
   .kpi-grid { grid-template-columns: 1fr; }
+  .terr { width: 9px; height: 9px; }
+  .terr-units, .terr-structs { font-size: 6px; }
+  .terr-units .u svg, .terr-structs .s svg { width: 6px !important; height: 6px !important; }
 }
+
 
 /* Botones táctiles con área mínima cómoda */
 @media (pointer: coarse) {
