@@ -351,6 +351,7 @@ function GameRoot({ initial, onExit, onOpenManual, onOpenSaveLoad, onStateChange
     }
     if (flashed.length === 0) return;
     playConquest();
+    window.setTimeout(() => playMarch(), 220);
     setCaptured((prev) => {
       const next = new Set(prev);
       flashed.forEach((id) => next.add(id));
