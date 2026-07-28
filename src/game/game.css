@@ -384,16 +384,60 @@
 
 /* ═════════ Responsive: topbar y chips ═════════ */
 @media (max-width: 900px) {
-  .topbar { flex-wrap: wrap; gap: 6px; padding: 6px 8px; }
-  .chips { flex-wrap: wrap; gap: 4px; }
-  .chip { font-size: 11px; padding: 3px 6px; gap: 4px; }
+  .topbar { height: auto; min-height: 48px; flex-wrap: wrap; gap: 6px; padding: 6px 8px; }
+  .chips { flex-wrap: nowrap; gap: 4px; overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none; width: 100%; flex-basis: 100%; padding-bottom: 2px; }
+  .chips::-webkit-scrollbar { display: none; }
+  .chip { font-size: 11px; padding: 3px 6px; gap: 4px; flex-shrink: 0; }
   .brand { font-size: 16px; }
+  .map-inner { max-height: 60vh; }
+  .side { height: auto; max-height: none; }
+  .side-section { padding: 10px 12px; }
+  .kpi .val { font-size: 16px; }
+  .stock-grid { grid-template-columns: repeat(2, 1fr); }
+  .tooltip { display: none; }
 }
 @media (max-width: 640px) {
+  .app { font-size: 14px; }
   .chip span { font-size: 10px; }
   .chip .swatch { width: 12px !important; height: 12px !important; }
-  .game-chat { max-width: 92vw; width: 92vw; }
-  .game-chat .chat-log { height: 160px; }
+  .game-chat { max-width: 92vw; width: 92vw; bottom: 8px; right: 8px; }
+  .game-chat .chat-log { height: 140px; }
+
+  /* Setup panel más compacto */
+  .setup { padding: 20px 12px; }
+  .setup h1 { font-size: 38px; letter-spacing: 0.06em; }
+  .setup .subtitle { margin-bottom: 20px; font-size: 10px; }
+  .panel { padding: 14px; }
+  .materials { grid-template-columns: repeat(2, 1fr); font-size: 12px; }
+  .player-row { flex-wrap: wrap; gap: 8px; }
+  .player-row input { min-width: 0; flex: 1 1 140px; }
+  .btn { padding: 10px 16px; font-size: 14px; }
+  .btn.sm { padding: 5px 8px; font-size: 11px; }
+
+  /* Modales — padding y scroll */
+  .victory-modal { padding: 22px 18px !important; max-width: 94vw !important; max-height: 90vh; overflow-y: auto; }
+  .victory-modal .winner-name { font-size: 34px; }
+  .victory-modal .title { font-size: 44px; }
+  .credits-modal { padding: 22px 20px; max-width: 92vw; }
+  .credits-modal-title { font-size: 22px; }
+
+  /* Actions column con scroll si es muy alto */
+  .actions { gap: 6px; }
+  .stepper { flex-wrap: wrap; }
+  .step { font-size: 9px; padding: 5px 3px; }
+}
+
+@media (max-width: 420px) {
+  .setup h1 { font-size: 30px; }
+  .brand { font-size: 14px; letter-spacing: 0.12em; }
+  .terr-label { display: none; }
+  .kpi-grid { grid-template-columns: 1fr; }
+}
+
+/* Botones táctiles con área mínima cómoda */
+@media (pointer: coarse) {
+  .btn, .btn.sm, .counter button { min-height: 36px; }
+  .terr { touch-action: manipulation; }
 }
 
 /* ═════════ Créditos / autoría ═════════ */
