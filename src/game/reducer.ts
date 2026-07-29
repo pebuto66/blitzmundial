@@ -906,15 +906,14 @@ export function reducer(state: GameState, action: Action): GameState {
           if (a >= d) { takeDef('plane'); defLost = 1; }
           else { srcT.planes -= 1; atkLost = 1; }
         } else if (effDefTanks > 0) {
-          note = "Avión vs tanque (dobles → avión abatido)";
+          note = "Avión vs tanque (tanque tira 3 dados: triple → avión abatido)";
           const rolls = rollDice(3);
           defRaw = rolls;
           atkRaw = [];
-          const counts: Record<number, number> = {};
-          for (const r of rolls) counts[r] = (counts[r] ?? 0) + 1;
-          const doubles = Object.values(counts).some((c) => c >= 2);
-          if (doubles) { srcT.planes -= 1; atkLost = 1; }
+          const triple = rolls[0] === rolls[1] && rolls[1] === rolls[2];
+          if (triple) { srcT.planes -= 1; atkLost = 1; }
           else { takeDef('tank'); defLost = 1; }
+
         } else if (effDefInf > 0) {
           note = "Avión vs infantería (dobles → nulo; doble 6 → avión abatido)";
           const rolls = rollDice(2);
@@ -949,14 +948,13 @@ export function reducer(state: GameState, action: Action): GameState {
           note = "Territorio sin defensores";
         } else if (effDefPlanes > 0) {
           if (effKind === "TANK") {
-            note = "Tanque vs avión (3 dados, dobles → avión abatido)";
+            note = "Tanque vs avión (tanque tira 3 dados: triple → avión abatido)";
             const rolls = rollDice(3);
-            defRaw = rolls; atkRaw = [];
-            const counts: Record<number, number> = {};
-            for (const r of rolls) counts[r] = (counts[r] ?? 0) + 1;
-            const doubles = Object.values(counts).some((c) => c >= 2);
-            if (doubles) { takeDef('plane'); defLost = 1; }
+            atkRaw = rolls; defRaw = [];
+            const triple = rolls[0] === rolls[1] && rolls[1] === rolls[2];
+            if (triple) { takeDef('plane'); defLost = 1; }
             else { srcT.tanks -= 1; atkLost = 1; }
+
           } else {
             note = "Infantería vs avión (2 dados; doble → nulo; doble 6 → avión abatido)";
             const rolls = rollDice(2);

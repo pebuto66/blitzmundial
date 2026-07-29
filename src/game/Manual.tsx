@@ -92,6 +92,8 @@ export function Manual({ onClose }: { onClose: () => void }) {
             <li>Un <b>tanque defensor</b> también forma línea con la infantería. Los dados más altos son para los tanques y con al menos un tanque el defensor puede tirar <b>hasta 3 dados</b> en lugar de 2.</li>
             <li><b>3 o más tanques contra 3 o más tanques</b> → se resuelve como infantería: <b>3 dados vs 2</b>, sin bonos +2.</li>
             <li>Bajas: cada dado perdido se aplica a la unidad a la que correspondía (tanque o infantería) según la asignación de dados.</li>
+            <li><b>Tanque contra avión</b>: el tanque tira <b>3 dados</b>; con <b>triple</b> el avión es destruido, en cualquier otro caso se destruye el tanque (misma regla que avión contra tanque).</li>
+
           </ul>
         </Section>
 
@@ -99,7 +101,7 @@ export function Manual({ onClose }: { onClose: () => void }) {
           <ul>
             <li><b>1 avión</b> por ataque aéreo. El coste es <b>50 L × distancia × 2</b> (ida y vuelta).</li>
             <li>Contra <b>avión</b>: 1 dado vs 1 dado, empate → pierde el defensor.</li>
-            <li>Contra <b>tanque</b>: el defensor tira 3 dados; si salen <b>dobles</b>, el avión es abatido.</li>
+            <li>Contra <b>tanque</b>: el tanque tira <b>3 dados</b>; si saca <b>triple</b>, el avión es destruido; si no, se destruye el tanque.</li>
             <li>Contra <b>infantería</b>: el defensor tira 2 dados. <b>Dobles</b>: nulo. <b>Doble 6</b>: el avión es abatido.</li>
             <li>Si conquista, se traslada 1 infantería desde un territorio propio adyacente al objetivo con ≥2 infantería.</li>
           </ul>
