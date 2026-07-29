@@ -99,7 +99,7 @@ export function Manual({ onClose }: { onClose: () => void }) {
           <ul>
             <li><b>1 avión</b> por ataque aéreo. El coste es <b>50 L × distancia × 2</b> (ida y vuelta).</li>
             <li>Contra <b>avión</b>: 1 dado vs 1 dado, empate → pierde el defensor.</li>
-            <li>Contra <b>tanque</b>: el defensor tira 3 dados; si salen <b>dobles</b>, el avión es abatido.</li>
+            <li>Contra <b>tanque</b>: el tanque tira <b>3 dados</b>; si saca <b>triple</b>, el avión es destruido; si no, se destruye el tanque.</li>
             <li>Contra <b>infantería</b>: el defensor tira 2 dados. <b>Dobles</b>: nulo. <b>Doble 6</b>: el avión es abatido.</li>
             <li>Si conquista, se traslada 1 infantería desde un territorio propio adyacente al objetivo con ≥2 infantería.</li>
           </ul>
