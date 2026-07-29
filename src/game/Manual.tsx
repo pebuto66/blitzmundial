@@ -92,6 +92,8 @@ export function Manual({ onClose }: { onClose: () => void }) {
             <li>Un <b>tanque defensor</b> también forma línea con la infantería. Los dados más altos son para los tanques y con al menos un tanque el defensor puede tirar <b>hasta 3 dados</b> en lugar de 2.</li>
             <li><b>3 o más tanques contra 3 o más tanques</b> → se resuelve como infantería: <b>3 dados vs 2</b>, sin bonos +2.</li>
             <li>Bajas: cada dado perdido se aplica a la unidad a la que correspondía (tanque o infantería) según la asignación de dados.</li>
+            <li><b>Tanque contra avión</b>: el tanque tira <b>3 dados</b>; con <b>triple</b> el avión es destruido, en cualquier otro caso se destruye el tanque (misma regla que avión contra tanque).</li>
+
           </ul>
         </Section>
 
