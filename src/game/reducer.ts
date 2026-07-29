@@ -176,7 +176,7 @@ export type TradeReward =
   | { kind: "TOWERS"; n: number }
   | { kind: "PLANES"; n: number }
   | { kind: "TANKS"; n: number }
-  | { kind: "PLANE_FIXED" };
+  | { kind: "TOWER_FIXED" };
 
 export interface TradeCombo {
   infantry: number;
@@ -197,13 +197,13 @@ export function classifyTrade(symbols: TerrSymbol[]): TradeCombo | null {
       return {
         infantry: 12,
         label: "1 comodín + 2 iguales",
-        rewards: [{ kind: "NUKE" }, { kind: "TOWERS", n: 4 }, { kind: "PLANES", n: 5 }, { kind: "TANKS", n: 4 }],
+        rewards: [{ kind: "NUKE" }, { kind: "TOWERS", n: 4 }, { kind: "PLANES", n: 4 }, { kind: "TANKS", n: 5 }],
       };
     }
     return {
       infantry: 10,
       label: "1 comodín + 2 distintos",
-      rewards: [{ kind: "TOWERS", n: 3 }, { kind: "PLANES", n: 4 }, { kind: "TANKS", n: 3 }, { kind: "NUKE" }],
+      rewards: [{ kind: "TOWERS", n: 3 }, { kind: "PLANES", n: 3 }, { kind: "TANKS", n: 4 }, { kind: "NUKE" }],
     };
   }
   // Sin comodín
@@ -211,21 +211,21 @@ export function classifyTrade(symbols: TerrSymbol[]): TradeCombo | null {
     return {
       infantry: 10,
       label: "1 de cada símbolo",
-      rewards: [{ kind: "TOWERS", n: 3 }, { kind: "PLANES", n: 4 }, { kind: "TANKS", n: 3 }, { kind: "NUKE" }],
+      rewards: [{ kind: "TOWERS", n: 3 }, { kind: "PLANES", n: 3 }, { kind: "TANKS", n: 4 }, { kind: "NUKE" }],
     };
   }
   if (c.P === 3) {
     return {
       infantry: 8,
       label: "3 aviones",
-      rewards: [{ kind: "NUKE" }, { kind: "TOWERS", n: 2 }, { kind: "PLANES", n: 3 }, { kind: "TANKS", n: 2 }],
+      rewards: [{ kind: "NUKE" }, { kind: "TOWERS", n: 2 }, { kind: "PLANES", n: 2 }, { kind: "TANKS", n: 3 }],
     };
   }
   if (c.T === 3) {
     return {
       infantry: 6,
       label: "3 tanques",
-      rewards: [{ kind: "NUKE" }, { kind: "TOWERS", n: 1 }, { kind: "PLANES", n: 2 }, { kind: "TANKS", n: 1 }],
+      rewards: [{ kind: "NUKE" }, { kind: "TOWERS", n: 1 }, { kind: "PLANES", n: 1 }, { kind: "TANKS", n: 2 }],
     };
   }
   if (c.S === 3) {
@@ -233,7 +233,7 @@ export function classifyTrade(symbols: TerrSymbol[]): TradeCombo | null {
       infantry: 4,
       label: "3 soldados",
       rewards: [],
-      fixed: { kind: "PLANE_FIXED" },
+      fixed: { kind: "TOWER_FIXED" },
     };
   }
   return null;
@@ -760,7 +760,7 @@ export function reducer(state: GameState, action: Action): GameState {
         if (!chosenReward) return state;
         reward = combo.rewards.find(
           (r) => r.kind === chosenReward.kind &&
-            (r.kind === "NUKE" || r.kind === "PLANE_FIXED" || ("n" in r && "n" in chosenReward && r.n === chosenReward.n)),
+            (r.kind === "NUKE" || r.kind === "TOWER_FIXED" || ("n" in r && "n" in chosenReward && r.n === chosenReward.n)),
         ) ?? null;
         if (!reward) return state;
       }
@@ -781,7 +781,7 @@ export function reducer(state: GameState, action: Action): GameState {
         case "TOWERS": P.stockTowers += reward.n; rewardText = `+${reward.n} torres`; break;
         case "PLANES": P.stockPlanes += reward.n; rewardText = `+${reward.n} aviones`; break;
         case "TANKS": P.stockTanks += reward.n; rewardText = `+${reward.n} tanques`; break;
-        case "PLANE_FIXED": P.stockPlanes += 1; rewardText = "+1 avión"; break;
+        case "TOWER_FIXED": P.stockTowers += 1; rewardText = "+1 torre"; break;
       }
       pushLog(
         s, "card",

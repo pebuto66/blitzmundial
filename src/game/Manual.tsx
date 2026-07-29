@@ -131,7 +131,16 @@ export function Manual({ onClose }: { onClose: () => void }) {
             <li>44 cartas de territorio (con símbolo <b>S</b> soldado, <b>P</b> avión o <b>T</b> tanque) + <b>2 comodines</b> (W). Se roba <b>1 carta</b> al final del turno si conquistaste al menos un territorio en combate.</li>
             <li>Si la carta corresponde a un territorio que ya posees: <b>+2 infantería</b> el próximo turno (además de +1 torre si tenía aeropuerto y +1 misil si tenía silo).</li>
             <li>Canjes de 3 cartas dan infantería adicional y una recompensa. Con 5+ cartas es obligatorio canjear antes de atacar.</li>
-            <li>Valores de canje: <b>3 soldados</b> → +4 inf y +1 avión · <b>3 tanques</b> → +6 inf y elección · <b>3 aviones</b> → +8 inf y elección · <b>1 de cada</b> → +10 inf y elección · <b>1 comodín + 2 iguales</b> → +12 inf y elección.</li>
+            <li>Tabla de canjes:
+              <ul>
+                <li><b>1 comodín + 2 iguales</b> → <b>+12 infantería</b> y escoger: 1 misil nuclear, 4 torres, 4 aviones o 5 tanques.</li>
+                <li><b>1 comodín + 2 distintos</b> (soldado/tanque/avión) → <b>+10 infantería</b> y escoger: 3 torres, 3 aviones, 4 tanques o 1 misil nuclear.</li>
+                <li><b>1 soldado + 1 tanque + 1 avión</b> → <b>+10 infantería</b> y escoger: 3 torres, 3 aviones, 4 tanques o 1 misil nuclear.</li>
+                <li><b>3 aviones</b> → <b>+8 infantería</b> y escoger: 1 bomba (misil), 2 torres, 2 aviones o 3 tanques.</li>
+                <li><b>3 tanques</b> → <b>+6 infantería</b> y escoger: 1 bomba (misil), 1 torre, 1 avión o 2 tanques.</li>
+                <li><b>3 soldados</b> → <b>+4 infantería</b> y <b>1 torre</b> (recompensa fija).</li>
+              </ul>
+            </li>
           </ul>
         </Section>
 

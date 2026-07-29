@@ -745,7 +745,7 @@ function rewardLabel(r: TradeReward): string {
     case "TOWERS": return `${r.n} torre${r.n > 1 ? "s" : ""}`;
     case "PLANES": return `${r.n} avion${r.n > 1 ? "es" : ""}`;
     case "TANKS": return `${r.n} tanque${r.n > 1 ? "s" : ""}`;
-    case "PLANE_FIXED": return "1 avión";
+    case "TOWER_FIXED": return "1 torre";
   }
 }
 
