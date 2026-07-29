@@ -299,10 +299,20 @@ function GameRoot({ initial, onExit, onOpenManual, onOpenSaveLoad, onStateChange
     const delay = state.lastBattle ? 900 : state.pendingOccupy ? 500 : 350;
     const handle = window.setTimeout(() => {
       const action = nextBotAction(state);
-      const key = `${state.phase}:${state.current}:${JSON.stringify(action)}`;
+      // Los ataques repetidos al mismo objetivo son legítimos: incluimos las tropas
+      // implicadas en la firma para no confundir progreso real con un bloqueo.
+      const sig = action && action.type === "RESOLVE_ATTACK"
+        ? (() => {
+            const s0 = state.attackSource ? state.territories[state.attackSource] : null;
+            const t0 = state.attackTarget ? state.territories[state.attackTarget] : null;
+            return `|${s0?.infantry ?? -1},${s0?.tanks ?? -1},${s0?.planes ?? -1}>${t0?.infantry ?? -1},${t0?.tanks ?? -1},${t0?.planes ?? -1}`;
+          })()
+        : "";
+      const key = `${state.phase}:${state.current}:${JSON.stringify(action)}${sig}`;
       const stuck = botStuckRef.current;
       if (stuck.key === key) stuck.count += 1;
       else { stuck.key = key; stuck.count = 1; }
+
       if (stuck.count >= 3) {
         stuck.key = ""; stuck.count = 0;
         if (state.phase === "ATTACK") { rawDispatch({ type: "END_ATTACK" }); return; }
