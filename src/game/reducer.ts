@@ -93,6 +93,8 @@ export interface GameState {
   pendingOccupy: { from: string; to: string; maxInfantry: number; maxTanks: number; kind: UnitKind; candidates?: string[] } | null;
   fortifySource: string | null;
   fortifyDone: boolean;
+  /** Último aviso de pérdida de torres de petróleo (para mostrar notificación temporal). */
+  towerAlert: { pid: number; terrId: string; towers: number; oil: number; cause: "nuke" | "capture"; at: number } | null;
   conqueredThisTurn: boolean;
   winner: number | null;
   log: LogEntry[];
