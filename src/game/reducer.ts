@@ -17,11 +17,11 @@ export const PLANE_OIL_PER_STEP = 50; // por avión y territorio recorrido
 export const STARTING: Record<number, {
   armies: number; towers: number; planes: number; tanks: number; airports: number; silos: number;
 }> = {
-  2: { armies: 55, towers: 10, planes: 5, tanks: 5, airports: 4, silos: 1 },
-  3: { armies: 35, towers: 8, planes: 4, tanks: 4, airports: 3, silos: 1 },
-  4: { armies: 30, towers: 6, planes: 3, tanks: 3, airports: 3, silos: 1 },
-  5: { armies: 25, towers: 4, planes: 2, tanks: 2, airports: 2, silos: 1 },
-  6: { armies: 20, towers: 2, planes: 1, tanks: 1, airports: 1, silos: 1 },
+  2: { armies: 55, towers: 10, planes: 5, tanks: 6, airports: 4, silos: 1 },
+  3: { armies: 35, towers: 8, planes: 4, tanks: 5, airports: 3, silos: 1 },
+  4: { armies: 30, towers: 6, planes: 3, tanks: 4, airports: 3, silos: 1 },
+  5: { armies: 25, towers: 5, planes: 2, tanks: 3, airports: 2, silos: 1 },
+  6: { armies: 20, towers: 3, planes: 1, tanks: 2, airports: 1, silos: 1 },
 };
 
 export interface Player {
