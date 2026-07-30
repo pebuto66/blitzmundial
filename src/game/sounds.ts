@@ -110,3 +110,8 @@ export function playMissile() {
   envTone(60, 0.5, "sawtooth", 0.22, 1.15);
   envTone(45, 0.6, "square", 0.18, 1.2);
 }
+/** Chat message — two-note soft notification blip. */
+export function playChat() {
+  envTone(880, 0.10, "sine", 0.18, 0);
+  envTone(1320, 0.14, "sine", 0.16, 0.09);
+}
