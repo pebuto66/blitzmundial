@@ -165,6 +165,28 @@ export function bfsDist(from: string, to: string): number {
   return -1;
 }
 
+/** Distancia BFS pasando SOLO por territorios del mismo dueño (conexión por tierra/mar propia). -1 si no hay ruta. */
+export function ownedPathDist(state: GameState, from: string, to: string, owner: number): number {
+  if (from === to) return 0;
+  const seen = new Set([from]);
+  let frontier = [from];
+  let dist = 0;
+  while (frontier.length) {
+    dist++;
+    const next: string[] = [];
+    for (const id of frontier) {
+      for (const n of TERR_BY_ID[id].adj) {
+        if (seen.has(n)) continue;
+        if (n === to) return dist;
+        seen.add(n);
+        if (state.territories[n]?.owner === owner) next.push(n);
+      }
+    }
+    frontier = next;
+  }
+  return -1;
+}
+
 /** Coste de oil ida y vuelta con `count` aviones desde `from` a `to`. */
 export function planeOilCost(from: string, to: string, count: number): number {
   const d = bfsDist(from, to);
@@ -1237,13 +1259,13 @@ export function reducer(state: GameState, action: Action): GameState {
       const tgtT = state.territories[action.target];
       if (!tgtT || srcT.owner !== tgtT.owner) return state;
 
-      const adj = TERR_BY_ID[src].adj.includes(action.target);
+      // Infantería y tanques se mueven a cualquier territorio propio conectado por tierra o mar
+      const groundDist = ownedPathDist(state, src, action.target, srcT.owner);
       let inf = Math.max(0, Math.min(action.infantry, srcT.infantry));
       let tk = Math.max(0, Math.min(action.tanks, srcT.tanks));
       let pl = Math.max(0, Math.min(action.planes, srcT.planes));
 
-      // Infantería y tanques solo se mueven a un territorio adyacente
-      if (!adj) { inf = 0; tk = 0; }
+      if (groundDist < 0) { inf = 0; tk = 0; }
 
       // Los aviones necesitan aeropuerto en origen y destino, y pueden volar a cualquier distancia
       let planeDist = 0;
@@ -1261,7 +1283,7 @@ export function reducer(state: GameState, action: Action): GameState {
 
       // Coste de petróleo: tanque = TANK_MOVE_OIL * count (1 paso adyacente); avión = PLANE_OIL_PER_STEP * dist * count
       const attackerOil = playerOil(state, srcT.owner);
-      const tankOil = tk * TANK_MOVE_OIL;
+      const tankOil = tk * Math.max(1, groundDist) * TANK_MOVE_OIL;
       const planeOil = pl * planeDist * PLANE_OIL_PER_STEP;
       const totalOil = tankOil + planeOil;
       if (totalOil > attackerOil) return state;
