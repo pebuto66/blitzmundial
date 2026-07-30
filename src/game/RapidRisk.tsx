@@ -14,7 +14,7 @@ import {
   IconSoldier, IconTank, IconPlane, IconTower, IconAirport, IconSilo, IconNuke, IconOil,
   IconCardSoldier, IconCardPlane, IconCardTank, IconWild,
 } from "./icons";
-import { playDice, playAttack, playConquest, playMissile, playMarch, setMuted, isMuted } from "./sounds";
+import { playDice, playAttack, playConquest, playMissile, playMarch, playChat, setMuted, isMuted } from "./sounds";
 import { Manual } from "./Manual";
 import { SaveLoadDialog } from "./SaveLoadDialog";
 import { BattleOverlay } from "./BattleOverlay";
@@ -330,15 +330,40 @@ function GameRoot({ initial, onExit, onOpenManual, onOpenSaveLoad, onStateChange
   // que ya usa el lobby, y recuperamos los mensajes acumulados.
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
   const [chatOpen, setChatOpen] = useState(false);
+  const [chatUnread, setChatUnread] = useState(0);
+  const chatOpenRef = useRef(chatOpen);
+  chatOpenRef.current = chatOpen;
   const onlineRoom = online?.room ?? null;
   useEffect(() => {
     if (!onlineRoom) return;
     const prior = onlineRoom.setHandlers({
       onState: (s) => { skipBroadcastRef.current = true; rawDispatch({ type: "HYDRATE", state: s }); },
-      onChat: (m) => setChatMessages((prev) => [...prev, m]),
+      onChat: (m) => {
+        setChatMessages((prev) => [...prev, m]);
+        if (m.from !== onlineRoom.clientId && !chatOpenRef.current) {
+          setChatUnread((n) => n + 1);
+          playChat();
+        }
+      },
     });
     if (prior.length) setChatMessages(prior);
   }, [onlineRoom]);
+  useEffect(() => { if (chatOpen) setChatUnread(0); }, [chatOpen, chatMessages.length]);
+
+  // Aviso temporal (3 s) cuando a un jugador humano le destruyen/capturan torres de petróleo
+  const [towerAlert, setTowerAlert] = useState<GameState["towerAlert"]>(null);
+  const towerAlertSeen = useRef<number>(0);
+  useEffect(() => {
+    const ta = state.towerAlert;
+    if (!ta || ta.at === towerAlertSeen.current) return;
+    towerAlertSeen.current = ta.at;
+    const victim = state.players[ta.pid];
+    if (!victim || victim.isBot) return;
+    if (online && online.mySeat !== ta.pid) return;
+    setTowerAlert(ta);
+    const h = window.setTimeout(() => setTowerAlert(null), 3000);
+    return () => window.clearTimeout(h);
+  }, [state.towerAlert, state.players, online]);
 
 
 
@@ -589,10 +614,28 @@ function GameRoot({ initial, onExit, onOpenManual, onOpenSaveLoad, onStateChange
         </div>
       )}
       <BattleOverlay state={state} />
+      {towerAlert && (
+        <div className="tower-alert" role="status">
+          <span className="ta-icon">🛢️💥</span>
+          <div>
+            <div className="ta-title">
+              {towerAlert.cause === "nuke" ? "¡Misil nuclear!" : "¡Torres capturadas!"}
+            </div>
+            <div className="ta-body">
+              Has perdido {towerAlert.towers} torre(s) de petróleo en {TERR_BY_ID[towerAlert.terrId]?.name ?? towerAlert.terrId}
+              {towerAlert.oil > 0 ? ` · −${towerAlert.oil} L` : ""}
+            </div>
+          </div>
+        </div>
+      )}
       {online && (
         <div className={`game-chat ${chatOpen ? "open" : ""}`}>
-          <button className="game-chat-toggle btn ghost sm" onClick={() => setChatOpen((v) => !v)} title="Chat de jugadores">
-            💬 {chatOpen ? "Cerrar" : "Chat"}{!chatOpen && chatMessages.length > 0 ? ` (${chatMessages.length})` : ""}
+          <button
+            className={`game-chat-toggle btn ghost sm ${!chatOpen && chatUnread > 0 ? "blink" : ""}`}
+            onClick={() => setChatOpen((v) => !v)}
+            title="Chat de jugadores"
+          >
+            💬 {chatOpen ? "Cerrar" : "Chat"}{!chatOpen && chatUnread > 0 ? ` (${chatUnread})` : ""}
           </button>
           {chatOpen && (
             <Chat
@@ -1064,7 +1107,7 @@ function FortifyPanel({ state, dispatch, fortifyInf, setFortifyInf, fortifyTk, s
         </div>
       ) : (
         <div>
-          <div className="hint">Desde {TERR_BY_ID[state.fortifySource!].name} (inf {src.infantry} / tq {src.tanks} / av {src.planes}). Elige destino propio.</div>
+          <div className="hint">Desde {TERR_BY_ID[state.fortifySource!].name} (inf {src.infantry} / tq {src.tanks} / av {src.planes}). Elige destino propio conectado por tierra o mar (tanques: 25 L por territorio recorrido).</div>
           <div className="row" style={{ gap: 8, flexWrap: "wrap" }}>
             <label className="hint">Inf:
               <input type="number" className="input-num" min={0} max={Math.max(0, src.infantry - 1)}
