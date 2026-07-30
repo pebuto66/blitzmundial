@@ -58,6 +58,15 @@ export function Manual({ onClose }: { onClose: () => void }) {
             <li>Por rondas y en orden de turno, cada jugador coloca en sus territorios en este orden fijo: <b>aeropuertos → silo → torres → aviones → tanques → infantería</b>.</li>
             <li>Los <b>aviones</b> solo pueden estacionarse sobre <b>aeropuertos</b> propios.</li>
             <li>Cada torre construida otorga <b>+1000 L</b> de petróleo al instante.</li>
+            <li>Materiales iniciales por número de jugadores:
+              <ul>
+                <li><b>2 jugadores</b>: 55 ejércitos, 10 torres, 5 aviones, 6 tanques, 4 aeropuertos, 1 silo.</li>
+                <li><b>3 jugadores</b>: 35 ejércitos, 8 torres, 4 aviones, 5 tanques, 3 aeropuertos, 1 silo.</li>
+                <li><b>4 jugadores</b>: 30 ejércitos, 6 torres, 3 aviones, 4 tanques, 3 aeropuertos, 1 silo.</li>
+                <li><b>5 jugadores</b>: 25 ejércitos, 5 torres, 2 aviones, 3 tanques, 2 aeropuertos, 1 silo.</li>
+                <li><b>6 jugadores</b>: 20 ejércitos, 3 torres, 1 avión, 2 tanques, 1 aeropuerto, 1 silo.</li>
+              </ul>
+            </li>
           </ul>
         </Section>
 
