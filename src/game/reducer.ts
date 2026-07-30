@@ -430,6 +430,7 @@ export function initGame(playerInputs: { name: string; isBot?: boolean }[]): Gam
     pendingOccupy: null,
     fortifySource: null,
     fortifyDone: false,
+    towerAlert: null,
     conqueredThisTurn: false,
     winner: null,
     log,
@@ -1071,6 +1072,7 @@ export function reducer(state: GameState, action: Action): GameState {
           attacker.oil += take;
           if (loser.oil <= 0) removeAllTowersOf(s, prevOwnerId);
           syncOilInvariant(s);
+          s.towerAlert = { pid: prevOwnerId, terrId: tgt, towers: capturedTowers, oil: take, cause: "capture", at: Date.now() };
           pushLog(s, "oil", `${attacker.name} captura ${capturedTowers} torre(s) y ${take} L de petróleo de ${loser.name}.`);
         }
         if (tgtT.airport) {
@@ -1206,6 +1208,9 @@ export function reducer(state: GameState, action: Action): GameState {
         defender.oil = Math.max(0, defender.oil - oilLoss);
       }
       t.towers = 0;
+      if (towersDestroyed > 0) {
+        s.towerAlert = { pid: defender.id, terrId: action.target, towers: towersDestroyed, oil: oilLoss, cause: "nuke", at: Date.now() };
+      }
       if (defender.oil <= 0) removeAllTowersOf(s, defender.id);
       syncOilInvariant(s);
 
