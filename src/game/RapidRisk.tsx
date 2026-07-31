@@ -361,9 +361,13 @@ function GameRoot({ initial, onExit, onOpenManual, onOpenSaveLoad, onStateChange
     if (!victim || victim.isBot) return;
     if (online && online.mySeat !== ta.pid) return;
     setTowerAlert(ta);
+  }, [state.towerAlert, state.players, online]);
+  // Temporizador independiente: garantiza que el aviso desaparezca a los 3 s.
+  useEffect(() => {
+    if (!towerAlert) return;
     const h = window.setTimeout(() => setTowerAlert(null), 3000);
     return () => window.clearTimeout(h);
-  }, [state.towerAlert, state.players, online]);
+  }, [towerAlert]);
 
 
 
