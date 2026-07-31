@@ -221,13 +221,13 @@ export function classifyTrade(symbols: TerrSymbol[]): TradeCombo | null {
       return {
         infantry: 12,
         label: "1 comodín + 2 iguales",
-        rewards: [{ kind: "NUKE" }, { kind: "TOWERS", n: 4 }, { kind: "PLANES", n: 4 }, { kind: "TANKS", n: 5 }],
+        rewards: [{ kind: "NUKE" }, { kind: "TOWERS", n: 5 }, { kind: "PLANES", n: 4 }, { kind: "TANKS", n: 5 }],
       };
     }
     return {
       infantry: 10,
       label: "1 comodín + 2 distintos",
-      rewards: [{ kind: "TOWERS", n: 3 }, { kind: "PLANES", n: 3 }, { kind: "TANKS", n: 4 }, { kind: "NUKE" }],
+      rewards: [{ kind: "NUKE" }, { kind: "TOWERS", n: 4 }, { kind: "PLANES", n: 3 }, { kind: "TANKS", n: 4 }],
     };
   }
   // Sin comodín
@@ -235,21 +235,21 @@ export function classifyTrade(symbols: TerrSymbol[]): TradeCombo | null {
     return {
       infantry: 10,
       label: "1 de cada símbolo",
-      rewards: [{ kind: "TOWERS", n: 3 }, { kind: "PLANES", n: 3 }, { kind: "TANKS", n: 4 }, { kind: "NUKE" }],
+      rewards: [{ kind: "NUKE" }, { kind: "TOWERS", n: 4 }, { kind: "PLANES", n: 3 }, { kind: "TANKS", n: 4 }],
     };
   }
   if (c.P === 3) {
     return {
       infantry: 8,
       label: "3 aviones",
-      rewards: [{ kind: "NUKE" }, { kind: "TOWERS", n: 2 }, { kind: "PLANES", n: 2 }, { kind: "TANKS", n: 3 }],
+      rewards: [{ kind: "TOWERS", n: 3 }, { kind: "PLANES", n: 2 }, { kind: "TANKS", n: 3 }],
     };
   }
   if (c.T === 3) {
     return {
       infantry: 6,
       label: "3 tanques",
-      rewards: [{ kind: "NUKE" }, { kind: "TOWERS", n: 1 }, { kind: "PLANES", n: 1 }, { kind: "TANKS", n: 2 }],
+      rewards: [{ kind: "TOWERS", n: 2 }, { kind: "PLANES", n: 1 }, { kind: "TANKS", n: 2 }],
     };
   }
   if (c.S === 3) {
