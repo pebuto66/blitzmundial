@@ -142,11 +142,11 @@ export function Manual({ onClose }: { onClose: () => void }) {
             <li>Canjes de 3 cartas dan infantería adicional y una recompensa. Con 5+ cartas es obligatorio canjear antes de atacar.</li>
             <li>Tabla de canjes:
               <ul>
-                <li><b>1 comodín + 2 iguales</b> → <b>+12 infantería</b> y escoger: 1 misil nuclear, 4 torres, 4 aviones o 5 tanques.</li>
-                <li><b>1 comodín + 2 distintos</b> (soldado/tanque/avión) → <b>+10 infantería</b> y escoger: 3 torres, 3 aviones, 4 tanques o 1 misil nuclear.</li>
-                <li><b>1 soldado + 1 tanque + 1 avión</b> → <b>+10 infantería</b> y escoger: 3 torres, 3 aviones, 4 tanques o 1 misil nuclear.</li>
-                <li><b>3 aviones</b> → <b>+8 infantería</b> y escoger: 1 bomba (misil), 2 torres, 2 aviones o 3 tanques.</li>
-                <li><b>3 tanques</b> → <b>+6 infantería</b> y escoger: 1 bomba (misil), 1 torre, 1 avión o 2 tanques.</li>
+                <li><b>1 comodín + 2 iguales</b> → <b>+12 infantería</b> y escoger: 1 misil nuclear, 5 torres, 4 aviones o 5 tanques.</li>
+                <li><b>1 comodín + 2 distintos</b> (soldado/tanque/avión) → <b>+10 infantería</b> y escoger: 1 misil nuclear, 4 torres, 3 aviones o 4 tanques.</li>
+                <li><b>1 soldado + 1 tanque + 1 avión</b> → <b>+10 infantería</b> y escoger: 1 misil nuclear, 4 torres, 3 aviones o 4 tanques.</li>
+                <li><b>3 aviones</b> → <b>+8 infantería</b> y escoger: 3 torres, 2 aviones o 3 tanques.</li>
+                <li><b>3 tanques</b> → <b>+6 infantería</b> y escoger: 2 torres, 1 avión o 2 tanques.</li>
                 <li><b>3 soldados</b> → <b>+4 infantería</b> y <b>1 torre</b> (recompensa fija).</li>
               </ul>
             </li>

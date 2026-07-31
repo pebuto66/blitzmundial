@@ -228,19 +228,21 @@ function findBestAttack(state: GameState): AttackMove | null {
     for (const nb of TERR_BY_ID[tgt].adj) {
       const nSt = state.territories[nb];
       if (nSt.owner !== p.id) continue;
+      // Regla: nunca se ataca desde un territorio con menos de 3 infanterías.
+      if (nSt.infantry < 3) continue;
       // Infantería. Si el objetivo ya está bloqueado por el turno, el bot insiste
       // mientras le queden ≥3 infanterías en el origen (no exige ventaja).
       const infOk = lockedTgt === tgt
-        ? nSt.infantry >= 3
-        : nSt.infantry >= 3 && nSt.infantry - 1 > defPower + 1;
+        ? true
+        : nSt.infantry - 1 > defPower + 1;
       if (infOk) {
         const dice = Math.min(3, nSt.infantry - 1);
         const score = (nSt.infantry - 1) - defPower + (tgtSt.towers * 3) + (tgtSt.silo ? 4 : 0) + (tgtSt.airport ? 2 : 0);
         if (!best || score > best.score) best = { kind: "INFANTRY", src: nb, tgt, dice, score };
       }
 
-      // Tanque: siempre acompañado (otro tanque o ≥2 infantería). Nunca solo con 1 inf.
-      const canTank = nSt.tanks >= 2 || (nSt.tanks >= 1 && nSt.infantry >= 3);
+      // Tanque: siempre acompañado por infantería (mínimo 3 en el origen).
+      const canTank = nSt.tanks >= 1;
       if (canTank && playerOil(state, p.id) >= TANK_ATTACK_OIL) {
         const attackPower = nSt.tanks * 2 + Math.max(0, nSt.infantry - 1);
         if (attackPower > defPower) {
@@ -254,6 +256,8 @@ function findBestAttack(state: GameState): AttackMove | null {
     for (const t of owned) {
       const s = state.territories[t.id];
       if (!s.airport || s.planes < 1) continue;
+      // Regla: mínimo 3 infanterías en el territorio de partida.
+      if (s.infantry < 3) continue;
       const d = bfsDist(t.id, tgt);
       if (d <= 0) continue;
       const cost = d * 2 * PLANE_OIL_PER_STEP;
