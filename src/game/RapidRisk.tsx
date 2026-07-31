@@ -672,6 +672,7 @@ function SidePanel({
   const owned = ownedCount(state, current.id);
   const oil = playerOil(state, current.id);
   const totalReinforce = state.phase === "REINFORCE" ? state.reinforcements : 0;
+  const troops = playerTroops(state, current.id);
 
   return (
     <aside className="side">
@@ -698,6 +699,11 @@ function SidePanel({
               </span>
             ))}
           </div></div>
+        </div>
+        <div className="kpi-grid" style={{ marginTop: 8 }}>
+          <div className="kpi"><div className="lbl">Infantería</div><div className="val" style={{ color: current.color }}><IconSoldier size={12} color={current.color} /> {troops.infantry}</div></div>
+          <div className="kpi"><div className="lbl">Tanques</div><div className="val" style={{ color: current.color }}><IconTank size={12} color={current.color} /> {troops.tanks}</div></div>
+          <div className="kpi"><div className="lbl">Aviones</div><div className="val" style={{ color: current.color }}><IconPlane size={12} color={current.color} /> {troops.planes}</div></div>
         </div>
       </div>
 
