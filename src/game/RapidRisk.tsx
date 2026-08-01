@@ -721,29 +721,32 @@ function SidePanel({
         </div>
       </div>
 
-      <div className="side-section">
-        {state.phase === "SETUP" && <SetupPanel state={state} dispatch={dispatch} />}
-        {state.phase === "REINFORCE" && (
-          <ReinforcePanel state={state} dispatch={dispatch}
-            nukeMode={nukeMode} setNukeMode={setNukeMode}
-            reinforceCount={reinforceCount} setReinforceCount={setReinforceCount} />
-        )}
-        {state.phase === "ATTACK" && (
-          <AttackPanel state={state} dispatch={dispatch}
-            occupyInf={occupyInf} setOccupyInf={setOccupyInf}
-            nukeMode={nukeMode} setNukeMode={setNukeMode} />
-        )}
-        {state.phase === "FORTIFY" && (
-          <FortifyPanel state={state} dispatch={dispatch}
-            fortifyInf={fortifyInf} setFortifyInf={setFortifyInf}
-            fortifyTk={fortifyTk} setFortifyTk={setFortifyTk}
-            fortifyPl={fortifyPl} setFortifyPl={setFortifyPl} />
-        )}
+      <div className="side-section phase-section">
+        <div key={state.phase} className="phase-fade">
+          {state.phase === "SETUP" && <SetupPanel state={state} dispatch={dispatch} />}
+          {state.phase === "REINFORCE" && (
+            <ReinforcePanel state={state} dispatch={dispatch}
+              nukeMode={nukeMode} setNukeMode={setNukeMode}
+              reinforceCount={reinforceCount} setReinforceCount={setReinforceCount} />
+          )}
+          {state.phase === "ATTACK" && (
+            <AttackPanel state={state} dispatch={dispatch}
+              occupyInf={occupyInf} setOccupyInf={setOccupyInf}
+              nukeMode={nukeMode} setNukeMode={setNukeMode} />
+          )}
+          {state.phase === "FORTIFY" && (
+            <FortifyPanel state={state} dispatch={dispatch}
+              fortifyInf={fortifyInf} setFortifyInf={setFortifyInf}
+              fortifyTk={fortifyTk} setFortifyTk={setFortifyTk}
+              fortifyPl={fortifyPl} setFortifyPl={setFortifyPl} />
+          )}
+        </div>
       </div>
 
-      <div className="log">
+      <div className="log" ref={logRef}>
         {state.log.map((e) => (<div key={e.id} className={`entry ${e.type}`}>{e.text}</div>))}
       </div>
+
     </aside>
   );
 }
