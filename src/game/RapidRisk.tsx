@@ -674,6 +674,19 @@ function SidePanel({
   const totalReinforce = state.phase === "REINFORCE" ? state.reinforcements : 0;
   const troops = playerTroops(state, current.id);
 
+  // Auto-scroll interno del registro: mantiene el foco en la última entrada
+  // sin desplazar la página (evita los saltos durante los turnos de los bots).
+  const logRef = useRef<HTMLDivElement | null>(null);
+  const lastLogId = state.log.length > 0 ? state.log[state.log.length - 1].id : null;
+  useEffect(() => {
+    const el = logRef.current;
+    if (!el) return;
+    const nearBottom = el.scrollHeight - el.scrollTop - el.clientHeight < 160;
+    if (!nearBottom) return;
+    const reduce = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+    el.scrollTo({ top: el.scrollHeight, behavior: reduce ? "auto" : "smooth" });
+  }, [lastLogId]);
+
   return (
     <aside className="side">
       <div className="side-section">
@@ -721,29 +734,32 @@ function SidePanel({
         </div>
       </div>
 
-      <div className="side-section">
-        {state.phase === "SETUP" && <SetupPanel state={state} dispatch={dispatch} />}
-        {state.phase === "REINFORCE" && (
-          <ReinforcePanel state={state} dispatch={dispatch}
-            nukeMode={nukeMode} setNukeMode={setNukeMode}
-            reinforceCount={reinforceCount} setReinforceCount={setReinforceCount} />
-        )}
-        {state.phase === "ATTACK" && (
-          <AttackPanel state={state} dispatch={dispatch}
-            occupyInf={occupyInf} setOccupyInf={setOccupyInf}
-            nukeMode={nukeMode} setNukeMode={setNukeMode} />
-        )}
-        {state.phase === "FORTIFY" && (
-          <FortifyPanel state={state} dispatch={dispatch}
-            fortifyInf={fortifyInf} setFortifyInf={setFortifyInf}
-            fortifyTk={fortifyTk} setFortifyTk={setFortifyTk}
-            fortifyPl={fortifyPl} setFortifyPl={setFortifyPl} />
-        )}
+      <div className="side-section phase-section">
+        <div key={state.phase} className="phase-fade">
+          {state.phase === "SETUP" && <SetupPanel state={state} dispatch={dispatch} />}
+          {state.phase === "REINFORCE" && (
+            <ReinforcePanel state={state} dispatch={dispatch}
+              nukeMode={nukeMode} setNukeMode={setNukeMode}
+              reinforceCount={reinforceCount} setReinforceCount={setReinforceCount} />
+          )}
+          {state.phase === "ATTACK" && (
+            <AttackPanel state={state} dispatch={dispatch}
+              occupyInf={occupyInf} setOccupyInf={setOccupyInf}
+              nukeMode={nukeMode} setNukeMode={setNukeMode} />
+          )}
+          {state.phase === "FORTIFY" && (
+            <FortifyPanel state={state} dispatch={dispatch}
+              fortifyInf={fortifyInf} setFortifyInf={setFortifyInf}
+              fortifyTk={fortifyTk} setFortifyTk={setFortifyTk}
+              fortifyPl={fortifyPl} setFortifyPl={setFortifyPl} />
+          )}
+        </div>
       </div>
 
-      <div className="log">
+      <div className="log" ref={logRef}>
         {state.log.map((e) => (<div key={e.id} className={`entry ${e.type}`}>{e.text}</div>))}
       </div>
+
     </aside>
   );
 }
