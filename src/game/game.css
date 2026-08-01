@@ -651,3 +651,31 @@ body:has(.app) { overscroll-behavior-y: none; }
   50% { box-shadow: 0 0 12px 2px rgba(120, 220, 255, 0.75); background: rgba(80, 180, 240, 0.42); }
 }
 .game-chat-toggle.blink { animation: chat-blink 0.9s ease-in-out infinite; }
+
+/* ═════════ Transiciones suaves entre turnos (sin saltos de pantalla) ═════════ */
+.log { overflow-anchor: none; scroll-behavior: smooth; }
+.log .entry { animation: log-entry-in 260ms ease-out both; }
+@keyframes log-entry-in {
+  from { opacity: 0; transform: translateY(-4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* El panel de fase reserva altura y hace fundido al cambiar de fase/jugador,
+   de modo que la columna lateral no cambia de alto de golpe. */
+.phase-section { min-height: 168px; transition: min-height 220ms ease; }
+.phase-fade { animation: phase-in 220ms ease-out both; }
+@keyframes phase-in {
+  from { opacity: 0; transform: translateY(4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Cambios de turno: el jugador activo y los chips transicionan en color, no en tamaño. */
+.chip { transition: border-color 200ms ease, box-shadow 200ms ease, opacity 200ms ease; }
+.step { transition: background-color 200ms ease, color 200ms ease, border-color 200ms ease; }
+.player-banner .name, .kpi .val { transition: color 200ms ease; }
+.terr { transition: background-color 220ms ease, border-color 220ms ease, box-shadow 220ms ease; }
+
+@media (prefers-reduced-motion: reduce) {
+  .log { scroll-behavior: auto; }
+  .log .entry, .phase-fade { animation: none; }
+}
