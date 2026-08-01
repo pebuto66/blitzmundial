@@ -1,11 +1,22 @@
+html:has(.app), body:has(.app) { background: #11140d; }
+body:has(.app) { overscroll-behavior-y: none; }
+
 .app {
-  min-height: 100vh;
+  min-height: 100dvh;
   background: radial-gradient(1200px 800px at 20% 0%, rgba(201, 162, 39, 0.08), transparent 60%),
     radial-gradient(1000px 700px at 100% 100%, rgba(201, 162, 39, 0.06), transparent 60%),
     #11140d;
   color: #e9e3d2;
   font-family: Inter, system-ui, sans-serif;
 }
+/* En pantallas anchas el juego ocupa exactamente la ventana: sin banda blanca
+   inferior y sin saltos de scroll cuando el log crece durante el turno de los bots. */
+@media (min-width: 1101px) {
+  .app:has(.game-body) { height: 100dvh; display: flex; flex-direction: column; overflow: hidden; }
+  .app:has(.game-body) .topbar { flex: 0 0 auto; }
+  .app:has(.game-body) .game-body { flex: 1 1 auto; min-height: 0; }
+}
+
 .mono { font-family: "JetBrains Mono", ui-monospace, monospace; }
 .title-font { font-family: Oswald, "Arial Narrow", Impact, sans-serif; letter-spacing: 0.06em; text-transform: uppercase; }
 
