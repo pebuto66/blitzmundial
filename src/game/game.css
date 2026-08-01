@@ -202,7 +202,8 @@ body:has(.app) { overscroll-behavior-y: none; }
 
 @media (max-width: 1100px) {
   .game-body { grid-template-columns: 1fr; }
-  .side { height: auto; border-left: none; border-top: 1px solid #2c3524; }
+  .side { height: auto; overflow: visible; border-left: none; border-top: 1px solid #2c3524; }
+  .map-inner { max-height: 70vh; }
 }
 
 /* ───── Battle animations ───── */
