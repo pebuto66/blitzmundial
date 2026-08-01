@@ -54,18 +54,23 @@ body:has(.app) { overscroll-behavior-y: none; }
 .btn.sm { padding: 6px 10px; font-size: 12px; display: inline-flex; align-items: center; gap: 4px; }
 
 /* ───── Game layout ───── */
-.topbar { height: 56px; display: flex; align-items: center; gap: 16px; padding: 0 16px; border-bottom: 1px solid #2c3524; background: #1a1f16; }
+.topbar { min-height: 56px; display: flex; align-items: center; gap: 16px; padding: 6px 16px; border-bottom: 1px solid #2c3524; background: #1a1f16; flex-wrap: wrap; }
 .brand { font-family: Oswald, sans-serif; font-size: 22px; letter-spacing: 0.18em; text-transform: uppercase; }
 .brand .brass { color: #c9a227; }
-.chips { display: flex; gap: 8px; flex: 1; flex-wrap: wrap; }
-.chip { display: inline-flex; align-items: center; gap: 8px; background: #11140d; border: 1px solid #2c3524; padding: 4px 10px; border-radius: 2px; font-size: 12px; }
+.chips { display: flex; gap: 8px; flex: 1 1 100%; min-width: 0; flex-wrap: nowrap; overflow-x: auto; overflow-y: hidden; padding-bottom: 2px; scrollbar-width: thin; }
+.chip { display: inline-flex; align-items: center; gap: 8px; background: #11140d; border: 1px solid #2c3524; padding: 4px 10px; border-radius: 2px; font-size: 12px; flex-shrink: 0; white-space: nowrap; }
 .chip.active { border-color: #c9a227; box-shadow: 0 0 0 1px rgba(201,162,39,0.3); }
 .chip.dead { opacity: 0.4; text-decoration: line-through; }
 
-.game-body { display: grid; grid-template-columns: 1fr 340px; min-height: calc(100vh - 56px); }
+@media (min-width: 1500px) {
+  .chips { flex: 1 1 auto; flex-wrap: wrap; overflow: visible; }
+}
 
-.map-wrap { position: relative; background: #0d100a; overflow: hidden; }
-.map-inner { position: relative; width: 100%; aspect-ratio: 1199 / 880; margin: 0 auto; max-height: calc(100vh - 56px); container-type: inline-size; }
+.game-body { display: grid; grid-template-columns: 1fr 340px; min-height: 0; }
+
+.map-wrap { position: relative; background: #0d100a; overflow: hidden; min-height: 0; }
+.map-inner { position: relative; width: 100%; aspect-ratio: 1199 / 880; margin: 0 auto; max-height: 100%; container-type: inline-size; }
+
 .map-bg { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: fill; filter: brightness(0.55) saturate(0.7) sepia(0.15); pointer-events: none; }
 .adj-svg { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
 .adj-svg line { stroke: rgba(201,162,39,0.25); stroke-width: 0.15; stroke-dasharray: 1 1; }
