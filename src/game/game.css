@@ -1,11 +1,22 @@
+html:has(.app), body:has(.app) { background: #11140d; }
+body:has(.app) { overscroll-behavior-y: none; }
+
 .app {
-  min-height: 100vh;
+  min-height: 100dvh;
   background: radial-gradient(1200px 800px at 20% 0%, rgba(201, 162, 39, 0.08), transparent 60%),
     radial-gradient(1000px 700px at 100% 100%, rgba(201, 162, 39, 0.06), transparent 60%),
     #11140d;
   color: #e9e3d2;
   font-family: Inter, system-ui, sans-serif;
 }
+/* En pantallas anchas el juego ocupa exactamente la ventana: sin banda blanca
+   inferior y sin saltos de scroll cuando el log crece durante el turno de los bots. */
+@media (min-width: 1101px) {
+  .app:has(.game-body) { height: 100dvh; display: flex; flex-direction: column; overflow: hidden; }
+  .app:has(.game-body) .topbar { flex: 0 0 auto; }
+  .app:has(.game-body) .game-body { flex: 1 1 auto; min-height: 0; }
+}
+
 .mono { font-family: "JetBrains Mono", ui-monospace, monospace; }
 .title-font { font-family: Oswald, "Arial Narrow", Impact, sans-serif; letter-spacing: 0.06em; text-transform: uppercase; }
 
@@ -43,18 +54,23 @@
 .btn.sm { padding: 6px 10px; font-size: 12px; display: inline-flex; align-items: center; gap: 4px; }
 
 /* ───── Game layout ───── */
-.topbar { height: 56px; display: flex; align-items: center; gap: 16px; padding: 0 16px; border-bottom: 1px solid #2c3524; background: #1a1f16; }
+.topbar { min-height: 56px; display: flex; align-items: center; gap: 16px; padding: 6px 16px; border-bottom: 1px solid #2c3524; background: #1a1f16; flex-wrap: wrap; }
 .brand { font-family: Oswald, sans-serif; font-size: 22px; letter-spacing: 0.18em; text-transform: uppercase; }
 .brand .brass { color: #c9a227; }
-.chips { display: flex; gap: 8px; flex: 1; flex-wrap: wrap; }
-.chip { display: inline-flex; align-items: center; gap: 8px; background: #11140d; border: 1px solid #2c3524; padding: 4px 10px; border-radius: 2px; font-size: 12px; }
+.chips { display: flex; gap: 8px; flex: 1 1 100%; min-width: 0; flex-wrap: nowrap; overflow-x: auto; overflow-y: hidden; padding-bottom: 2px; scrollbar-width: thin; }
+.chip { display: inline-flex; align-items: center; gap: 8px; background: #11140d; border: 1px solid #2c3524; padding: 4px 10px; border-radius: 2px; font-size: 12px; flex-shrink: 0; white-space: nowrap; }
 .chip.active { border-color: #c9a227; box-shadow: 0 0 0 1px rgba(201,162,39,0.3); }
 .chip.dead { opacity: 0.4; text-decoration: line-through; }
 
-.game-body { display: grid; grid-template-columns: 1fr 340px; min-height: calc(100vh - 56px); }
+@media (min-width: 1500px) {
+  .chips { flex: 1 1 auto; flex-wrap: wrap; overflow: visible; }
+}
 
-.map-wrap { position: relative; background: #0d100a; overflow: hidden; }
-.map-inner { position: relative; width: 100%; aspect-ratio: 1199 / 880; margin: 0 auto; max-height: calc(100vh - 56px); container-type: inline-size; }
+.game-body { display: grid; grid-template-columns: 1fr 340px; min-height: 0; }
+
+.map-wrap { position: relative; background: #0d100a; overflow: hidden; min-height: 0; }
+.map-inner { position: relative; width: 100%; aspect-ratio: 1199 / 880; margin: 0 auto; max-height: 100%; container-type: inline-size; }
+
 .map-bg { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: fill; filter: brightness(0.55) saturate(0.7) sepia(0.15); pointer-events: none; }
 .adj-svg { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
 .adj-svg line { stroke: rgba(201,162,39,0.25); stroke-width: 0.15; stroke-dasharray: 1 1; }
@@ -128,7 +144,7 @@
 .tooltip .meta { color: #9aa088; font-size: 10px; text-transform: uppercase; letter-spacing: 0.1em; }
 
 /* ───── Side panel ───── */
-.side { background: #1a1f16; border-left: 1px solid #2c3524; display: flex; flex-direction: column; height: calc(100vh - 56px); }
+.side { background: #1a1f16; border-left: 1px solid #2c3524; display: flex; flex-direction: column; height: 100%; min-height: 0; overflow-y: auto; }
 .side-section { padding: 14px 16px; border-bottom: 1px solid #2c3524; }
 .player-banner { display: flex; align-items: center; gap: 10px; }
 .player-banner .swatch { width: 22px; height: 22px; }
@@ -160,7 +176,7 @@
 .die.def { background: #3d6fa5; color: #fff; }
 .die.lost { opacity: 0.35; text-decoration: line-through; }
 
-.log { flex: 1; overflow-y: auto; padding: 12px 14px; font-size: 12px; line-height: 1.5; }
+.log { flex: 1 1 auto; min-height: 0; overflow-y: auto; padding: 12px 14px; font-size: 12px; line-height: 1.5; }
 .log .entry { padding: 4px 0; border-bottom: 1px dotted #2c3524; color: #c8c2b0; }
 .log .entry.attack { color: #e9e3d2; }
 .log .entry.conquest { color: #5f8a4f; font-weight: 600; }
@@ -186,7 +202,9 @@
 
 @media (max-width: 1100px) {
   .game-body { grid-template-columns: 1fr; }
-  .side { height: auto; border-left: none; border-top: 1px solid #2c3524; }
+  .side { height: auto; overflow: visible; border-left: none; border-top: 1px solid #2c3524; }
+  .map-inner { max-height: 70vh; }
+  .log { max-height: 240px; }
 }
 
 /* ───── Battle animations ───── */
