@@ -674,6 +674,19 @@ function SidePanel({
   const totalReinforce = state.phase === "REINFORCE" ? state.reinforcements : 0;
   const troops = playerTroops(state, current.id);
 
+  // Auto-scroll interno del registro: mantiene el foco en la última entrada
+  // sin desplazar la página (evita los saltos durante los turnos de los bots).
+  const logRef = useRef<HTMLDivElement | null>(null);
+  const lastLogId = state.log.length > 0 ? state.log[state.log.length - 1].id : null;
+  useEffect(() => {
+    const el = logRef.current;
+    if (!el) return;
+    const nearBottom = el.scrollHeight - el.scrollTop - el.clientHeight < 160;
+    if (!nearBottom) return;
+    const reduce = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+    el.scrollTo({ top: el.scrollHeight, behavior: reduce ? "auto" : "smooth" });
+  }, [lastLogId]);
+
   return (
     <aside className="side">
       <div className="side-section">
