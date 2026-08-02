@@ -1282,6 +1282,8 @@ export function reducer(state: GameState, action: Action): GameState {
       t.towers = 0;
       if (towersDestroyed > 0) {
         s.towerAlert = { pid: defender.id, terrId: action.target, towers: towersDestroyed, oil: oilLoss, cause: "nuke", at: Date.now() };
+        bumpStat(s, defender.id, "towersLost", towersDestroyed);
+        bumpStat(s, P.id, "towersTaken", towersDestroyed);
       }
       if (defender.oil <= 0) removeAllTowersOf(s, defender.id);
       syncOilInvariant(s);
