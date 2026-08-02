@@ -491,6 +491,7 @@ export function initGame(playerInputs: { name: string; isBot?: boolean }[]): Gam
     fortifyDone: false,
     towerAlert: null,
     conqueredThisTurn: false,
+    stats: players.map(() => emptyStats()),
     winner: null,
     log,
     logCounter: 2,
