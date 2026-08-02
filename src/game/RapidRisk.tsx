@@ -613,6 +613,42 @@ function GameRoot({ initial, onExit, onOpenManual, onOpenSaveLoad, onStateChange
               {state.players[state.winner].name}
             </div>
             <div className="title">Victoria</div>
+            <div className="stats-panel">
+              <div className="stats-title">Informe de guerra</div>
+              <table className="stats-table">
+                <thead>
+                  <tr>
+                    <th>Jugador</th>
+                    <th title="Turnos jugados">Turnos</th>
+                    <th title="Unidades propias perdidas">Perdidas</th>
+                    <th title="Unidades enemigas destruidas">Destruidas</th>
+                    <th title="Territorios conquistados">Conq.</th>
+                    <th title="Torres de petróleo perdidas">🛢️−</th>
+                    <th title="Torres de petróleo capturadas o destruidas">🛢️+</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {state.players.map((p) => {
+                    const st = state.stats?.[p.id];
+                    const me = !p.isBot && (!isOnline || p.id === onlineMySeat);
+                    return (
+                      <tr key={p.id} className={me ? "me" : ""}>
+                        <td>
+                          <span className="dot" style={{ background: p.color }} />
+                          {p.name}{p.isBot ? " (IA)" : ""}{!p.alive ? " ✝" : ""}
+                        </td>
+                        <td>{st?.turns ?? 0}</td>
+                        <td>{st?.lost ?? 0}</td>
+                        <td>{st?.killed ?? 0}</td>
+                        <td>{st?.conquests ?? 0}</td>
+                        <td>{st?.towersLost ?? 0}</td>
+                        <td>{st?.towersTaken ?? 0}</td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
             <button className="btn" onClick={onExit}>Nueva Partida</button>
           </div>
         </div>
