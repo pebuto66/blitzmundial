@@ -66,6 +66,22 @@ export interface TerritoryState {
   silo: boolean;
 }
 
+export interface PlayerStats {
+  /** Unidades propias perdidas en combate. */
+  lost: number;
+  /** Unidades enemigas destruidas por este jugador. */
+  killed: number;
+  /** Turnos completados. */
+  turns: number;
+  /** Territorios conquistados. */
+  conquests: number;
+  /** Torres de petróleo propias perdidas (capturadas o destruidas). */
+  towersLost: number;
+  /** Torres enemigas capturadas o destruidas por este jugador. */
+  towersTaken: number;
+}
+
+
 export interface LogEntry {
   id: number;
   type: "info" | "reinforce" | "attack" | "conquest" | "fortify" | "turn" | "victory" | "oil" | "build" | "setup" | "card" | "nuke";
@@ -96,6 +112,8 @@ export interface GameState {
   /** Último aviso de pérdida de torres de petróleo (para mostrar notificación temporal). */
   towerAlert: { pid: number; terrId: string; towers: number; oil: number; cause: "nuke" | "capture"; at: number } | null;
   conqueredThisTurn: boolean;
+  /** Estadísticas por jugador (índice = id de jugador). */
+  stats?: PlayerStats[];
   winner: number | null;
   log: LogEntry[];
   logCounter: number;
@@ -107,6 +125,25 @@ export interface GameState {
 }
 
 export const PLAYER_COLORS = ["#b5453a", "#3d6fa5", "#5f8a4f", "#8a5a9e", "#c97a33", "#3a9e90"];
+
+function emptyStats(): PlayerStats {
+  return { lost: 0, killed: 0, turns: 0, conquests: 0, towersLost: 0, towersTaken: 0 };
+}
+
+/** Devuelve las estadísticas de un jugador, creándolas si faltan (partidas guardadas antiguas). */
+export function getStats(state: GameState, pid: number): PlayerStats {
+  if (!state.stats) state.stats = state.players.map(() => emptyStats());
+  if (!state.stats[pid]) state.stats[pid] = emptyStats();
+  return state.stats[pid];
+}
+
+/** Suma a una estadística de un jugador. Mutates state. */
+function bumpStat(state: GameState, pid: number, key: keyof PlayerStats, n: number) {
+  if (n <= 0 || pid === undefined || pid === null || !state.players[pid]) return;
+  const s = getStats(state, pid);
+  s[key] += n;
+}
+
 export const DEFAULT_NAMES = ["Rojo", "Azul", "Verde", "Violeta", "Naranja", "Turquesa"];
 
 /* ═══════════════════════ Utilidades ═══════════════════════ */
@@ -454,6 +491,7 @@ export function initGame(playerInputs: { name: string; isBot?: boolean }[]): Gam
     fortifyDone: false,
     towerAlert: null,
     conqueredThisTurn: false,
+    stats: players.map(() => emptyStats()),
     winner: null,
     log,
     logCounter: 2,
@@ -1061,6 +1099,12 @@ export function reducer(state: GameState, action: Action): GameState {
 
       s.lastBattle = { atk: atkRaw, def: defRaw, atkLost, defLost, note, atkOwner: srcT.owner, defOwner: tgtT.owner, atkKind: effKind, terrId: tgt };
 
+      // Estadísticas de bajas
+      bumpStat(s, srcT.owner, "lost", atkLost);
+      bumpStat(s, tgtT.owner, "killed", atkLost);
+      bumpStat(s, tgtT.owner, "lost", defLost);
+      bumpStat(s, srcT.owner, "killed", defLost);
+
       // Bloquear objetivo del turno tras el primer ataque
       if (!s.turnAttackTarget) s.turnAttackTarget = tgt;
 
@@ -1098,6 +1142,8 @@ export function reducer(state: GameState, action: Action): GameState {
           if (loser.oil <= 0) removeAllTowersOf(s, prevOwnerId);
           syncOilInvariant(s);
           s.towerAlert = { pid: prevOwnerId, terrId: tgt, towers: capturedTowers, oil: take, cause: "capture", at: Date.now() };
+          bumpStat(s, prevOwnerId, "towersLost", capturedTowers);
+          bumpStat(s, attacker.id, "towersTaken", capturedTowers);
           pushLog(s, "oil", `${attacker.name} captura ${capturedTowers} torre(s) y ${take} L de petróleo de ${loser.name}.`);
         }
         if (tgtT.airport) {
@@ -1151,6 +1197,7 @@ export function reducer(state: GameState, action: Action): GameState {
         };
         // Solo se cobra carta si hubo combate real. Auto-conquista sin defensores no da carta.
         if (!noDefenders) s.conqueredThisTurn = true;
+        bumpStat(s, attacker.id, "conquests", 1);
         pushLog(s, "conquest", `${attacker.name} conquistó ${TERR_BY_ID[tgt].name} (antes de ${s.players[prevOwner].name}).`);
         if (noDefenders) pushLog(s, "info", `Sin combate: ${attacker.name} no cobra carta por esta conquista.`);
         if (s.pendingOccupy.maxInfantry <= 0) s.pendingOccupy = null;
@@ -1235,6 +1282,8 @@ export function reducer(state: GameState, action: Action): GameState {
       t.towers = 0;
       if (towersDestroyed > 0) {
         s.towerAlert = { pid: defender.id, terrId: action.target, towers: towersDestroyed, oil: oilLoss, cause: "nuke", at: Date.now() };
+        bumpStat(s, defender.id, "towersLost", towersDestroyed);
+        bumpStat(s, P.id, "towersTaken", towersDestroyed);
       }
       if (defender.oil <= 0) removeAllTowersOf(s, defender.id);
       syncOilInvariant(s);
@@ -1344,6 +1393,7 @@ export function reducer(state: GameState, action: Action): GameState {
           }
         }
       }
+      bumpStat(s, s.current, "turns", 1);
       checkEliminations(s, s.current);
       if (s.winner !== null) return s;
       s.current = nextAlivePlayer(s);
