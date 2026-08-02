@@ -1099,6 +1099,12 @@ export function reducer(state: GameState, action: Action): GameState {
 
       s.lastBattle = { atk: atkRaw, def: defRaw, atkLost, defLost, note, atkOwner: srcT.owner, defOwner: tgtT.owner, atkKind: effKind, terrId: tgt };
 
+      // Estadísticas de bajas
+      bumpStat(s, srcT.owner, "lost", atkLost);
+      bumpStat(s, tgtT.owner, "killed", atkLost);
+      bumpStat(s, tgtT.owner, "lost", defLost);
+      bumpStat(s, srcT.owner, "killed", defLost);
+
       // Bloquear objetivo del turno tras el primer ataque
       if (!s.turnAttackTarget) s.turnAttackTarget = tgt;
 
