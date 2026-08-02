@@ -1142,6 +1142,8 @@ export function reducer(state: GameState, action: Action): GameState {
           if (loser.oil <= 0) removeAllTowersOf(s, prevOwnerId);
           syncOilInvariant(s);
           s.towerAlert = { pid: prevOwnerId, terrId: tgt, towers: capturedTowers, oil: take, cause: "capture", at: Date.now() };
+          bumpStat(s, prevOwnerId, "towersLost", capturedTowers);
+          bumpStat(s, attacker.id, "towersTaken", capturedTowers);
           pushLog(s, "oil", `${attacker.name} captura ${capturedTowers} torre(s) y ${take} L de petróleo de ${loser.name}.`);
         }
         if (tgtT.airport) {
