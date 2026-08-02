@@ -66,6 +66,22 @@ export interface TerritoryState {
   silo: boolean;
 }
 
+export interface PlayerStats {
+  /** Unidades propias perdidas en combate. */
+  lost: number;
+  /** Unidades enemigas destruidas por este jugador. */
+  killed: number;
+  /** Turnos completados. */
+  turns: number;
+  /** Territorios conquistados. */
+  conquests: number;
+  /** Torres de petróleo propias perdidas (capturadas o destruidas). */
+  towersLost: number;
+  /** Torres enemigas capturadas o destruidas por este jugador. */
+  towersTaken: number;
+}
+
+
 export interface LogEntry {
   id: number;
   type: "info" | "reinforce" | "attack" | "conquest" | "fortify" | "turn" | "victory" | "oil" | "build" | "setup" | "card" | "nuke";
