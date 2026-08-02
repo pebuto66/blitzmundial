@@ -1393,6 +1393,7 @@ export function reducer(state: GameState, action: Action): GameState {
           }
         }
       }
+      bumpStat(s, s.current, "turns", 1);
       checkEliminations(s, s.current);
       if (s.winner !== null) return s;
       s.current = nextAlivePlayer(s);
