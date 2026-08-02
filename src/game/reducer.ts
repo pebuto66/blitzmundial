@@ -125,6 +125,25 @@ export interface GameState {
 }
 
 export const PLAYER_COLORS = ["#b5453a", "#3d6fa5", "#5f8a4f", "#8a5a9e", "#c97a33", "#3a9e90"];
+
+function emptyStats(): PlayerStats {
+  return { lost: 0, killed: 0, turns: 0, conquests: 0, towersLost: 0, towersTaken: 0 };
+}
+
+/** Devuelve las estadísticas de un jugador, creándolas si faltan (partidas guardadas antiguas). */
+export function getStats(state: GameState, pid: number): PlayerStats {
+  if (!state.stats) state.stats = state.players.map(() => emptyStats());
+  if (!state.stats[pid]) state.stats[pid] = emptyStats();
+  return state.stats[pid];
+}
+
+/** Suma a una estadística de un jugador. Mutates state. */
+function bumpStat(state: GameState, pid: number, key: keyof PlayerStats, n: number) {
+  if (n <= 0 || pid === undefined || pid === null || !state.players[pid]) return;
+  const s = getStats(state, pid);
+  s[key] += n;
+}
+
 export const DEFAULT_NAMES = ["Rojo", "Azul", "Verde", "Violeta", "Naranja", "Turquesa"];
 
 /* ═══════════════════════ Utilidades ═══════════════════════ */
