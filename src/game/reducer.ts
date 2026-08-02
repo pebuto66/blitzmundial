@@ -96,6 +96,8 @@ export interface GameState {
   /** Último aviso de pérdida de torres de petróleo (para mostrar notificación temporal). */
   towerAlert: { pid: number; terrId: string; towers: number; oil: number; cause: "nuke" | "capture"; at: number } | null;
   conqueredThisTurn: boolean;
+  /** Estadísticas por jugador (índice = id de jugador). */
+  stats?: PlayerStats[];
   winner: number | null;
   log: LogEntry[];
   logCounter: number;
