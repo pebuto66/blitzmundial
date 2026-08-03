@@ -709,6 +709,8 @@ function SidePanel({
   const oil = playerOil(state, current.id);
   const totalReinforce = state.phase === "REINFORCE" ? state.reinforcements : 0;
   const troops = playerTroops(state, current.id);
+  const reinforceBlocked = state.phase === "REINFORCE"
+    && (reinforcePending(state) || current.cards.length >= 5);
 
   // Auto-scroll interno del registro: mantiene el foco en la última entrada
   // sin desplazar la página (evita los saltos durante los turnos de los bots).
@@ -727,8 +729,36 @@ function SidePanel({
     <aside className="side">
       <div className="side-section">
         <div className="player-banner">
-          <div className="swatch" style={{ background: current.color }} />
-          <div className="name">{current.name}</div>
+          <div className="player-banner-identity">
+            <div className="swatch" style={{ background: current.color }} />
+            <div className="name">{current.name}</div>
+          </div>
+          <div className="phase-controls">
+            {state.phase === "REINFORCE" && (
+              <button
+                className="btn sm"
+                disabled={reinforceBlocked}
+                onClick={() => dispatch({ type: "END_REINFORCE" })}
+              >
+                Pasar al ataque
+              </button>
+            )}
+            {state.phase === "ATTACK" && (
+              <button className="btn ghost sm" onClick={() => dispatch({ type: "END_ATTACK" })}>
+                Terminar ataque
+              </button>
+            )}
+            {state.phase === "FORTIFY" && !state.fortifyDone && (
+              <button className="btn ghost sm" onClick={() => dispatch({ type: "END_FORTIFY" })}>
+                Terminar fortalecer
+              </button>
+            )}
+            {state.phase === "FORTIFY" && (
+              <button className="btn sm" onClick={() => dispatch({ type: "END_TURN" })}>
+                Fin de turno
+              </button>
+            )}
+          </div>
         </div>
         <div className="stepper">
           {(["SETUP", "REINFORCE", "ATTACK", "FORTIFY"] as const).map((p) => (
@@ -941,11 +971,6 @@ function ReinforcePanel({ state, dispatch, nukeMode, setNukeMode, reinforceCount
           Todos ({currentStock})
         </button>
       </div>
-      {nothingLeft && !mandatory && (
-        <button className="btn sm" onClick={() => dispatch({ type: "END_REINFORCE" })}>
-          Pasar a Ataque
-        </button>
-      )}
       <ContinentBreakdown state={state} />
 
 
@@ -1145,7 +1170,6 @@ function AttackPanel({ state, dispatch, occupyInf, setOccupyInf, nukeMode, setNu
           </div>
         </div>
       )}
-      <button className="btn ghost sm" onClick={() => dispatch({ type: "END_ATTACK" })}>Terminar Ataque</button>
     </div>
   );
 }
@@ -1186,12 +1210,6 @@ function FortifyPanel({ state, dispatch, fortifyInf, setFortifyInf, fortifyTk, s
           </div>
         </div>
       )}
-      <div className="row" style={{ gap: 6, flexWrap: "wrap" }}>
-        {!state.fortifyDone && (
-          <button className="btn ghost sm" onClick={() => dispatch({ type: "END_FORTIFY" })}>Terminar fortalecer</button>
-        )}
-        <button className="btn" onClick={() => dispatch({ type: "END_TURN" })}>Fin de Turno</button>
-      </div>
     </div>
   );
 }
