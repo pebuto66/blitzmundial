@@ -783,7 +783,26 @@ function SidePanel({
           <div className="kpi"><div className="lbl">Infantería</div><div className="val" style={{ color: current.color }}><IconSoldier size={12} color={current.color} /> {troops.infantry}</div></div>
           <div className="kpi"><div className="lbl">Tanques</div><div className="val" style={{ color: current.color }}><IconTank size={12} color={current.color} /> {troops.tanks}</div></div>
           <div className="kpi"><div className="lbl">Aviones</div><div className="val" style={{ color: current.color }}><IconPlane size={12} color={current.color} /> {troops.planes}</div></div>
+          {state.pendingOccupy && state.pendingOccupy.from ? (
+            <div className="kpi occupy-kpi">
+              <div className="lbl">Ocupar {TERR_BY_ID[state.pendingOccupy.to]?.name}</div>
+              <div className="row" style={{ gap: 4, alignItems: "center" }}>
+                <IconSoldier size={12} color={current.color} />
+                <input type="number" className="input-num" min={0} max={state.pendingOccupy.maxInfantry}
+                  value={occupyInf}
+                  onChange={(e) => setOccupyInf(Math.max(0, Math.min(state.pendingOccupy!.maxInfantry, parseInt(e.target.value || "0"))))} />
+                <span className="mono" style={{ fontSize: 10 }}>/{state.pendingOccupy.maxInfantry}</span>
+                <button className="btn sm" onClick={() => {
+                  dispatch({ type: "OCCUPY", infantry: occupyInf });
+                  setOccupyInf(0);
+                }}>Ocupar</button>
+              </div>
+            </div>
+          ) : (
+            <div className="kpi"><div className="lbl">Ocupar</div><div className="val" style={{ color: "#6b7360", fontSize: 12 }}>—</div></div>
+          )}
         </div>
+
       </div>
 
       {/* Stock de unidades (siempre visible) */}
