@@ -211,7 +211,7 @@ function Setup({ count, setCount, names, setNames, bots, setBots, onStart, onOpe
             <span><IconTower size={14} /> {kit.towers} torres</span>
             <span><IconPlane size={14} /> {kit.planes} aviones</span>
             <span><IconTank size={14} /> {kit.tanks} tanques</span>
-            <span><IconAirport size={14} /> {kit.airports} aeropuertos</span>
+            <span><IconAirport size={20} /> {kit.airports} aeropuertos</span>
             <span><IconSilo size={14} /> {kit.silos} silo</span>
           </div>
           <ul className="hint" style={{ margin: "10px 0 0", paddingLeft: 18 }}>
@@ -219,7 +219,7 @@ function Setup({ count, setCount, names, setNames, bots, setBots, onStart, onOpe
             <li>✈️ <b>Aviones</b>: cuestan <b>50 L</b> por territorio recorrido, ida y vuelta (solo se usan 1 vez).</li>
             <li>🛡 <b>Tanques</b>: <b>25 L</b> por territorio atacado y suman <b>+2</b> en combate.</li>
             <li>☢️ <b>Silo de misiles</b> → permite lanzar un <b>misil nuclear</b>.</li>
-            <li>🛫 <b>Aeropuerto</b> → <b>+1 avión</b> de reserva por turno y da <b>alcance global</b> a los aviones.</li>
+            <li><IconAirport size={20} /> <b>Aeropuerto</b> → <b>+1 avión</b> de reserva por turno y da <b>alcance global</b> a los aviones.</li>
             <li>🛡️ <b>Aeropuerto</b> → actúa como <b>escudo antiaéreo</b> contra aviones enemigos.</li>
             <li>💥 Un <b>misil</b> destruye las torres en su zona de impacto.</li>
           </ul>
@@ -488,7 +488,7 @@ function GameRoot({ initial, onExit, onOpenManual, onOpenSaveLoad, onStateChange
                 <span>{p.isBot ? "🤖 " : ""}{p.name}</span>
                 <span className="mono" title="Territorios">{ownedCount(state, p.id)}t</span>
                 <span className="mono" title="Tropas totales (infantería + tanques + aviones)">⚔{troops.total}</span>
-                {aps > 0 && <span className="mono" title="Aeropuertos">✈{aps}</span>}
+                {aps > 0 && <span className="mono" title="Aeropuertos" style={{ display: "inline-flex", alignItems: "center", gap: 2 }}><IconAirport size={16} />{aps}</span>}
                 {sils > 0 && <span className="mono" title="Silos nucleares">☢{sils}</span>}
                 {twrs > 0 && <span className="mono" title="Torres de petróleo">🛢{twrs}</span>}
                 <span className="mono" style={{ color: "#7fb069", display: "inline-flex", alignItems: "center", gap: 2 }} title="Petróleo (litros)">
@@ -564,7 +564,7 @@ function GameRoot({ initial, onExit, onOpenManual, onOpenSaveLoad, onStateChange
                     {st.planes > 0 && <span className="u" style={{ color: owner.color }}><IconPlane size={20} color={owner.color} />{st.planes}</span>}
                   </div>
                   <div className="terr-structs">
-                    {st.airport && <span className="s" title="Aeropuerto" style={{ color: owner.color }}><IconAirport size={19} color={owner.color} /></span>}
+                    {st.airport && <span className="s" title="Aeropuerto"><IconAirport size={32} badge /></span>}
                     {st.silo && <span className="s" title="Silo" style={{ color: owner.color }}><IconSilo size={19} color={owner.color} /></span>}
                     {st.towers > 0 && <span className="s" title="Torres" style={{ color: owner.color }}><IconTower size={19} color={owner.color} />{st.towers}</span>}
                   </div>
@@ -588,7 +588,7 @@ function GameRoot({ initial, onExit, onOpenManual, onOpenSaveLoad, onStateChange
               <div className="mono">
                 Inf: {state.territories[hover.id].infantry} · Tanques: {state.territories[hover.id].tanks} · Torres: {state.territories[hover.id].towers}
               </div>
-              {state.territories[hover.id].airport && <div className="mono">Aeropuerto ✈</div>}
+              {state.territories[hover.id].airport && <div className="mono" style={{ display: "flex", alignItems: "center", gap: 4 }}><IconAirport size={20} /> Aeropuerto</div>}
               {state.territories[hover.id].silo && <div className="mono">Silo ☢</div>}
             </div>
           )}
@@ -794,7 +794,7 @@ function SidePanel({
           <span><IconTank size={13} /> {current.stockTanks}</span>
           <span><IconPlane size={13} /> {current.stockPlanes}</span>
           <span><IconTower size={13} /> {current.stockTowers}</span>
-          <span><IconAirport size={13} /> {current.stockAirports}</span>
+          <span><IconAirport size={20} /> {current.stockAirports}</span>
           <span><IconSilo size={13} /> {current.stockSilos}</span>
           <span><IconNuke size={13} /> {current.stockNukes}</span>
         </div>
@@ -842,7 +842,7 @@ const SETUP_LABELS: Record<SetupItem, string> = {
 function SetupPanel({ state, dispatch }: { state: GameState; dispatch: React.Dispatch<Action> }) {
   const p = state.players[state.current];
   const options: { key: SetupItem; label: string; stock: number; icon: ReactNode }[] = [
-    { key: "AIRPORT", label: "Aeropuerto", stock: p.stockAirports, icon: <IconAirport size={14} /> },
+    { key: "AIRPORT", label: "Aeropuerto", stock: p.stockAirports, icon: <IconAirport size={20} /> },
     { key: "SILO",    label: "Silo",       stock: p.stockSilos,    icon: <IconSilo size={14} /> },
     { key: "TOWER",   label: "Torre",      stock: p.stockTowers,   icon: <IconTower size={14} /> },
     { key: "PLANE",   label: "Avión",      stock: p.stockPlanes,   icon: <IconPlane size={14} /> },
