@@ -1090,8 +1090,15 @@ function AttackPanel({ state, dispatch, occupyInf, setOccupyInf, nukeMode, setNu
             {state.attackKind === "PLANE" && <> · coste: <b>{planeCost} L</b></>}
           </div>
           <div className="row" style={{ gap: 6 }}>
+            <button className="btn ghost sm" onClick={() => dispatch({ type: "SELECT_ATTACK_SOURCE", territory: null })}>Cambiar origen</button>
+            <span className="hint">Tira los dados en la barra inferior ↓</span>
+          </div>
+          <div className="dice-bar" role="group" aria-label="Tirar dados">
+            <span className="dice-bar-label">
+              {TERR_BY_ID[state.attackSource!].name} → {TERR_BY_ID[state.attackTarget!].name}
+            </span>
             {state.attackKind === "PLANE" ? (
-              <button className="btn sm" disabled={src.planes < 1 || planeCost > playerOil(state, src.owner)} onClick={() => dispatch({ type: "RESOLVE_ATTACK", dice: 1 })}>
+              <button className="btn" disabled={src.planes < 1 || planeCost > playerOil(state, src.owner)} onClick={() => dispatch({ type: "RESOLVE_ATTACK", dice: 1 })}>
                 Lanzar avión
               </button>
             ) : (
@@ -1109,14 +1116,14 @@ function AttackPanel({ state, dispatch, occupyInf, setOccupyInf, nukeMode, setNu
                 }
                 const disabled = d > Math.min(3, maxUnits);
                 return (
-                  <button key={d} disabled={disabled} className="btn sm" onClick={() => dispatch({ type: "RESOLVE_ATTACK", dice: d })}>
-                    {d}d
+                  <button key={d} disabled={disabled} className="btn dice-btn" onClick={() => dispatch({ type: "RESOLVE_ATTACK", dice: d })}>
+                    🎲 {d}d
                   </button>
                 );
               })
             )}
-            <button className="btn ghost sm" onClick={() => dispatch({ type: "SELECT_ATTACK_SOURCE", territory: null })}>Cambiar origen</button>
           </div>
+
           {state.lastBattle && (
             <div className="battle" key={`${state.lastBattle.atk.join(",")}|${state.lastBattle.def.join(",")}|${state.lastBattle.atkLost}-${state.lastBattle.defLost}`}>
               {state.lastBattle.note && <div className="hint" style={{ fontSize: 10 }}>{state.lastBattle.note}</div>}
