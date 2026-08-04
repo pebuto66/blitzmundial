@@ -211,7 +211,7 @@ function Setup({ count, setCount, names, setNames, bots, setBots, onStart, onOpe
             <span><IconTower size={14} /> {kit.towers} torres</span>
             <span><IconPlane size={14} /> {kit.planes} aviones</span>
             <span><IconTank size={14} /> {kit.tanks} tanques</span>
-            <span><IconAirport size={14} /> {kit.airports} aeropuertos</span>
+            <span><IconAirport size={20} /> {kit.airports} aeropuertos</span>
             <span><IconSilo size={14} /> {kit.silos} silo</span>
           </div>
           <ul className="hint" style={{ margin: "10px 0 0", paddingLeft: 18 }}>
@@ -219,7 +219,7 @@ function Setup({ count, setCount, names, setNames, bots, setBots, onStart, onOpe
             <li>✈️ <b>Aviones</b>: cuestan <b>50 L</b> por territorio recorrido, ida y vuelta (solo se usan 1 vez).</li>
             <li>🛡 <b>Tanques</b>: <b>25 L</b> por territorio atacado y suman <b>+2</b> en combate.</li>
             <li>☢️ <b>Silo de misiles</b> → permite lanzar un <b>misil nuclear</b>.</li>
-            <li>🛫 <b>Aeropuerto</b> → <b>+1 avión</b> de reserva por turno y da <b>alcance global</b> a los aviones.</li>
+            <li><IconAirport size={20} /> <b>Aeropuerto</b> → <b>+1 avión</b> de reserva por turno y da <b>alcance global</b> a los aviones.</li>
             <li>🛡️ <b>Aeropuerto</b> → actúa como <b>escudo antiaéreo</b> contra aviones enemigos.</li>
             <li>💥 Un <b>misil</b> destruye las torres en su zona de impacto.</li>
           </ul>
@@ -488,7 +488,7 @@ function GameRoot({ initial, onExit, onOpenManual, onOpenSaveLoad, onStateChange
                 <span>{p.isBot ? "🤖 " : ""}{p.name}</span>
                 <span className="mono" title="Territorios">{ownedCount(state, p.id)}t</span>
                 <span className="mono" title="Tropas totales (infantería + tanques + aviones)">⚔{troops.total}</span>
-                {aps > 0 && <span className="mono" title="Aeropuertos">✈{aps}</span>}
+                {aps > 0 && <span className="mono" title="Aeropuertos" style={{ display: "inline-flex", alignItems: "center", gap: 2 }}><IconAirport size={16} />{aps}</span>}
                 {sils > 0 && <span className="mono" title="Silos nucleares">☢{sils}</span>}
                 {twrs > 0 && <span className="mono" title="Torres de petróleo">🛢{twrs}</span>}
                 <span className="mono" style={{ color: "#7fb069", display: "inline-flex", alignItems: "center", gap: 2 }} title="Petróleo (litros)">
@@ -564,7 +564,7 @@ function GameRoot({ initial, onExit, onOpenManual, onOpenSaveLoad, onStateChange
                     {st.planes > 0 && <span className="u" style={{ color: owner.color }}><IconPlane size={20} color={owner.color} />{st.planes}</span>}
                   </div>
                   <div className="terr-structs">
-                    {st.airport && <span className="s" title="Aeropuerto" style={{ color: owner.color }}><IconAirport size={19} color={owner.color} /></span>}
+                    {st.airport && <span className="s" title="Aeropuerto"><IconAirport size={32} badge /></span>}
                     {st.silo && <span className="s" title="Silo" style={{ color: owner.color }}><IconSilo size={19} color={owner.color} /></span>}
                     {st.towers > 0 && <span className="s" title="Torres" style={{ color: owner.color }}><IconTower size={19} color={owner.color} />{st.towers}</span>}
                   </div>
@@ -588,7 +588,7 @@ function GameRoot({ initial, onExit, onOpenManual, onOpenSaveLoad, onStateChange
               <div className="mono">
                 Inf: {state.territories[hover.id].infantry} · Tanques: {state.territories[hover.id].tanks} · Torres: {state.territories[hover.id].towers}
               </div>
-              {state.territories[hover.id].airport && <div className="mono">Aeropuerto ✈</div>}
+              {state.territories[hover.id].airport && <div className="mono" style={{ display: "flex", alignItems: "center", gap: 4 }}><IconAirport size={20} /> Aeropuerto</div>}
               {state.territories[hover.id].silo && <div className="mono">Silo ☢</div>}
             </div>
           )}
@@ -783,7 +783,26 @@ function SidePanel({
           <div className="kpi"><div className="lbl">Infantería</div><div className="val" style={{ color: current.color }}><IconSoldier size={12} color={current.color} /> {troops.infantry}</div></div>
           <div className="kpi"><div className="lbl">Tanques</div><div className="val" style={{ color: current.color }}><IconTank size={12} color={current.color} /> {troops.tanks}</div></div>
           <div className="kpi"><div className="lbl">Aviones</div><div className="val" style={{ color: current.color }}><IconPlane size={12} color={current.color} /> {troops.planes}</div></div>
+          {state.pendingOccupy && state.pendingOccupy.from ? (
+            <div className="kpi occupy-kpi">
+              <div className="lbl">Ocupar {TERR_BY_ID[state.pendingOccupy.to]?.name}</div>
+              <div className="row" style={{ gap: 4, alignItems: "center" }}>
+                <IconSoldier size={12} color={current.color} />
+                <input type="number" className="input-num" min={0} max={state.pendingOccupy.maxInfantry}
+                  value={occupyInf}
+                  onChange={(e) => setOccupyInf(Math.max(0, Math.min(state.pendingOccupy!.maxInfantry, parseInt(e.target.value || "0"))))} />
+                <span className="mono" style={{ fontSize: 10 }}>/{state.pendingOccupy.maxInfantry}</span>
+                <button className="btn sm" onClick={() => {
+                  dispatch({ type: "OCCUPY", infantry: occupyInf });
+                  setOccupyInf(0);
+                }}>Ocupar</button>
+              </div>
+            </div>
+          ) : (
+            <div className="kpi"><div className="lbl">Ocupar</div><div className="val" style={{ color: "#6b7360", fontSize: 12 }}>—</div></div>
+          )}
         </div>
+
       </div>
 
       {/* Stock de unidades (siempre visible) */}
@@ -794,7 +813,7 @@ function SidePanel({
           <span><IconTank size={13} /> {current.stockTanks}</span>
           <span><IconPlane size={13} /> {current.stockPlanes}</span>
           <span><IconTower size={13} /> {current.stockTowers}</span>
-          <span><IconAirport size={13} /> {current.stockAirports}</span>
+          <span><IconAirport size={20} /> {current.stockAirports}</span>
           <span><IconSilo size={13} /> {current.stockSilos}</span>
           <span><IconNuke size={13} /> {current.stockNukes}</span>
         </div>
@@ -842,7 +861,7 @@ const SETUP_LABELS: Record<SetupItem, string> = {
 function SetupPanel({ state, dispatch }: { state: GameState; dispatch: React.Dispatch<Action> }) {
   const p = state.players[state.current];
   const options: { key: SetupItem; label: string; stock: number; icon: ReactNode }[] = [
-    { key: "AIRPORT", label: "Aeropuerto", stock: p.stockAirports, icon: <IconAirport size={14} /> },
+    { key: "AIRPORT", label: "Aeropuerto", stock: p.stockAirports, icon: <IconAirport size={20} /> },
     { key: "SILO",    label: "Silo",       stock: p.stockSilos,    icon: <IconSilo size={14} /> },
     { key: "TOWER",   label: "Torre",      stock: p.stockTowers,   icon: <IconTower size={14} /> },
     { key: "PLANE",   label: "Avión",      stock: p.stockPlanes,   icon: <IconPlane size={14} /> },
@@ -1090,8 +1109,15 @@ function AttackPanel({ state, dispatch, occupyInf, setOccupyInf, nukeMode, setNu
             {state.attackKind === "PLANE" && <> · coste: <b>{planeCost} L</b></>}
           </div>
           <div className="row" style={{ gap: 6 }}>
+            <button className="btn ghost sm" onClick={() => dispatch({ type: "SELECT_ATTACK_SOURCE", territory: null })}>Cambiar origen</button>
+            <span className="hint">Tira los dados en la barra inferior ↓</span>
+          </div>
+          <div className="dice-bar" role="group" aria-label="Tirar dados">
+            <span className="dice-bar-label">
+              {TERR_BY_ID[state.attackSource!].name} → {TERR_BY_ID[state.attackTarget!].name}
+            </span>
             {state.attackKind === "PLANE" ? (
-              <button className="btn sm" disabled={src.planes < 1 || planeCost > playerOil(state, src.owner)} onClick={() => dispatch({ type: "RESOLVE_ATTACK", dice: 1 })}>
+              <button className="btn" disabled={src.planes < 1 || planeCost > playerOil(state, src.owner)} onClick={() => dispatch({ type: "RESOLVE_ATTACK", dice: 1 })}>
                 Lanzar avión
               </button>
             ) : (
@@ -1109,14 +1135,14 @@ function AttackPanel({ state, dispatch, occupyInf, setOccupyInf, nukeMode, setNu
                 }
                 const disabled = d > Math.min(3, maxUnits);
                 return (
-                  <button key={d} disabled={disabled} className="btn sm" onClick={() => dispatch({ type: "RESOLVE_ATTACK", dice: d })}>
-                    {d}d
+                  <button key={d} disabled={disabled} className="btn dice-btn" onClick={() => dispatch({ type: "RESOLVE_ATTACK", dice: d })}>
+                    🎲 {d}d
                   </button>
                 );
               })
             )}
-            <button className="btn ghost sm" onClick={() => dispatch({ type: "SELECT_ATTACK_SOURCE", territory: null })}>Cambiar origen</button>
           </div>
+
           {state.lastBattle && (
             <div className="battle" key={`${state.lastBattle.atk.join(",")}|${state.lastBattle.def.join(",")}|${state.lastBattle.atkLost}-${state.lastBattle.defLost}`}>
               {state.lastBattle.note && <div className="hint" style={{ fontSize: 10 }}>{state.lastBattle.note}</div>}
@@ -1149,27 +1175,11 @@ function AttackPanel({ state, dispatch, occupyInf, setOccupyInf, nukeMode, setNu
         </div>
       )}
       {state.pendingOccupy && state.pendingOccupy.from && (
-        <div>
-          <div className="hint">
-            Mueve infantería adicional al territorio conquistado desde {TERR_BY_ID[state.pendingOccupy.from].name} (siempre debe quedar ≥1 en el origen):
-          </div>
-          <div className="row" style={{ gap: 6, alignItems: "center", flexWrap: "wrap" }}>
-            <label className="hint" style={{ display: "inline-flex", alignItems: "center", gap: 4 }}>
-              <IconSoldier size={12} />
-              <input type="number" className="input-num" min={0} max={state.pendingOccupy.maxInfantry}
-                value={occupyInf}
-                onChange={(e) => setOccupyInf(Math.max(0, Math.min(state.pendingOccupy!.maxInfantry, parseInt(e.target.value || "0"))))} />
-              <span className="mono">/{state.pendingOccupy.maxInfantry}</span>
-            </label>
-            <button className="btn sm" onClick={() => {
-              dispatch({ type: "OCCUPY", infantry: occupyInf });
-              setOccupyInf(0);
-            }}>
-              Ocupar
-            </button>
-          </div>
+        <div className="hint">
+          Envía tropas al territorio conquistado desde el recuadro <b>«Ocupar»</b> (junto a Aviones).
         </div>
       )}
+
     </div>
   );
 }
