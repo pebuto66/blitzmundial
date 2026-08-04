@@ -13,7 +13,7 @@ body:has(.app) { overscroll-behavior-y: none; }
   font-family: Inter, system-ui, sans-serif;
 }
 /* En pantallas anchas el juego ocupa exactamente la ventana: sin banda blanca
-   inferior y sin saltos de scroll cuando el log crece durante el turno de los bots. */
+   inferior y sin saltos de scroll durante el turno de los bots. */
 @media (min-width: 1101px) {
   .app:has(.game-body) { height: 100dvh; display: flex; flex-direction: column; overflow: hidden; }
   .app:has(.game-body) .topbar { flex: 0 0 auto; }
@@ -200,7 +200,6 @@ body:has(.app) { overscroll-behavior-y: none; }
   .app:has(.game-body) .game-body { overflow-y: auto; -webkit-overflow-scrolling: touch; }
   .side { height: auto; overflow: visible; border-left: none; border-top: 1px solid #2c3524; }
   .map-inner { max-height: 70vh; }
-  .log { max-height: 240px; overflow-y: auto; }
 }
 
 
@@ -653,12 +652,7 @@ body:has(.app) { overscroll-behavior-y: none; }
 .game-chat-toggle.blink { animation: chat-blink 0.9s ease-in-out infinite; }
 
 /* ═════════ Transiciones suaves entre turnos (sin saltos de pantalla) ═════════ */
-.log { overflow-anchor: none; scroll-behavior: smooth; }
-.log .entry { animation: log-entry-in 260ms ease-out both; }
-@keyframes log-entry-in {
-  from { opacity: 0; transform: translateY(-4px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
+
 
 /* El panel de fase reserva altura y hace fundido al cambiar de fase/jugador,
    de modo que la columna lateral no cambia de alto de golpe. */
