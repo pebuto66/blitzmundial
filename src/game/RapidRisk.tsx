@@ -828,10 +828,6 @@ function SidePanel({
         </div>
       </div>
 
-      <div className="log" ref={logRef}>
-        {state.log.map((e) => (<div key={e.id} className={`entry ${e.type}`}>{e.text}</div>))}
-      </div>
-
     </aside>
   );
 }
