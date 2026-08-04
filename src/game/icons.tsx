@@ -104,29 +104,20 @@ export const IconTower = ({ size, color, title }: P) => (
   </span>
 );
 
-/** Aeropuerto — vista cenital realista con pista, torre de control y terminal */
-export const IconAirport = ({ size, color, title }: P) => (
-  <span style={{ color: color ?? "currentColor", display: "inline-flex" }}>
-    {wrap(
-      <>
-        {/* pista principal */}
-        <rect x="3" y="10" width="18" height="5" rx="0.8" />
-        {/* marcas de pista */}
-        <line x1="7" y1="12.5" x2="9" y2="12.5" />
-        <line x1="11" y1="12.5" x2="13" y2="12.5" />
-        <line x1="15" y1="12.5" x2="17" y2="12.5" />
-        {/* terminal */}
-        <rect x="6" y="4" width="12" height="4" rx="1" />
-        <line x1="6" y1="6" x2="18" y2="6" />
-        {/* torre de control */}
-        <path d="M20 3v5" />
-        <circle cx="20" cy="3" r="1.4" />
-        {/* taxiway */}
-        <path d="M12 8v2" />
-      </>,
-      size,
-      title ?? "Aeropuerto",
-    )}
+/** Aeropuerto — icono personalizado (insignia con torre de control) */
+export const IconAirport = ({ size = 20, title, badge }: P & { badge?: boolean }) => (
+  <span
+    className={badge ? "airport-badge" : undefined}
+    style={{ display: "inline-flex", alignItems: "center", verticalAlign: "middle" }}
+  >
+    <img
+      src={airportAsset.url}
+      alt={title ?? "Aeropuerto"}
+      title={title ?? "Aeropuerto"}
+      width={size}
+      height={size}
+      style={{ width: size, height: size, display: "block", objectFit: "contain" }}
+    />
   </span>
 );
 
