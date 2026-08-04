@@ -1156,27 +1156,11 @@ function AttackPanel({ state, dispatch, occupyInf, setOccupyInf, nukeMode, setNu
         </div>
       )}
       {state.pendingOccupy && state.pendingOccupy.from && (
-        <div>
-          <div className="hint">
-            Mueve infantería adicional al territorio conquistado desde {TERR_BY_ID[state.pendingOccupy.from].name} (siempre debe quedar ≥1 en el origen):
-          </div>
-          <div className="row" style={{ gap: 6, alignItems: "center", flexWrap: "wrap" }}>
-            <label className="hint" style={{ display: "inline-flex", alignItems: "center", gap: 4 }}>
-              <IconSoldier size={12} />
-              <input type="number" className="input-num" min={0} max={state.pendingOccupy.maxInfantry}
-                value={occupyInf}
-                onChange={(e) => setOccupyInf(Math.max(0, Math.min(state.pendingOccupy!.maxInfantry, parseInt(e.target.value || "0"))))} />
-              <span className="mono">/{state.pendingOccupy.maxInfantry}</span>
-            </label>
-            <button className="btn sm" onClick={() => {
-              dispatch({ type: "OCCUPY", infantry: occupyInf });
-              setOccupyInf(0);
-            }}>
-              Ocupar
-            </button>
-          </div>
+        <div className="hint">
+          Envía tropas al territorio conquistado desde el recuadro <b>«Ocupar»</b> (junto a Aviones).
         </div>
       )}
+
     </div>
   );
 }
