@@ -1083,8 +1083,9 @@ function AttackPanel({ state, dispatch, occupyInf, setOccupyInf, nukeMode, setNu
           </div>
           <div className="row" style={{ gap: 6 }}>
             <button className="btn ghost sm" onClick={() => dispatch({ type: "SELECT_ATTACK_SOURCE", territory: null })}>Cambiar origen</button>
-            <span className="hint">Tira los dados en la barra inferior ↓</span>
+            <span className="hint">Tira los dados arriba ↑</span>
           </div>
+          <DiceSlotPortal>
           <div className="dice-bar" role="group" aria-label="Tirar dados">
             <span className="dice-bar-label">
               {TERR_BY_ID[state.attackSource!].name} → {TERR_BY_ID[state.attackTarget!].name}
@@ -1115,6 +1116,8 @@ function AttackPanel({ state, dispatch, occupyInf, setOccupyInf, nukeMode, setNu
               })
             )}
           </div>
+          </DiceSlotPortal>
+
 
           {state.lastBattle && (
             <div className="battle" key={`${state.lastBattle.atk.join(",")}|${state.lastBattle.def.join(",")}|${state.lastBattle.atkLost}-${state.lastBattle.defLost}`}>
