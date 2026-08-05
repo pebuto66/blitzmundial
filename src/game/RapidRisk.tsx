@@ -1032,6 +1032,17 @@ function ReinforcePanel({ state, dispatch, nukeMode, setNukeMode, reinforceCount
 }
 
 
+/** Renderiza los dados dentro del hueco del panel lateral. */
+function DiceSlotPortal({ children }: { children: ReactNode }) {
+  const [slot, setSlot] = useState<HTMLElement | null>(null);
+  useEffect(() => {
+    setSlot(document.getElementById("dice-slot"));
+  }, []);
+  if (!slot) return null;
+  return createPortal(children, slot);
+}
+
+
 function AttackPanel({ state, dispatch, occupyInf, setOccupyInf, nukeMode, setNukeMode }: {
   state: GameState; dispatch: React.Dispatch<Action>;
   occupyInf: number; setOccupyInf: (n: number) => void;
