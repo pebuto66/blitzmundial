@@ -1,6 +1,5 @@
 // Iconos SVG inline para las unidades y estructuras de Rapid-Risk.
 // Todos aceptan `size` y `color` (currentColor por defecto).
-import airportAsset from "@/assets/icono-aeropuerto.svg.asset.json";
 
 type P = { size?: number; color?: string; title?: string };
 

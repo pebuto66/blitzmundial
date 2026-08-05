@@ -565,7 +565,7 @@ function GameRoot({ initial, onExit, onOpenManual, onOpenSaveLoad, onStateChange
                     {st.planes > 0 && <span className="u" style={{ color: owner.color }}><IconPlane size={20} color={owner.color} />{st.planes}</span>}
                   </div>
                   <div className="terr-structs">
-                    {st.airport && <span className="s" title="Aeropuerto"><IconAirport size={20} /></span>}
+                    {st.airport && <span className="s" title="Aeropuerto"><IconAirport size={19} color="#ffffff" /></span>}
                     {st.silo && <span className="s" title="Silo" style={{ color: owner.color }}><IconSilo size={19} color={owner.color} /></span>}
                     {st.towers > 0 && <span className="s" title="Torres" style={{ color: owner.color }}><IconTower size={19} color={owner.color} />{st.towers}</span>}
                   </div>
