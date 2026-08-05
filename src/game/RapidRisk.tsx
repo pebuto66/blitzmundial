@@ -792,19 +792,9 @@ function SidePanel({
 
       </div>
 
-      {/* Stock de unidades (siempre visible) */}
-      <div className="side-section">
-        <div className="title-font" style={{ fontSize: 11, color: "#c9a227", marginBottom: 8 }}>Reservas de {current.name}</div>
-        <div className="stock-grid">
-          <span><IconSoldier size={13} /> {current.stockArmies}</span>
-          <span><IconTank size={13} /> {current.stockTanks}</span>
-          <span><IconPlane size={13} /> {current.stockPlanes}</span>
-          <span><IconTower size={13} /> {current.stockTowers}</span>
-          <span><IconAirport size={20} /> {current.stockAirports}</span>
-          <span><IconSilo size={13} /> {current.stockSilos}</span>
-          <span><IconNuke size={13} /> {current.stockNukes}</span>
-        </div>
-      </div>
+      {/* Zona de dados de ataque (portal desde el panel de ataque) */}
+      <div className="side-section dice-slot" id="dice-slot" />
+
 
       <div className="side-section phase-section">
         <div key={state.phase} className="phase-fade">
