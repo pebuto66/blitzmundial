@@ -105,22 +105,27 @@ export const IconTower = ({ size, color, title }: P) => (
   </span>
 );
 
-/** Aeropuerto — icono personalizado (insignia con torre de control) */
-export const IconAirport = ({ size = 20, title, badge }: P & { badge?: boolean }) => (
+/** Aeropuerto — torre de control con pista (SVG inline, se ve en cualquier fondo) */
+export const IconAirport = ({ size = 20, color, title, badge }: P & { badge?: boolean }) => (
   <span
     className={badge ? "airport-badge" : undefined}
-    style={{ display: "inline-flex", alignItems: "center", verticalAlign: "middle" }}
+    style={{ color: color ?? "#e8e2cf", display: "inline-flex", alignItems: "center", verticalAlign: "middle" }}
+    aria-label={title ?? "Aeropuerto"}
+    title={title ?? "Aeropuerto"}
   >
-    <img
-      src={airportAsset.url}
-      alt={title ?? "Aeropuerto"}
-      title={title ?? "Aeropuerto"}
-      width={size}
-      height={size}
-      style={{ width: size, height: size, display: "block", objectFit: "contain" }}
-    />
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      {/* torre de control */}
+      <path d="M9 21V10l3-7 3 7v11" />
+      <path d="M9.4 11.5h5.2" />
+      {/* antena */}
+      <path d="M12 3V1.4" />
+      {/* pista */}
+      <path d="M3 21h18" />
+      <path d="M5.5 17.5h2M16.5 17.5h2" />
+    </svg>
   </span>
 );
+
 
 /** Silo de misiles — señal de peligro amarilla y negra (estilo portada) */
 export const IconSilo = ({ size = 16, title }: P) => (
