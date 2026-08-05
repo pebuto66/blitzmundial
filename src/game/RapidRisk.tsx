@@ -1,4 +1,5 @@
 import { useReducer, useState, useEffect, useRef, type ReactNode } from "react";
+import { createPortal } from "react-dom";
 import worldMap from "@/assets/world-map.jpg.asset.json";
 import "./game.css";
 import { TERRITORIES, TERR_BY_ID, CONTINENTS, type TerrSymbol } from "./territories";
@@ -564,7 +565,7 @@ function GameRoot({ initial, onExit, onOpenManual, onOpenSaveLoad, onStateChange
                     {st.planes > 0 && <span className="u" style={{ color: owner.color }}><IconPlane size={20} color={owner.color} />{st.planes}</span>}
                   </div>
                   <div className="terr-structs">
-                    {st.airport && <span className="s" title="Aeropuerto"><IconAirport size={32} badge /></span>}
+                    {st.airport && <span className="s" title="Aeropuerto"><IconAirport size={20} /></span>}
                     {st.silo && <span className="s" title="Silo" style={{ color: owner.color }}><IconSilo size={19} color={owner.color} /></span>}
                     {st.towers > 0 && <span className="s" title="Torres" style={{ color: owner.color }}><IconTower size={19} color={owner.color} />{st.towers}</span>}
                   </div>
@@ -792,19 +793,9 @@ function SidePanel({
 
       </div>
 
-      {/* Stock de unidades (siempre visible) */}
-      <div className="side-section">
-        <div className="title-font" style={{ fontSize: 11, color: "#c9a227", marginBottom: 8 }}>Reservas de {current.name}</div>
-        <div className="stock-grid">
-          <span><IconSoldier size={13} /> {current.stockArmies}</span>
-          <span><IconTank size={13} /> {current.stockTanks}</span>
-          <span><IconPlane size={13} /> {current.stockPlanes}</span>
-          <span><IconTower size={13} /> {current.stockTowers}</span>
-          <span><IconAirport size={20} /> {current.stockAirports}</span>
-          <span><IconSilo size={13} /> {current.stockSilos}</span>
-          <span><IconNuke size={13} /> {current.stockNukes}</span>
-        </div>
-      </div>
+      {/* Zona de dados de ataque (portal desde el panel de ataque) */}
+      <div className="side-section dice-slot" id="dice-slot" />
+
 
       <div className="side-section phase-section">
         <div key={state.phase} className="phase-fade">
@@ -1042,6 +1033,17 @@ function ReinforcePanel({ state, dispatch, nukeMode, setNukeMode, reinforceCount
 }
 
 
+/** Renderiza los dados dentro del hueco del panel lateral. */
+function DiceSlotPortal({ children }: { children: ReactNode }) {
+  const [slot, setSlot] = useState<HTMLElement | null>(null);
+  useEffect(() => {
+    setSlot(document.getElementById("dice-slot"));
+  }, []);
+  if (!slot) return null;
+  return createPortal(children, slot);
+}
+
+
 function AttackPanel({ state, dispatch, occupyInf, setOccupyInf, nukeMode, setNukeMode }: {
   state: GameState; dispatch: React.Dispatch<Action>;
   occupyInf: number; setOccupyInf: (n: number) => void;
@@ -1093,8 +1095,9 @@ function AttackPanel({ state, dispatch, occupyInf, setOccupyInf, nukeMode, setNu
           </div>
           <div className="row" style={{ gap: 6 }}>
             <button className="btn ghost sm" onClick={() => dispatch({ type: "SELECT_ATTACK_SOURCE", territory: null })}>Cambiar origen</button>
-            <span className="hint">Tira los dados en la barra inferior ↓</span>
+            <span className="hint">Tira los dados arriba ↑</span>
           </div>
+          <DiceSlotPortal>
           <div className="dice-bar" role="group" aria-label="Tirar dados">
             <span className="dice-bar-label">
               {TERR_BY_ID[state.attackSource!].name} → {TERR_BY_ID[state.attackTarget!].name}
@@ -1125,6 +1128,8 @@ function AttackPanel({ state, dispatch, occupyInf, setOccupyInf, nukeMode, setNu
               })
             )}
           </div>
+          </DiceSlotPortal>
+
 
           {state.lastBattle && (
             <div className="battle" key={`${state.lastBattle.atk.join(",")}|${state.lastBattle.def.join(",")}|${state.lastBattle.atkLost}-${state.lastBattle.defLost}`}>

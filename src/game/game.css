@@ -729,3 +729,17 @@ body:has(.app) { overscroll-behavior-y: none; }
   .dice-bar { bottom: 8px; padding: 6px 8px; gap: 6px; }
   .dice-btn { min-width: 52px; font-size: 13px; padding: 6px 10px; }
 }
+
+/* Hueco de dados en el panel lateral (sustituye a las reservas) */
+.dice-slot:empty { display: none; }
+.dice-slot .dice-bar {
+  position: static;
+  left: auto;
+  bottom: auto;
+  transform: none;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  pointer-events: auto;
+}
