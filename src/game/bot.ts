@@ -300,7 +300,7 @@ function botFortify(state: GameState): Action | null {
     for (const nb of TERR_BY_ID[t.id].adj) {
       const nSt = state.territories[nb];
       if (nSt.owner !== p.id) continue;
-      const threat = borderThreat(state, nb);
+      const threat = borderThreat(state, nb) + assetValue(state, nb);
       if (threat > bestGain) { bestGain = threat; bestFrom = t.id; bestTo = nb; }
     }
   }
@@ -319,6 +319,12 @@ function botFortify(state: GameState): Action | null {
 }
 
 /* ═════════ helpers ═════════ */
+
+/** Valor defensivo de la infraestructura: torres > silos > aeropuertos. */
+function assetValue(state: GameState, id: string): number {
+  const t = state.territories[id];
+  return t.towers * 8 + (t.silo ? 5 : 0) + (t.airport ? 2 : 0);
+}
 
 function borderThreat(state: GameState, id: string): number {
   const t = state.territories[id];
