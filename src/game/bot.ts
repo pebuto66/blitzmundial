@@ -102,8 +102,8 @@ function botReinforce(state: GameState): Action | null {
   // 2) Colocar unidades pendientes. Determina el ítem actual disponible.
   const owned = TERRITORIES.filter((t) => state.territories[t.id].owner === p.id);
   const borders = owned
-    .map((t) => ({ t, score: borderThreat(state, t.id) }))
-    .filter((x) => x.score >= 0)
+    .map((t) => ({ t, score: borderThreat(state, t.id) + assetValue(state, t.id) }))
+    .filter((x) => x.score > -900)
     .sort((a, b) => b.score - a.score);
   const target = borders[0]?.t ?? owned[0];
 
