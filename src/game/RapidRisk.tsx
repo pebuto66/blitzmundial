@@ -221,7 +221,6 @@ function Setup({ count, setCount, names, setNames, bots, setBots, onStart, onOpe
             <li>🛡 <b>Tanques</b>: <b>25 L</b> por territorio atacado y suman <b>+2</b> en combate.</li>
             <li>☢️ <b>Silo de misiles</b> → permite lanzar un <b>misil nuclear</b>.</li>
             <li><IconAirport size={20} /> <b>Aeropuerto</b> → <b>+1 avión</b> de reserva por turno y da <b>alcance global</b> a los aviones.</li>
-            
             <li>💥 Un <b>misil</b> destruye las torres en su zona de impacto.</li>
           </ul>
         </div>
