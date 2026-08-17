@@ -111,6 +111,16 @@ export interface GameState {
   fortifyDone: boolean;
   /** Último aviso de pérdida de torres de petróleo (para mostrar notificación temporal). */
   towerAlert: { pid: number; terrId: string; towers: number; oil: number; cause: "nuke" | "capture"; at: number } | null;
+  /** Movimientos de petróleo pendientes de reportar, por jugador. */
+  oilLedger?: OilEntry[];
+  /** Petróleo de referencia (inicio del ciclo de reporte) por jugador. */
+  oilBaseline?: number[];
+  /** Informe de logística pendiente de leer (cierre manual). */
+  oilReport?: OilReport | null;
+  /** Aviso de conquista de un territorio en tierra quemada (cierre manual). */
+  scorchedNotice?: { pid: number; terrId: string; prevOwner: string; at: number } | null;
+  /** Historial de avisos consultables. */
+  notices?: Notice[];
   conqueredThisTurn: boolean;
   /** Estadísticas por jugador (índice = id de jugador). */
   stats?: PlayerStats[];
@@ -123,6 +133,26 @@ export interface GameState {
   deck: Card[];
   discard: Card[];
 }
+
+export interface OilEntry {
+  pid: number;
+  delta: number;
+  reason: string;
+  at: number;
+}
+
+export interface OilReport {
+  pid: number;
+  from: number;
+  to: number;
+  lines: OilEntry[];
+  at: number;
+}
+
+export type Notice =
+  | { kind: "oil"; pid: number; at: number; report: OilReport }
+  | { kind: "scorched"; pid: number; at: number; terrId: string; prevOwner: string };
+
 
 export const PLAYER_COLORS = ["#b5453a", "#3d6fa5", "#5f8a4f", "#8a5a9e", "#c97a33", "#3a9e90"];
 
