@@ -531,7 +531,13 @@ export function initGame(playerInputs: { name: string; isBot?: boolean }[]): Gam
     fortifySource: null,
     fortifyDone: false,
     towerAlert: null,
+    oilLedger: [],
+    oilBaseline: players.map((p) => p.oil),
+    oilReport: null,
+    scorchedNotice: null,
+    notices: [],
     conqueredThisTurn: false,
+
     stats: players.map(() => emptyStats()),
     winner: null,
     log,
