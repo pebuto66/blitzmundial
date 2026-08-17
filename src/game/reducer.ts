@@ -662,6 +662,8 @@ export type Action =
   | { type: "END_FORTIFY" }
   | { type: "END_TURN" }
   | { type: "LAUNCH_NUKE"; target: string }
+  | { type: "DISMISS_OIL_REPORT" }
+  | { type: "DISMISS_SCORCHED" }
   | { type: "OCCUPY_PICK_SOURCE"; territory: string }
   | { type: "TRADE_CARDS"; indices: number[]; reward?: TradeReward };
 
