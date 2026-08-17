@@ -701,6 +701,22 @@ function checkEliminations(state: GameState, attackerId?: number, transferCards:
   }
 }
 
+/** Cierra el ciclo de reporte de petróleo del jugador y genera su informe si hubo cambios. */
+function buildOilReport(state: GameState, pid: number) {
+  const ledger = state.oilLedger ?? [];
+  const lines = ledger.filter((e) => e.pid === pid);
+  state.oilLedger = ledger.filter((e) => e.pid !== pid);
+  if (!state.oilBaseline) state.oilBaseline = state.players.map((p) => p.oil);
+  const from = state.oilBaseline[pid] ?? state.players[pid].oil;
+  const to = state.players[pid].oil;
+  state.oilBaseline[pid] = to;
+  if (lines.length === 0) return;
+  const report: OilReport = { pid, from, to, lines, at: Date.now() };
+  state.oilReport = report;
+  if (!state.notices) state.notices = [];
+  state.notices.push({ kind: "oil", pid, at: report.at, report });
+}
+
 export function reducer(state: GameState, action: Action): GameState {
   if (action.type === "HYDRATE") return action.state;
   if (state.winner !== null && action.type !== "RESET") return state;
