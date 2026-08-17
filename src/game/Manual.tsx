@@ -131,6 +131,7 @@ export function Manual({ onClose }: { onClose: () => void }) {
             <li>Cada torre construida otorga <b>1000 L</b>.</li>
             <li>El petróleo <b>persiste entre turnos</b> — solo cambia al gastarlo, perder/capturar torres, o sufrir un misil.</li>
             <li>Al <b>conquistar</b> un territorio con torres, el petróleo capturado se calcula como <b>⌊oil_defensor / total_torres_defensor⌋ × torres_capturadas</b> y se transfiere al conquistador.</li>
+            <li>Al final de cada turno recibes un <b>informe de logística</b> con el total inicial, cada movimiento (torres construidas, ataques, capturas, misiles) y el total final. Se cierra manualmente.</li>
             <li>Cuando el petróleo de un jugador llega a <b>0</b>: se retiran <b>todas sus torres</b> del tablero, sus <b>aviones actúan como tanques</b> y sus <b>tanques como infantería</b> (tanto atacando como defendiendo).</li>
           </ul>
         </Section>
