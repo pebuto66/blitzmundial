@@ -410,16 +410,19 @@ function GameRoot({ initial, onExit, onOpenManual, onOpenSaveLoad, onStateChange
 
   const current = state.players[state.current];
 
-  // Asiento local: en online es mi asiento; en local, el jugador humano en juego.
+  // Un aviso es "mío" si va dirigido a un jugador humano de esta pantalla.
+  const isMine = (pid: number) => {
+    const p = state.players[pid];
+    if (!p || p.isBot) return false;
+    return online ? pid === online.mySeat : true;
+  };
   const localSeat = online
     ? online.mySeat
     : (state.players.find((p) => !p.isBot && p.id === state.current)?.id
       ?? state.players.find((p) => !p.isBot)?.id ?? 0);
   const myNotice = {
-    oil: state.oilReport && state.oilReport.pid === localSeat && !state.players[state.oilReport.pid]?.isBot
-      ? state.oilReport : null,
-    scorched: state.scorchedNotice && state.scorchedNotice.pid === localSeat
-      && !state.players[state.scorchedNotice.pid]?.isBot ? state.scorchedNotice : null,
+    oil: state.oilReport && isMine(state.oilReport.pid) ? state.oilReport : null,
+    scorched: state.scorchedNotice && isMine(state.scorchedNotice.pid) ? state.scorchedNotice : null,
   };
 
   function onTerritoryClick(id: string) {
@@ -684,13 +687,13 @@ function GameRoot({ initial, onExit, onOpenManual, onOpenSaveLoad, onStateChange
         </div>
       )}
       {myNotice.oil && (
-        <OilReportNotice report={myNotice.oil} onClose={() => dispatch({ type: "DISMISS_OIL_REPORT" })} />
+        <OilReportNotice report={myNotice.oil} onClose={() => rawDispatch({ type: "DISMISS_OIL_REPORT" })} />
       )}
       {myNotice.scorched && (
         <ScorchedNotice
           terrId={myNotice.scorched.terrId}
           prevOwner={myNotice.scorched.prevOwner}
-          onClose={() => dispatch({ type: "DISMISS_SCORCHED" })}
+          onClose={() => rawDispatch({ type: "DISMISS_SCORCHED" })}
         />
       )}
       {historyOpen && (
