@@ -191,6 +191,15 @@ export function playerTowers(state: GameState, pid: number): number {
   return n;
 }
 
+/** Registra un movimiento de petróleo con su motivo (para el informe de logística). */
+function logOil(state: GameState, pid: number, delta: number, reason: string) {
+  if (!state.players[pid]) return;
+  if (!state.oilLedger) state.oilLedger = [];
+  if (!state.oilBaseline) state.oilBaseline = state.players.map((p) => p.oil);
+  if (state.oilBaseline[pid] === undefined) state.oilBaseline[pid] = state.players[pid].oil;
+  state.oilLedger.push({ pid, delta, reason, at: Date.now() });
+}
+
 /** Gasta petróleo del jugador; si se agota, elimina todas sus torres del tablero. */
 function spendOil(state: GameState, pid: number, amount: number) {
   if (amount <= 0) return;
@@ -207,8 +216,10 @@ function removeAllTowersOf(state: GameState, pid: number) {
   }
   if (removed > 0) {
     pushLog(state, "oil", `${state.players[pid].name} se queda sin petróleo: ${removed} torre(s) retiradas del tablero.`);
+    logOil(state, pid, 0, "Petróleo a 0: tus aviones actúan como tanques y tus tanques como infantería hasta que vuelvas a tener torres");
   }
 }
+
 
 /** BFS de distancia (nº de territorios recorridos) entre dos territorios. -1 si no hay ruta. */
 export function bfsDist(from: string, to: string): number {
