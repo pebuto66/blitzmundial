@@ -111,6 +111,16 @@ export interface GameState {
   fortifyDone: boolean;
   /** Último aviso de pérdida de torres de petróleo (para mostrar notificación temporal). */
   towerAlert: { pid: number; terrId: string; towers: number; oil: number; cause: "nuke" | "capture"; at: number } | null;
+  /** Movimientos de petróleo pendientes de reportar, por jugador. */
+  oilLedger?: OilEntry[];
+  /** Petróleo de referencia (inicio del ciclo de reporte) por jugador. */
+  oilBaseline?: number[];
+  /** Informe de logística pendiente de leer (cierre manual). */
+  oilReport?: OilReport | null;
+  /** Aviso de conquista de un territorio en tierra quemada (cierre manual). */
+  scorchedNotice?: { pid: number; terrId: string; prevOwner: string; at: number } | null;
+  /** Historial de avisos consultables. */
+  notices?: Notice[];
   conqueredThisTurn: boolean;
   /** Estadísticas por jugador (índice = id de jugador). */
   stats?: PlayerStats[];
@@ -123,6 +133,26 @@ export interface GameState {
   deck: Card[];
   discard: Card[];
 }
+
+export interface OilEntry {
+  pid: number;
+  delta: number;
+  reason: string;
+  at: number;
+}
+
+export interface OilReport {
+  pid: number;
+  from: number;
+  to: number;
+  lines: OilEntry[];
+  at: number;
+}
+
+export type Notice =
+  | { kind: "oil"; pid: number; at: number; report: OilReport }
+  | { kind: "scorched"; pid: number; at: number; terrId: string; prevOwner: string };
+
 
 export const PLAYER_COLORS = ["#b5453a", "#3d6fa5", "#5f8a4f", "#8a5a9e", "#c97a33", "#3a9e90"];
 
@@ -161,6 +191,15 @@ export function playerTowers(state: GameState, pid: number): number {
   return n;
 }
 
+/** Registra un movimiento de petróleo con su motivo (para el informe de logística). */
+function logOil(state: GameState, pid: number, delta: number, reason: string) {
+  if (!state.players[pid]) return;
+  if (!state.oilLedger) state.oilLedger = [];
+  if (!state.oilBaseline) state.oilBaseline = state.players.map((p) => p.oil);
+  if (state.oilBaseline[pid] === undefined) state.oilBaseline[pid] = state.players[pid].oil;
+  state.oilLedger.push({ pid, delta, reason, at: Date.now() });
+}
+
 /** Gasta petróleo del jugador; si se agota, elimina todas sus torres del tablero. */
 function spendOil(state: GameState, pid: number, amount: number) {
   if (amount <= 0) return;
@@ -177,8 +216,10 @@ function removeAllTowersOf(state: GameState, pid: number) {
   }
   if (removed > 0) {
     pushLog(state, "oil", `${state.players[pid].name} se queda sin petróleo: ${removed} torre(s) retiradas del tablero.`);
+    logOil(state, pid, 0, "Petróleo a 0: tus aviones actúan como tanques y tus tanques como infantería hasta que vuelvas a tener torres");
   }
 }
+
 
 /** BFS de distancia (nº de territorios recorridos) entre dos territorios. -1 si no hay ruta. */
 export function bfsDist(from: string, to: string): number {
@@ -490,7 +531,13 @@ export function initGame(playerInputs: { name: string; isBot?: boolean }[]): Gam
     fortifySource: null,
     fortifyDone: false,
     towerAlert: null,
+    oilLedger: [],
+    oilBaseline: players.map((p) => p.oil),
+    oilReport: null,
+    scorchedNotice: null,
+    notices: [],
     conqueredThisTurn: false,
+
     stats: players.map(() => emptyStats()),
     winner: null,
     log,
@@ -615,6 +662,8 @@ export type Action =
   | { type: "END_FORTIFY" }
   | { type: "END_TURN" }
   | { type: "LAUNCH_NUKE"; target: string }
+  | { type: "DISMISS_OIL_REPORT" }
+  | { type: "DISMISS_SCORCHED" }
   | { type: "OCCUPY_PICK_SOURCE"; territory: string }
   | { type: "TRADE_CARDS"; indices: number[]; reward?: TradeReward };
 
@@ -650,6 +699,22 @@ function checkEliminations(state: GameState, attackerId?: number, transferCards:
     state.winner = alive[0].id;
     pushLog(state, "victory", `¡${alive[0].name} ha conquistado el mundo!`);
   }
+}
+
+/** Cierra el ciclo de reporte de petróleo del jugador y genera su informe si hubo cambios. */
+function buildOilReport(state: GameState, pid: number) {
+  const ledger = state.oilLedger ?? [];
+  const lines = ledger.filter((e) => e.pid === pid);
+  state.oilLedger = ledger.filter((e) => e.pid !== pid);
+  if (!state.oilBaseline) state.oilBaseline = state.players.map((p) => p.oil);
+  const from = state.oilBaseline[pid] ?? state.players[pid].oil;
+  const to = state.players[pid].oil;
+  state.oilBaseline[pid] = to;
+  if (lines.length === 0) return;
+  const report: OilReport = { pid, from, to, lines, at: Date.now() };
+  state.oilReport = report;
+  if (!state.notices) state.notices = [];
+  state.notices.push({ kind: "oil", pid, at: report.at, report });
 }
 
 export function reducer(state: GameState, action: Action): GameState {
@@ -691,6 +756,7 @@ export function reducer(state: GameState, action: Action): GameState {
         case "TOWER":
           if (P.stockTowers <= 0) return state;
           T.towers += 1; P.stockTowers -= 1; P.oil += OIL_PER_TOWER;
+          logOil(s, P.id, OIL_PER_TOWER, `Torre construida en ${TERR_BY_ID[action.territory].name}`);
           pushLog(s, "build", `${P.name} levanta una torre en ${TERR_BY_ID[action.territory].name}.`);
           break;
         case "PLANE":
@@ -770,6 +836,7 @@ export function reducer(state: GameState, action: Action): GameState {
           T.towers += placed;
           P.stockTowers -= placed;
           P.oil += placed * OIL_PER_TOWER;
+          logOil(s, P.id, placed * OIL_PER_TOWER, `${placed} torre(s) construida(s) en ${TERR_BY_ID[action.territory].name}`);
           pushLog(s, "build", `${P.name} levanta ${placed} torre(s) en ${TERR_BY_ID[action.territory].name}.`);
           break;
         }
@@ -957,6 +1024,7 @@ export function reducer(state: GameState, action: Action): GameState {
           return s;
         }
         spendOil(s, attacker.id, cost);
+        logOil(s, attacker.id, -cost, `Ataque aéreo a ${TERR_BY_ID[tgt].name}`);
         pushLog(s, "oil", `${attacker.name} gasta ${cost} L en un ataque aéreo a ${TERR_BY_ID[tgt].name}.`);
 
         // Prioridad de defensa: aviones → tanques → infantería (con degradación si no hay petróleo)
@@ -1000,6 +1068,7 @@ export function reducer(state: GameState, action: Action): GameState {
             return s;
           }
           spendOil(s, attacker.id, TANK_ATTACK_OIL);
+          logOil(s, attacker.id, -TANK_ATTACK_OIL, `Ataque con tanque a ${TERR_BY_ID[tgt].name}`);
           pushLog(s, "oil", `${attacker.name} gasta ${TANK_ATTACK_OIL} L en un ataque con tanque a ${TERR_BY_ID[tgt].name}.`);
         } else {
           // Tierra quemada: permitido atacar con 1 infantería (arriesga perderla)
@@ -1136,6 +1205,8 @@ export function reducer(state: GameState, action: Action): GameState {
           const take = Math.min(loser.oil, perTower * capturedTowers);
           loser.oil -= take;
           attacker.oil += take;
+          logOil(s, attacker.id, take, `Territorio ${TERR_BY_ID[tgt].name} capturado con ${capturedTowers} torre(s)`);
+          logOil(s, prevOwnerId, -take, `${attacker.name} capturó tus torres en ${TERR_BY_ID[tgt].name} (${capturedTowers} torre(s))`);
           // El territorio (y sus torres) pasa YA al atacante: las torres capturadas
           // no deben retirarse aunque el defensor se quede sin petróleo.
           tgtT.owner = attacker.id;
@@ -1199,7 +1270,13 @@ export function reducer(state: GameState, action: Action): GameState {
         if (!noDefenders) s.conqueredThisTurn = true;
         bumpStat(s, attacker.id, "conquests", 1);
         pushLog(s, "conquest", `${attacker.name} conquistó ${TERR_BY_ID[tgt].name} (antes de ${s.players[prevOwner].name}).`);
-        if (noDefenders) pushLog(s, "info", `Sin combate: ${attacker.name} no cobra carta por esta conquista.`);
+        if (noDefenders) {
+          pushLog(s, "info", `Sin combate: ${attacker.name} no cobra carta por esta conquista.`);
+          const notice = { pid: attacker.id, terrId: tgt, prevOwner: s.players[prevOwner].name, at: Date.now() };
+          s.scorchedNotice = notice;
+          if (!s.notices) s.notices = [];
+          s.notices.push({ kind: "scorched", pid: notice.pid, at: notice.at, terrId: notice.terrId, prevOwner: notice.prevOwner });
+        }
         if (s.pendingOccupy.maxInfantry <= 0) s.pendingOccupy = null;
         checkEliminations(s, attacker.id, !noDefenders);
         if (s.winner !== null) return s;
@@ -1282,6 +1359,7 @@ export function reducer(state: GameState, action: Action): GameState {
       t.towers = 0;
       if (towersDestroyed > 0) {
         s.towerAlert = { pid: defender.id, terrId: action.target, towers: towersDestroyed, oil: oilLoss, cause: "nuke", at: Date.now() };
+        logOil(s, defender.id, -oilLoss, `${P.name} lanzó un misil sobre ${TERR_BY_ID[action.target].name} (${towersDestroyed} torre(s) destruidas)`);
         bumpStat(s, defender.id, "towersLost", towersDestroyed);
         bumpStat(s, P.id, "towersTaken", towersDestroyed);
       }
@@ -1342,6 +1420,7 @@ export function reducer(state: GameState, action: Action): GameState {
 
       const s = clone(state);
       spendOil(s, srcT.owner, totalOil);
+      if (totalOil > 0) logOil(s, srcT.owner, -totalOil, `Movimiento de tropas a ${TERR_BY_ID[action.target].name}`);
       s.territories[src].infantry -= inf;
       s.territories[src].tanks -= tk;
       s.territories[src].planes -= pl;
@@ -1364,6 +1443,19 @@ export function reducer(state: GameState, action: Action): GameState {
     }
 
 
+
+    case "DISMISS_OIL_REPORT": {
+      if (!state.oilReport) return state;
+      const s = clone(state);
+      s.oilReport = null;
+      return s;
+    }
+    case "DISMISS_SCORCHED": {
+      if (!state.scorchedNotice) return state;
+      const s = clone(state);
+      s.scorchedNotice = null;
+      return s;
+    }
 
     /* ─────── END TURN ─────── */
     case "END_TURN": {
@@ -1393,6 +1485,7 @@ export function reducer(state: GameState, action: Action): GameState {
           }
         }
       }
+      const endingPid = s.current;
       bumpStat(s, s.current, "turns", 1);
       checkEliminations(s, s.current);
       if (s.winner !== null) return s;
@@ -1414,6 +1507,7 @@ export function reducer(state: GameState, action: Action): GameState {
       s.reinforceItem = "ARMY";
       // (Sin reset: el petróleo es persistente y solo cambia por gasto/ganancia.)
       pushLog(s, "turn", `Turno de ${s.players[s.current].name}.`);
+      buildOilReport(s, endingPid);
       return s;
     }
   }

@@ -89,9 +89,18 @@ export function Manual({ onClose }: { onClose: () => void }) {
             <li><b>Tanque</b>: cuesta <b>25 L</b> por objetivo (pago único por turno). Sin petróleo, el tanque <b>no puede atacar</b>.</li>
             <li><b>Avión</b>: cuesta <b>50 L por territorio recorrido, ida y vuelta</b>. Alcance global vía aeropuertos, pero el objetivo debe tener frontera con un territorio propio con <b>≥2 infantería</b> para poder trasladar la tropa de ocupación tras ganar. Sin petróleo, el avión <b>no puede atacar</b>.</li>
             <li>Prioridad defensiva: <b>aviones → tanques → infantería</b>.</li>
-            <li><b>Tierra quemada</b>: puedes atacar con <b>1 sola infantería</b>. Si pierdes, el territorio de origen queda vacío pero sigue siendo tuyo — cualquier enemigo podrá conquistarlo después sin combate (auto-conquista) y <b>sin cobrar carta</b>.</li>
+            <li><b>Tierra quemada</b> (táctica de repliegue): puedes atacar con <b>1 sola infantería</b> a modo de sacrificio.
+              <ul>
+                <li>Si <b>pierdes</b> ese ataque, el territorio de origen queda <b>vacío</b> (sin infantería, sin tanques y sin aviones) pero <b>sigue siendo tuyo</b>.</li>
+                <li>El rival <b>no puede conquistarlo en combate</b> ni cobrar carta por él: solo podrá tomarlo después mediante <b>auto-conquista de territorio vacío</b>, sin combate y <b>sin que nadie cobre carta</b>.</li>
+                <li>Es una <b>jugada válida de repliegue y reagrupación</b> para quien va perdiendo terreno — no es un error del sistema.</li>
+                <li>Los <b>bots no utilizan esta táctica</b>: solo los jugadores humanos pueden ejecutarla.</li>
+                <li>Cuando alguien conquista un territorio en tierra quemada, el juego muestra un aviso explicando que no se cobra carta.</li>
+              </ul>
+            </li>
             <li>Si atacas con 1 infantería y ganas contra 1 defensor, el enemigo desaparece pero al no poder ocupar (siempre debe quedar ≥1 en origen) tu tropa se queda en origen y no cobras carta.</li>
             <li>Solo se cobra carta al final del turno cuando <b>hubo combate</b> y <b>conquistaste</b> al menos un territorio.</li>
+
           </ul>
         </Section>
 
@@ -122,6 +131,7 @@ export function Manual({ onClose }: { onClose: () => void }) {
             <li>Cada torre construida otorga <b>1000 L</b>.</li>
             <li>El petróleo <b>persiste entre turnos</b> — solo cambia al gastarlo, perder/capturar torres, o sufrir un misil.</li>
             <li>Al <b>conquistar</b> un territorio con torres, el petróleo capturado se calcula como <b>⌊oil_defensor / total_torres_defensor⌋ × torres_capturadas</b> y se transfiere al conquistador.</li>
+            <li>Al final de cada turno recibes un <b>informe de logística</b> con el total inicial, cada movimiento (torres construidas, ataques, capturas, misiles) y el total final. Se cierra manualmente.</li>
             <li>Cuando el petróleo de un jugador llega a <b>0</b>: se retiran <b>todas sus torres</b> del tablero, sus <b>aviones actúan como tanques</b> y sus <b>tanques como infantería</b> (tanto atacando como defendiendo).</li>
           </ul>
         </Section>

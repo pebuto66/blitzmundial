@@ -17,6 +17,7 @@ import {
 } from "./icons";
 import { playDice, playAttack, playConquest, playMissile, playMarch, playChat, setMuted, isMuted } from "./sounds";
 import { Manual } from "./Manual";
+import { OilReportNotice, ScorchedNotice, NoticeHistory } from "./Notices";
 import { SaveLoadDialog } from "./SaveLoadDialog";
 import { BattleOverlay } from "./BattleOverlay";
 import { OnlineDialog } from "./OnlineDialog";
@@ -282,6 +283,7 @@ function GameRoot({ initial, onExit, onOpenManual, onOpenSaveLoad, onStateChange
   const [captured, setCaptured] = useState<Set<string>>(new Set());
   const [muted, setMutedState] = useState(isMuted());
   const [botPaused, setBotPaused] = useState(false);
+  const [historyOpen, setHistoryOpen] = useState(false);
   const ownersRef = useRef<Record<string, number>>(
     Object.fromEntries(Object.entries(initial.territories).map(([k, v]) => [k, v.owner])),
   );
@@ -408,6 +410,21 @@ function GameRoot({ initial, onExit, onOpenManual, onOpenSaveLoad, onStateChange
 
   const current = state.players[state.current];
 
+  // Un aviso es "mío" si va dirigido a un jugador humano de esta pantalla.
+  const isMine = (pid: number) => {
+    const p = state.players[pid];
+    if (!p || p.isBot) return false;
+    return online ? pid === online.mySeat : true;
+  };
+  const localSeat = online
+    ? online.mySeat
+    : (state.players.find((p) => !p.isBot && p.id === state.current)?.id
+      ?? state.players.find((p) => !p.isBot)?.id ?? 0);
+  const myNotice = {
+    oil: state.oilReport && isMine(state.oilReport.pid) ? state.oilReport : null,
+    scorched: state.scorchedNotice && isMine(state.scorchedNotice.pid) ? state.scorchedNotice : null,
+  };
+
   function onTerritoryClick(id: string) {
     const t = state.territories[id];
     if (nukeMode) {
@@ -516,7 +533,8 @@ function GameRoot({ initial, onExit, onOpenManual, onOpenSaveLoad, onStateChange
           title={muted ? "Activar sonido" : "Silenciar"}
           onClick={() => { const n = !muted; setMuted(n); setMutedState(n); }}
         >{muted ? "🔇" : "🔊"}</button>
-        <button className="btn ghost sm" title="Manual del jugador" onClick={onOpenManual}>📖</button>
+        <button className="btn ghost sm" title="Manual del jugador" onClick={onOpenManual}>📖 Manual</button>
+        <button className="btn ghost sm" title="Historial de avisos" onClick={() => setHistoryOpen(true)}>🗒</button>
         <button className="btn ghost sm" title="Guardar / Cargar partida" onClick={onOpenSaveLoad}>💾</button>
         <button className="btn ghost sm" onClick={onExit}>Reiniciar</button>
       </div>
@@ -667,6 +685,19 @@ function GameRoot({ initial, onExit, onOpenManual, onOpenSaveLoad, onStateChange
             </div>
           </div>
         </div>
+      )}
+      {myNotice.oil && (
+        <OilReportNotice report={myNotice.oil} onClose={() => rawDispatch({ type: "DISMISS_OIL_REPORT" })} />
+      )}
+      {myNotice.scorched && (
+        <ScorchedNotice
+          terrId={myNotice.scorched.terrId}
+          prevOwner={myNotice.scorched.prevOwner}
+          onClose={() => rawDispatch({ type: "DISMISS_SCORCHED" })}
+        />
+      )}
+      {historyOpen && (
+        <NoticeHistory state={state} pid={localSeat} onClose={() => setHistoryOpen(false)} />
       )}
       {online && (
         <div className={`game-chat ${chatOpen ? "open" : ""}`}>
