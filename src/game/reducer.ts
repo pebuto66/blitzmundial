@@ -1358,7 +1358,7 @@ export function reducer(state: GameState, action: Action): GameState {
       }
       t.towers = 0;
       if (towersDestroyed > 0) {
-        s.towerAlert = { pid: defender.id, terrId: action.target, towers: towersDestroyed, oil: oilLoss, cause: "nuke", at: Date.now() };
+        s.towerAlert = { pid: defender.id, terrId: action.target, towers: towersDestroyed, oil: oilLoss, cause: "nuke", at: Date.now(), by: P.name };
         logOil(s, defender.id, -oilLoss, `${P.name} lanzó un misil sobre ${TERR_BY_ID[action.target].name} (${towersDestroyed} torre(s) destruidas)`);
         bumpStat(s, defender.id, "towersLost", towersDestroyed);
         bumpStat(s, P.id, "towersTaken", towersDestroyed);
