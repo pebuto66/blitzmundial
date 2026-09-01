@@ -677,11 +677,12 @@ function GameRoot({ initial, onExit, onOpenManual, onOpenSaveLoad, onStateChange
           <span className="ta-icon">🛢️💥</span>
           <div>
             <div className="ta-title">
-              {towerAlert.cause === "nuke" ? "¡Misil nuclear!" : "¡Torres capturadas!"}
+              {towerAlert.cause === "nuke" ? `¡Misil nuclear de ${towerAlert.by}!` : "¡Torres capturadas!"}
             </div>
             <div className="ta-body">
               Has perdido {towerAlert.towers} torre(s) de petróleo en {TERR_BY_ID[towerAlert.terrId]?.name ?? towerAlert.terrId}
               {towerAlert.oil > 0 ? ` · −${towerAlert.oil} L` : ""}
+              {towerAlert.cause === "capture" && <span> · capturadas por {towerAlert.by}</span>}
             </div>
           </div>
         </div>
