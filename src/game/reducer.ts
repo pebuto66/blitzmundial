@@ -110,7 +110,7 @@ export interface GameState {
   fortifySource: string | null;
   fortifyDone: boolean;
   /** Último aviso de pérdida de torres de petróleo (para mostrar notificación temporal). */
-  towerAlert: { pid: number; terrId: string; towers: number; oil: number; cause: "nuke" | "capture"; at: number } | null;
+  towerAlert: { pid: number; terrId: string; towers: number; oil: number; cause: "nuke" | "capture"; at: number; by: string } | null;
   /** Movimientos de petróleo pendientes de reportar, por jugador. */
   oilLedger?: OilEntry[];
   /** Petróleo de referencia (inicio del ciclo de reporte) por jugador. */
@@ -1212,7 +1212,7 @@ export function reducer(state: GameState, action: Action): GameState {
           tgtT.owner = attacker.id;
           if (loser.oil <= 0) removeAllTowersOf(s, prevOwnerId);
           syncOilInvariant(s);
-          s.towerAlert = { pid: prevOwnerId, terrId: tgt, towers: capturedTowers, oil: take, cause: "capture", at: Date.now() };
+          s.towerAlert = { pid: prevOwnerId, terrId: tgt, towers: capturedTowers, oil: take, cause: "capture", at: Date.now(), by: attacker.name };
           bumpStat(s, prevOwnerId, "towersLost", capturedTowers);
           bumpStat(s, attacker.id, "towersTaken", capturedTowers);
           pushLog(s, "oil", `${attacker.name} captura ${capturedTowers} torre(s) y ${take} L de petróleo de ${loser.name}.`);
@@ -1358,7 +1358,7 @@ export function reducer(state: GameState, action: Action): GameState {
       }
       t.towers = 0;
       if (towersDestroyed > 0) {
-        s.towerAlert = { pid: defender.id, terrId: action.target, towers: towersDestroyed, oil: oilLoss, cause: "nuke", at: Date.now() };
+        s.towerAlert = { pid: defender.id, terrId: action.target, towers: towersDestroyed, oil: oilLoss, cause: "nuke", at: Date.now(), by: P.name };
         logOil(s, defender.id, -oilLoss, `${P.name} lanzó un misil sobre ${TERR_BY_ID[action.target].name} (${towersDestroyed} torre(s) destruidas)`);
         bumpStat(s, defender.id, "towersLost", towersDestroyed);
         bumpStat(s, P.id, "towersTaken", towersDestroyed);
