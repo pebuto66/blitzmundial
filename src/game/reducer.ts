@@ -13,6 +13,12 @@ export const TANK_ATTACK_OIL = 25; // por territorio objetivo, una vez por turno
 export const TANK_MOVE_OIL = 25;   // por territorio en fortify
 export const PLANE_OIL_PER_STEP = 50; // por avión y territorio recorrido
 
+/** Coste de reubicar infraestructura durante la fase de Fortalecer */
+export const RELOCATE_COST = {
+  AIRPORT: { troops: 20, oil: 250 },
+  SILO: { troops: 30, oil: 500 },
+} as const;
+
 /** Materiales iniciales según nº de jugadores (tabla oficial) */
 export const STARTING: Record<number, {
   armies: number; towers: number; planes: number; tanks: number; airports: number; silos: number;
