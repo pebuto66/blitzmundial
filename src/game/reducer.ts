@@ -1528,6 +1528,7 @@ export function reducer(state: GameState, action: Action): GameState {
       const s = clone(state);
       s.fortifyDone = true;
       s.fortifySource = null;
+      s.relocate = null;
       return s;
     }
 
@@ -1589,7 +1590,7 @@ export function reducer(state: GameState, action: Action): GameState {
         nextP.pendingBonusArmies = 0;
       }
       s.attackSource = null; s.attackTarget = null; s.turnAttackTarget = null; s.lastBattle = null;
-      s.pendingOccupy = null; s.fortifySource = null; s.fortifyDone = false;
+      s.pendingOccupy = null; s.fortifySource = null; s.fortifyDone = false; s.relocate = null;
       s.conqueredThisTurn = false;
       s.tankAttacksPaid = [];
       s.attackKind = "INFANTRY";
