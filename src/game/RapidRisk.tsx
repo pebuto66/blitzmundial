@@ -463,6 +463,12 @@ function GameRoot({ initial, onExit, onOpenManual, onOpenSaveLoad, onStateChange
     }
     if (state.phase === "FORTIFY") {
       if (state.fortifyDone) return;
+      if (state.relocate) {
+        if (t.owner === current.id && id !== state.relocate.source) {
+          dispatch({ type: "CONFIRM_RELOCATE", target: id });
+        }
+        return;
+      }
       if (!state.fortifySource) {
         if (t.owner === current.id && territoryArmyCount(t) > 1) {
           dispatch({ type: "SELECT_FORTIFY_SOURCE", territory: id });
