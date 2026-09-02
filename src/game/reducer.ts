@@ -13,6 +13,12 @@ export const TANK_ATTACK_OIL = 25; // por territorio objetivo, una vez por turno
 export const TANK_MOVE_OIL = 25;   // por territorio en fortify
 export const PLANE_OIL_PER_STEP = 50; // por avión y territorio recorrido
 
+/** Coste de reubicar infraestructura durante la fase de Fortalecer */
+export const RELOCATE_COST = {
+  AIRPORT: { troops: 20, oil: 250 },
+  SILO: { troops: 30, oil: 500 },
+} as const;
+
 /** Materiales iniciales según nº de jugadores (tabla oficial) */
 export const STARTING: Record<number, {
   armies: number; towers: number; planes: number; tanks: number; airports: number; silos: number;
@@ -109,6 +115,8 @@ export interface GameState {
   pendingOccupy: { from: string; to: string; maxInfantry: number; maxTanks: number; kind: UnitKind; candidates?: string[] } | null;
   fortifySource: string | null;
   fortifyDone: boolean;
+  /** Reubicación de infraestructura en curso (solo fase FORTIFY). */
+  relocate?: { kind: "AIRPORT" | "SILO"; source: string } | null;
   /** Último aviso de pérdida de torres de petróleo (para mostrar notificación temporal). */
   towerAlert: { pid: number; terrId: string; towers: number; oil: number; cause: "nuke" | "capture"; at: number; by: string } | null;
   /** Movimientos de petróleo pendientes de reportar, por jugador. */
@@ -189,6 +197,32 @@ export function playerTowers(state: GameState, pid: number): number {
     if (state.territories[id].owner === pid) n += state.territories[id].towers;
   }
   return n;
+}
+
+/** Infantería disponible para gastar: cada territorio debe conservar ≥1 infantería. */
+export function playerFreeInfantry(state: GameState, pid: number): number {
+  let n = 0;
+  for (const id in state.territories) {
+    const t = state.territories[id];
+    if (t.owner === pid) n += Math.max(0, t.infantry - 1);
+  }
+  return n;
+}
+
+/** Retira `amount` infantería del jugador, empezando por los territorios más poblados. */
+function spendInfantry(state: GameState, pid: number, amount: number) {
+  let left = amount;
+  while (left > 0) {
+    let best: string | null = null;
+    for (const id in state.territories) {
+      const t = state.territories[id];
+      if (t.owner !== pid || t.infantry <= 1) continue;
+      if (!best || t.infantry > state.territories[best].infantry) best = id;
+    }
+    if (!best) break;
+    state.territories[best].infantry -= 1;
+    left -= 1;
+  }
 }
 
 /** Registra un movimiento de petróleo con su motivo (para el informe de logística). */
@@ -660,6 +694,9 @@ export type Action =
   | { type: "SELECT_FORTIFY_SOURCE"; territory: string | null }
   | { type: "FORTIFY_MOVE"; target: string; infantry: number; tanks: number; planes: number }
   | { type: "END_FORTIFY" }
+  | { type: "START_RELOCATE"; kind: "AIRPORT" | "SILO"; source: string }
+  | { type: "CANCEL_RELOCATE" }
+  | { type: "CONFIRM_RELOCATE"; target: string }
   | { type: "END_TURN" }
   | { type: "LAUNCH_NUKE"; target: string }
   | { type: "DISMISS_OIL_REPORT" }
@@ -1375,6 +1412,58 @@ export function reducer(state: GameState, action: Action): GameState {
     }
 
     /* ─────── FORTIFY ─────── */
+    case "START_RELOCATE": {
+      if (state.phase !== "FORTIFY" || state.fortifyDone) return state;
+      const T = state.territories[action.source];
+      const P = state.players[state.current];
+      if (!T || T.owner !== P.id) return state;
+      if (action.kind === "AIRPORT" ? !T.airport : !T.silo) return state;
+      const cost = RELOCATE_COST[action.kind];
+      if (playerOil(state, P.id) < cost.oil || playerFreeInfantry(state, P.id) < cost.troops) return state;
+      const s = clone(state);
+      s.relocate = { kind: action.kind, source: action.source };
+      s.fortifySource = null;
+      return s;
+    }
+    case "CANCEL_RELOCATE": {
+      const s = clone(state);
+      s.relocate = null;
+      return s;
+    }
+    case "CONFIRM_RELOCATE": {
+      if (state.phase !== "FORTIFY" || state.fortifyDone) return state;
+      const rel = state.relocate;
+      if (!rel) return state;
+      const P = state.players[state.current];
+      const srcT = state.territories[rel.source];
+      const tgtT = state.territories[action.target];
+      if (!srcT || !tgtT || tgtT.owner !== P.id || srcT.owner !== P.id) return state;
+      if (action.target === rel.source) return state;
+      if (rel.kind === "AIRPORT" ? (!srcT.airport || tgtT.airport) : (!srcT.silo || tgtT.silo)) return state;
+      const cost = RELOCATE_COST[rel.kind];
+      if (playerOil(state, P.id) < cost.oil || playerFreeInfantry(state, P.id) < cost.troops) return state;
+
+      const s = clone(state);
+      const src = s.territories[rel.source];
+      const tgt = s.territories[action.target];
+      let movedPlanes = 0;
+      if (rel.kind === "AIRPORT") {
+        src.airport = false; tgt.airport = true;
+        movedPlanes = src.planes;
+        if (movedPlanes > 0) { src.planes = 0; tgt.planes += movedPlanes; }
+      } else {
+        src.silo = false; tgt.silo = true;
+      }
+      spendInfantry(s, P.id, cost.troops);
+      spendOil(s, P.id, cost.oil);
+      logOil(s, P.id, -cost.oil, `Reubicación de ${rel.kind === "AIRPORT" ? "aeropuerto" : "silo nuclear"} a ${TERR_BY_ID[action.target].name}`);
+      s.relocate = null;
+      pushLog(
+        s, "build",
+        `${P.name} reubica ${rel.kind === "AIRPORT" ? "un aeropuerto" : "su silo nuclear"} de ${TERR_BY_ID[rel.source].name} a ${TERR_BY_ID[action.target].name}: −${cost.troops} tropas, −${cost.oil} L${movedPlanes > 0 ? ` (${movedPlanes} avión/aviones trasladados)` : ""}.`,
+      );
+      return s;
+    }
     case "SELECT_FORTIFY_SOURCE": {
       if (state.phase !== "FORTIFY") return state;
       const s = clone(state);
@@ -1439,6 +1528,7 @@ export function reducer(state: GameState, action: Action): GameState {
       const s = clone(state);
       s.fortifyDone = true;
       s.fortifySource = null;
+      s.relocate = null;
       return s;
     }
 
@@ -1500,7 +1590,7 @@ export function reducer(state: GameState, action: Action): GameState {
         nextP.pendingBonusArmies = 0;
       }
       s.attackSource = null; s.attackTarget = null; s.turnAttackTarget = null; s.lastBattle = null;
-      s.pendingOccupy = null; s.fortifySource = null; s.fortifyDone = false;
+      s.pendingOccupy = null; s.fortifySource = null; s.fortifyDone = false; s.relocate = null;
       s.conqueredThisTurn = false;
       s.tankAttacksPaid = [];
       s.attackKind = "INFANTRY";

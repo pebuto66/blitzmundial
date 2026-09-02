@@ -7,7 +7,7 @@ import {
   reducer, initGame, ownedCount, playerOil, territoryArmyCount,
   PLAYER_COLORS, DEFAULT_NAMES, STARTING, PLANE_OIL_PER_STEP, bfsDist, classifyTrade,
   playerHasAirport, playerHasSilo, reinforcePending, CONQUEROR_NAMES,
-  playerAirports, playerSilos, playerTroops,
+  playerAirports, playerSilos, playerTroops, playerFreeInfantry, RELOCATE_COST,
   type GameState, type UnitKind, type SetupItem, type Action, type TradeReward, type Card,
 } from "./reducer";
 import { nextBotAction } from "./bot";
@@ -463,6 +463,12 @@ function GameRoot({ initial, onExit, onOpenManual, onOpenSaveLoad, onStateChange
     }
     if (state.phase === "FORTIFY") {
       if (state.fortifyDone) return;
+      if (state.relocate) {
+        if (t.owner === current.id && id !== state.relocate.source) {
+          dispatch({ type: "CONFIRM_RELOCATE", target: id });
+        }
+        return;
+      }
       if (!state.fortifySource) {
         if (t.owner === current.id && territoryArmyCount(t) > 1) {
           dispatch({ type: "SELECT_FORTIFY_SOURCE", territory: id });
@@ -1210,8 +1216,53 @@ function FortifyPanel({ state, dispatch, fortifyInf, setFortifyInf, fortifyTk, s
   fortifyPl: number; setFortifyPl: (n: number) => void;
 }) {
   const src = state.fortifySource ? state.territories[state.fortifySource] : null;
+  const cur = state.players[state.current];
+  const oil = playerOil(state, cur.id);
+  const freeInf = playerFreeInfantry(state, cur.id);
+  const myAirports = Object.keys(state.territories).filter((id) => state.territories[id].owner === cur.id && state.territories[id].airport);
+  const mySilo = Object.keys(state.territories).find((id) => state.territories[id].owner === cur.id && state.territories[id].silo) ?? null;
+  const rel = state.relocate ?? null;
+  const canA = oil >= RELOCATE_COST.AIRPORT.oil && freeInf >= RELOCATE_COST.AIRPORT.troops;
+  const canS = oil >= RELOCATE_COST.SILO.oil && freeInf >= RELOCATE_COST.SILO.troops;
   return (
     <div className="actions">
+      {!state.fortifyDone && (myAirports.length > 0 || mySilo) && (
+        <div style={{ marginBottom: 8, paddingBottom: 8, borderBottom: "1px solid rgba(201,162,39,0.25)" }}>
+          {rel ? (
+            <div>
+              <div className="hint">
+                Reubicando {rel.kind === "AIRPORT" ? "aeropuerto" : "silo nuclear"} desde <b>{TERR_BY_ID[rel.source].name}</b>.
+                Elige un territorio propio de destino. Coste: −{RELOCATE_COST[rel.kind].troops} tropas, −{RELOCATE_COST[rel.kind].oil} L.
+                {rel.kind === "AIRPORT" && " Los aviones estacionados se trasladan con el aeropuerto."}
+              </div>
+              <button className="btn sm" onClick={() => dispatch({ type: "CANCEL_RELOCATE" })}>Cancelar reubicación</button>
+            </div>
+          ) : (
+            <div>
+              <div className="hint">
+                Reubicar infraestructura (solo en Fortalecer): aeropuerto −20 tropas/−250 L · silo −30 tropas/−500 L.
+                Disponible: {freeInf} tropas libres · {oil} L.
+              </div>
+              <div className="row" style={{ gap: 6, flexWrap: "wrap" }}>
+                {myAirports.map((id) => (
+                  <button key={id} className="btn sm" disabled={!canA}
+                    title={canA ? "Reubicar este aeropuerto" : "Recursos insuficientes (20 tropas + 250 L)"}
+                    onClick={() => dispatch({ type: "START_RELOCATE", kind: "AIRPORT", source: id })}>
+                    Mover aeropuerto de {TERR_BY_ID[id].name}
+                  </button>
+                ))}
+                {mySilo && (
+                  <button className="btn sm" disabled={!canS}
+                    title={canS ? "Reubicar el silo nuclear" : "Recursos insuficientes (30 tropas + 500 L)"}
+                    onClick={() => dispatch({ type: "START_RELOCATE", kind: "SILO", source: mySilo })}>
+                    Mover silo de {TERR_BY_ID[mySilo].name}
+                  </button>
+                )}
+              </div>
+            </div>
+          )}
+        </div>
+      )}
       {state.fortifyDone ? (
         <div className="hint">Movimientos terminados. Pulsa "Fin de Turno" para pasar al siguiente jugador.</div>
       ) : !src ? (
