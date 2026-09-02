@@ -169,6 +169,15 @@ export function Manual({ onClose }: { onClose: () => void }) {
             <li>Movimientos <b>ilimitados</b> al final del turno: infantería y tanques a territorios <b>adyacentes propios</b>; aviones vuelan <b>aeropuerto → aeropuerto</b> a cualquier distancia.</li>
             <li>Coste: tanque <b>25 L</b> por movimiento; avión <b>50 L × distancia</b> por unidad.</li>
             <li>El origen siempre debe conservar <b>≥1 infantería</b>.</li>
+            <li><b>Reubicar infraestructura</b> (solo durante Fortalecer): puedes mover un <b><IconAirport size={20} /> aeropuerto</b> o tu <b>silo nuclear</b> a otro territorio propio.
+              <ul>
+                <li><b>Aeropuerto</b>: <b>−20 tropas de infantería</b> y <b>−250 L</b>. Los <b>aviones estacionados se trasladan</b> automáticamente con el aeropuerto.</li>
+                <li><b>Silo nuclear</b>: <b>−30 tropas de infantería</b> y <b>−500 L</b>. Solo cambia de sitio (sigue habiendo <b>1 silo por jugador</b>) y <b>no consume ningún misil</b> de tu reserva.</li>
+                <li>Las tropas se descuentan del total del jugador respetando el mínimo de <b>1 infantería por territorio</b>. Sin petróleo o tropas suficientes la acción no se puede confirmar.</li>
+                <li>El gasto de petróleo aparece en el <b>informe de logística</b> del turno.</li>
+                <li>No aumenta el límite de construcción: es solo reposicionamiento.</li>
+              </ul>
+            </li>
           </ul>
         </Section>
 
