@@ -109,6 +109,8 @@ export interface GameState {
   pendingOccupy: { from: string; to: string; maxInfantry: number; maxTanks: number; kind: UnitKind; candidates?: string[] } | null;
   fortifySource: string | null;
   fortifyDone: boolean;
+  /** Reubicación de infraestructura en curso (solo fase FORTIFY). */
+  relocate?: { kind: "AIRPORT" | "SILO"; source: string } | null;
   /** Último aviso de pérdida de torres de petróleo (para mostrar notificación temporal). */
   towerAlert: { pid: number; terrId: string; towers: number; oil: number; cause: "nuke" | "capture"; at: number; by: string } | null;
   /** Movimientos de petróleo pendientes de reportar, por jugador. */
