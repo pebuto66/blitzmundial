@@ -199,6 +199,32 @@ export function playerTowers(state: GameState, pid: number): number {
   return n;
 }
 
+/** Infantería disponible para gastar: cada territorio debe conservar ≥1 infantería. */
+export function playerFreeInfantry(state: GameState, pid: number): number {
+  let n = 0;
+  for (const id in state.territories) {
+    const t = state.territories[id];
+    if (t.owner === pid) n += Math.max(0, t.infantry - 1);
+  }
+  return n;
+}
+
+/** Retira `amount` infantería del jugador, empezando por los territorios más poblados. */
+function spendInfantry(state: GameState, pid: number, amount: number) {
+  let left = amount;
+  while (left > 0) {
+    let best: string | null = null;
+    for (const id in state.territories) {
+      const t = state.territories[id];
+      if (t.owner !== pid || t.infantry <= 1) continue;
+      if (!best || t.infantry > state.territories[best].infantry) best = id;
+    }
+    if (!best) break;
+    state.territories[best].infantry -= 1;
+    left -= 1;
+  }
+}
+
 /** Registra un movimiento de petróleo con su motivo (para el informe de logística). */
 function logOil(state: GameState, pid: number, delta: number, reason: string) {
   if (!state.players[pid]) return;
