@@ -694,6 +694,9 @@ export type Action =
   | { type: "SELECT_FORTIFY_SOURCE"; territory: string | null }
   | { type: "FORTIFY_MOVE"; target: string; infantry: number; tanks: number; planes: number }
   | { type: "END_FORTIFY" }
+  | { type: "START_RELOCATE"; kind: "AIRPORT" | "SILO"; source: string }
+  | { type: "CANCEL_RELOCATE" }
+  | { type: "CONFIRM_RELOCATE"; target: string }
   | { type: "END_TURN" }
   | { type: "LAUNCH_NUKE"; target: string }
   | { type: "DISMISS_OIL_REPORT" }
