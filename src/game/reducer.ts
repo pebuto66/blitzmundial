@@ -1412,6 +1412,58 @@ export function reducer(state: GameState, action: Action): GameState {
     }
 
     /* ─────── FORTIFY ─────── */
+    case "START_RELOCATE": {
+      if (state.phase !== "FORTIFY" || state.fortifyDone) return state;
+      const T = state.territories[action.source];
+      const P = state.players[state.current];
+      if (!T || T.owner !== P.id) return state;
+      if (action.kind === "AIRPORT" ? !T.airport : !T.silo) return state;
+      const cost = RELOCATE_COST[action.kind];
+      if (playerOil(state, P.id) < cost.oil || playerFreeInfantry(state, P.id) < cost.troops) return state;
+      const s = clone(state);
+      s.relocate = { kind: action.kind, source: action.source };
+      s.fortifySource = null;
+      return s;
+    }
+    case "CANCEL_RELOCATE": {
+      const s = clone(state);
+      s.relocate = null;
+      return s;
+    }
+    case "CONFIRM_RELOCATE": {
+      if (state.phase !== "FORTIFY" || state.fortifyDone) return state;
+      const rel = state.relocate;
+      if (!rel) return state;
+      const P = state.players[state.current];
+      const srcT = state.territories[rel.source];
+      const tgtT = state.territories[action.target];
+      if (!srcT || !tgtT || tgtT.owner !== P.id || srcT.owner !== P.id) return state;
+      if (action.target === rel.source) return state;
+      if (rel.kind === "AIRPORT" ? (!srcT.airport || tgtT.airport) : (!srcT.silo || tgtT.silo)) return state;
+      const cost = RELOCATE_COST[rel.kind];
+      if (playerOil(state, P.id) < cost.oil || playerFreeInfantry(state, P.id) < cost.troops) return state;
+
+      const s = clone(state);
+      const src = s.territories[rel.source];
+      const tgt = s.territories[action.target];
+      let movedPlanes = 0;
+      if (rel.kind === "AIRPORT") {
+        src.airport = false; tgt.airport = true;
+        movedPlanes = src.planes;
+        if (movedPlanes > 0) { src.planes = 0; tgt.planes += movedPlanes; }
+      } else {
+        src.silo = false; tgt.silo = true;
+      }
+      spendInfantry(s, P.id, cost.troops);
+      spendOil(s, P.id, cost.oil);
+      logOil(s, P.id, -cost.oil, `Reubicación de ${rel.kind === "AIRPORT" ? "aeropuerto" : "silo nuclear"} a ${TERR_BY_ID[action.target].name}`);
+      s.relocate = null;
+      pushLog(
+        s, "build",
+        `${P.name} reubica ${rel.kind === "AIRPORT" ? "un aeropuerto" : "su silo nuclear"} de ${TERR_BY_ID[rel.source].name} a ${TERR_BY_ID[action.target].name}: −${cost.troops} tropas, −${cost.oil} L${movedPlanes > 0 ? ` (${movedPlanes} avión/aviones trasladados)` : ""}.`,
+      );
+      return s;
+    }
     case "SELECT_FORTIFY_SOURCE": {
       if (state.phase !== "FORTIFY") return state;
       const s = clone(state);
