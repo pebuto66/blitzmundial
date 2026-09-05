@@ -126,12 +126,12 @@ export function RapidRisk() {
   );
 
   return (
-    <>
+    <div className="app">
       <Splash />
       {content}
       <CreditsLink />
       <InfoButton />
-    </>
+    </div>
   );
 }
 
@@ -167,7 +167,7 @@ function Setup({ count, setCount, names, setNames, bots, setBots, onStart, onOpe
   }
 
   return (
-    <div className="app">
+    <>
       <div className="setup">
         <div className="subtitle">// Comando Estratégico Global</div>
         <h1>Blitz <span className="brass">Mundial</span></h1>
@@ -234,7 +234,7 @@ function Setup({ count, setCount, names, setNames, bots, setBots, onStart, onOpe
         </div>
         <CreditsFooter />
       </div>
-    </div>
+    </>
   );
 }
 
@@ -484,7 +484,7 @@ function GameRoot({ initial, onExit, onOpenManual, onOpenSaveLoad, onStateChange
   }
 
   return (
-    <div className="app">
+    <>
       <div className="topbar">
         <div className="brand">Blitz <span className="brass">Mundial</span></div>
         {online && (
@@ -1290,7 +1290,7 @@ function FortifyPanel({ state, dispatch, fortifyInf, setFortifyInf, fortifyTk, s
           </div>
         </div>
       )}
-    </div>
+    </>
   );
 }
 
