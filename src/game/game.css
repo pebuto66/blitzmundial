@@ -485,13 +485,14 @@ body:has(.app) { overscroll-behavior-y: none; }
   background: transparent;
   border: none;
   box-shadow: none;
-  cursor: pointer;
+  cursor: default;
+  user-select: none;
   transition: opacity 150ms ease;
-  pointer-events: auto;
+  pointer-events: none;
   letter-spacing: 0.02em;
 }
 .credits-link:hover,
-.credits-link:focus-visible { opacity: 1; outline: none; }
+.credits-link:focus-visible { opacity: 0.65; outline: none; }
 @media (max-width: 640px) {
   .credits-link { font-size: 10px; left: 6px; bottom: 4px; }
 }
