@@ -55,9 +55,6 @@ export function CreditsFooter() {
   return (
     <div className="credits-footer">
       <span>Creado por {AUTHOR}</span>
-      <a className="btn ghost sm" href={URL} target="_blank" rel="noopener noreferrer">
-        Visitar web
-      </a>
     </div>
   );
 }
