@@ -37,14 +37,9 @@ export function InfoButton() {
             <div className="credits-modal-version">Versión {VERSION}</div>
             <div className="credits-modal-by">Creado por</div>
             <div className="credits-modal-author">{AUTHOR}</div>
-            <a
-              className="credits-modal-link"
-              href={URL}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
+            <div className="credits-modal-link">
               {URL}
-            </a>
+            </div>
             <div className="credits-modal-actions">
               <button className="btn" onClick={() => setOpen(false)}>Cerrar</button>
             </div>
