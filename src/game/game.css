@@ -473,7 +473,7 @@ body:has(.app) { overscroll-behavior-y: none; }
 
 /* ═════════ Créditos / autoría ═════════ */
 .credits-link {
-  position: fixed;
+  position: absolute;
   left: 10px;
   bottom: 8px;
   z-index: 40;
