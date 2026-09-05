@@ -7,15 +7,12 @@ const VERSION = "1.0";
 /** Enlace fijo abajo-izquierda */
 export function CreditsLink() {
   return (
-    <a
+    <span
       className="credits-link"
-      href={URL}
-      target="_blank"
-      rel="noopener noreferrer"
       aria-label={`Made by ${AUTHOR}`}
     >
-      Made by {AUTHOR} ↗
-    </a>
+      Made by {AUTHOR}
+    </span>
   );
 }
 
