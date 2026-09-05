@@ -725,7 +725,7 @@ function GameRoot({ initial, onExit, onOpenManual, onOpenSaveLoad, onStateChange
           )}
         </div>
       )}
-    </div>
+    </>
   );
 }
 
@@ -1290,7 +1290,7 @@ function FortifyPanel({ state, dispatch, fortifyInf, setFortifyInf, fortifyTk, s
           </div>
         </div>
       )}
-    </>
+    </div>
   );
 }
 
