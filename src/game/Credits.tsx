@@ -7,15 +7,12 @@ const VERSION = "1.0";
 /** Enlace fijo abajo-izquierda */
 export function CreditsLink() {
   return (
-    <a
+    <span
       className="credits-link"
-      href={URL}
-      target="_blank"
-      rel="noopener noreferrer"
       aria-label={`Made by ${AUTHOR}`}
     >
-      Made by {AUTHOR} ↗
-    </a>
+      Made by {AUTHOR}
+    </span>
   );
 }
 
@@ -40,14 +37,9 @@ export function InfoButton() {
             <div className="credits-modal-version">Versión {VERSION}</div>
             <div className="credits-modal-by">Creado por</div>
             <div className="credits-modal-author">{AUTHOR}</div>
-            <a
-              className="credits-modal-link"
-              href={URL}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
+            <div className="credits-modal-link">
               {URL}
-            </a>
+            </div>
             <div className="credits-modal-actions">
               <button className="btn" onClick={() => setOpen(false)}>Cerrar</button>
             </div>
@@ -63,9 +55,6 @@ export function CreditsFooter() {
   return (
     <div className="credits-footer">
       <span>Creado por {AUTHOR}</span>
-      <a className="btn ghost sm" href={URL} target="_blank" rel="noopener noreferrer">
-        Visitar web
-      </a>
     </div>
   );
 }

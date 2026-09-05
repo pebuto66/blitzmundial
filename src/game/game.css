@@ -485,13 +485,14 @@ body:has(.app) { overscroll-behavior-y: none; }
   background: transparent;
   border: none;
   box-shadow: none;
-  cursor: pointer;
+  cursor: default;
+  user-select: none;
   transition: opacity 150ms ease;
-  pointer-events: auto;
+  pointer-events: none;
   letter-spacing: 0.02em;
 }
 .credits-link:hover,
-.credits-link:focus-visible { opacity: 1; outline: none; }
+.credits-link:focus-visible { opacity: 0.65; outline: none; }
 @media (max-width: 640px) {
   .credits-link { font-size: 10px; left: 6px; bottom: 4px; }
 }
@@ -569,12 +570,12 @@ body:has(.app) { overscroll-behavior-y: none; }
 .credits-modal-link {
   display: inline-block;
   margin-top: 10px;
-  color: #c9a227;
+  color: #9aa088;
   font-size: 13px;
   text-decoration: none;
-  border-bottom: 1px dotted rgba(201,162,39,0.4);
+  border-bottom: none;
 }
-.credits-modal-link:hover { border-bottom-color: #c9a227; }
+.credits-modal-link:hover { border-bottom: none; }
 .credits-modal-actions { margin-top: 24px; }
 
 .credits-footer {
