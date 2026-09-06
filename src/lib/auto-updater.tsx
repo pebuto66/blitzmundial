@@ -1,5 +1,8 @@
 import { useEffect } from "react";
 
+import { hardReloadWithoutCache, installChunkRecovery } from "./chunk-recovery";
+
+
 // Detecta despliegues nuevos y recarga automáticamente, sin que el usuario
 // tenga que forzar Ctrl+Shift+R.
 //
