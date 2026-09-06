@@ -1,5 +1,8 @@
 import { useEffect } from "react";
 
+import { hardReloadWithoutCache, installChunkRecovery } from "./chunk-recovery";
+
+
 // Detecta despliegues nuevos y recarga automáticamente, sin que el usuario
 // tenga que forzar Ctrl+Shift+R.
 //
@@ -18,6 +21,7 @@ const POLL_MS = 15_000;
 export function AutoUpdater() {
   useEffect(() => {
     if (typeof window === "undefined") return;
+    installChunkRecovery();
     if (!import.meta.env.PROD) return;
 
     let stopped = false;
@@ -28,8 +32,9 @@ export function AutoUpdater() {
       if (reloading) return;
       reloading = true;
       stopped = true;
-      window.location.reload();
+      void hardReloadWithoutCache();
     };
+
 
     // --- Service worker: autoreload al activarse una versión nueva ---
     const sw = navigator.serviceWorker;
