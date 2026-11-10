@@ -795,3 +795,17 @@ body:has(.app) { overscroll-behavior-y: none; }
 }
 .war-notice .wn-hist { margin-bottom: 12px; }
 .war-notice .wn-hist-title { color: #ffd97a; font-weight: 700; margin-bottom: 4px; }
+
+/* Evitar selección de texto, menús de pulsación larga y arrastre de imágenes al jugar en móvil */
+.app, .app * {
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+  -webkit-tap-highlight-color: transparent;
+}
+.app img, .app svg { -webkit-user-drag: none; user-drag: none; }
+.app input, .app textarea, .app [contenteditable="true"] {
+  -webkit-user-select: text;
+  user-select: text;
+  -webkit-touch-callout: default;
+}
