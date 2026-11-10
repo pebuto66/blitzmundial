@@ -50,7 +50,7 @@ function ErrorComponent({ error, reset }: ErrorComponentProps) {
     if (isChunkLoadError(error)) recoverFromChunkError();
   }, [error]);
 
-  const detail = [error.name, error.message].filter(Boolean).join(": ");
+  const detail = [(error as Error).name, (error as Error).message].filter(Boolean).join(": ");
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
